@@ -1,0 +1,7 @@
+import type { Plugin } from "vite";
+import { join } from "node:path";
+import { createWorkspaceStore } from "./workspace-store.js";
+
+const body = (request: NodeJS.ReadableStream) => new Promise<string>((resolve, reject) => { let value = ""; request.on("data", (part) => value += part); request.on("end", () => resolve(value)); request.on("error", reject); });
+const send = (response: any, status: number, value: unknown) => { response.statusCode = status; response.setHeader("Content-Type", "application/json"); response.end(JSON.stringify(value)); };
+export function workspaceRoutes(): Plugin { return { name: "workspace-routes", configureServer(server) { server.middlewares.use(async (request, response, next) => { if (!request.url?.startsWith("/api/workspace")) return next(); const user = (request as any).localUser; if (!user) return send(response, 401, { ok: false, error: "请先登录账户" }); const store = createWorkspaceStore(join(process.cwd(), ".local", "users", user.id, "workspace-data.json")); if (request.url === "/api/workspace" && request.method === "GET") { try { return send(response, 200, { ok: true, data: await store.load() }); } catch (error) { return send(response, 500, { ok: false, error: error instanceof Error ? error.message : "读取失败" }); } } if (request.url === "/api/workspace" && request.method === "PUT") { try { return send(response, 200, { ok: true, data: await store.save(JSON.parse(await body(request))) }); } catch (error) { return send(response, 400, { ok: false, error: error instanceof Error ? error.message : "保存失败" }); } } next(); }); } }; }
