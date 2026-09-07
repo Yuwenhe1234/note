@@ -1,0 +1,17 @@
+
+> agent-note@0.2.0 tauri
+> tauri dev
+
+     Running BeforeDevCommand (`npm run dev -- --host 127.0.0.1 --port 1420 --strictPort`)
+
+> agent-note@0.2.0 dev
+> vite --host 127.0.0.1 --port 1420 --strictPort
+
+
+  VITE v8.2.2  ready in 632 ms
+
+  ➜  Local:   http://127.0.0.1:1420/
+     Running DevCommand (`cargo  run --no-default-features --color always --`)
+        Info Watching D:\桌面\项目\note\src-tauri for changes...
+[1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 1.24s
+[1m[92m     Running[0m `target\debug\app.exe`

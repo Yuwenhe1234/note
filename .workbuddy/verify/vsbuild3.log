@@ -1,0 +1,33 @@
+[7cc8:0001][2026-09-05T17:24:23] Saving the current locale (zh-CN) to user.json.
+[7cc8:0001][2026-09-05T17:24:23] Setting the telemetry services
+[7cc8:0004][2026-09-05T17:24:23] Creating a new telemetry service.
+[7cc8:0001][2026-09-05T17:24:24] Visual Studio Installer Version: 4.9.50+f5edcde383
+[7cc8:0001][2026-09-05T17:24:24] Raw Command line: "C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe" modify --installPath "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools" --add Microsoft.VisualStudio.Workload.VCTools --passive --norestart
+[7cc8:0001][2026-09-05T17:24:24] Parsed command line options: modify --add Microsoft.VisualStudio.Workload.VCTools --installPath "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools" --norestart --passive
+[7cc8:0001][2026-09-05T17:24:24] Using registry value of (0) to theme installer.
+[7cc8:0001][2026-09-05T17:24:24] Getting singleton lock. Mutex name: DevdivInstallerUI
+[7cc8:0001][2026-09-05T17:24:24] Getting singleton lock succeed.
+[7cc8:0004][2026-09-05T17:24:24] Telemetry session ID: cecd5447-4469-4e09-adc0-6376d731c47f
+[7cc8:0005][2026-09-05T17:24:24] Creating new ExperimentationService
+[7cc8:0005][2026-09-05T17:24:24] Telemetry property VS.ABExp.Flights : lazytoolboxinit;fwlargebuffer;refactoring;spmoretempsbtn1;asloff;keybindgoldbarext;asynccsproj;vsfricheditor;completionapi;4f604693:30775293
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.source : WPF
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.locale : zh-CN
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.installerversion : 4.9.50.62957
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.startmethod : direct
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.activityid : e4bf76d6-0cff-40e3-81ec-f500f3d82cc0
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.campaign : 
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.passive : True
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.quiet : False
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.processtype : ui
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.force : False
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.noweb : False
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.iselevated : False
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.issystem : False
+[7cc8:0004][2026-09-05T17:24:24] Telemetry property vs.willow.isadmin : True
+[7cc8:0001][2026-09-05T17:24:24] Monitor center position: 1280, 764
+[7cc8:0001][2026-09-05T17:24:24] Showing the window.
+[7cc8:0001][2026-09-05T17:24:24] Commands with --quiet or --passive should be run elevated from the beginning.
+[7cc8:0001][2026-09-05T17:24:24] Exit Code: 5007
+[7cc8:0001][2026-09-05T17:24:25] Cleared previous session ID.
+[7cc8:0001][2026-09-05T17:24:25] Releasing singleton lock.
+[7cc8:0001][2026-09-05T17:24:25] Releasing singleton lock succeed.

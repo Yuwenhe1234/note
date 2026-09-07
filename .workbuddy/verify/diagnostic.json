@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-09-05T14:45:55.984343",
+  "windows": [],
+  "tauri_powershell_query": "",
+  "tauri_note_tasklist": "信息: 没有运行的任务匹配指定标准。",
+  "verdict": "[!] 没找到 Tauri 主窗口,也没找到组件窗口。Tauri 没在跑 — 请在 PowerShell 执行 npm run tauri dev。",
+  "screenshot_bottomright": "D:\\桌面\\项目\\note\\.workbuddy\\verify\\desktop-bottomright-20260905-144556.png",
+  "screenshot_full": "D:\\桌面\\项目\\note\\.workbuddy\\verify\\desktop-full-20260905-144556.png"
+}

@@ -1,0 +1,18 @@
+﻿检索不到变量“$LASTEXITCODE”，因为未设置该变量。
+所在位置 C:\Users\Yu wenhe\.workbuddy\binaries\node\versions\22.22.2-2\npm.ps1:17 字
+符: 5
++ if ($LASTEXITCODE -ne 0) {
++     ~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (LASTEXITCODE:String) []，Runti 
+   meException
+    + FullyQualifiedErrorId : VariableIsUndefined
+ 
+检索不到变量“$LASTEXITCODE”，因为未设置该变量。
+所在位置 C:\Users\Yu wenhe\.workbuddy\binaries\node\versions\22.22.2-2\npm.ps1:50 字
+符: 6
++ exit $LASTEXITCODE
++      ~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (LASTEXITCODE:String) []，Runti 
+   meException
+    + FullyQualifiedErrorId : VariableIsUndefined
+ 

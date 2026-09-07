@@ -9,9 +9,10 @@ import "./index.css";
 
 function isWidgetWindow(): boolean {
   try {
-    return getCurrentWindow().label === "desktop-widget";
+    return getCurrentWindow().label === "desktop-widget" ||
+      new URLSearchParams(window.location.search).get("window") === "widget";
   } catch {
-    return false;
+    return new URLSearchParams(window.location.search).get("window") === "widget";
   }
 }
 

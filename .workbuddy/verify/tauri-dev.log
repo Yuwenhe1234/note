@@ -1,0 +1,138 @@
+
+> agent-note@0.2.0 tauri
+> tauri dev
+
+     Running BeforeDevCommand (`npm run dev -- --host 127.0.0.1 --port 1420 --strictPort`)
+        Warn Waiting for your frontend dev server to start on http://127.0.0.1:1420/...
+
+> agent-note@0.2.0 dev
+> vite --host 127.0.0.1 --port 1420 --strictPort
+
+
+  [32m[1mVITE[22m v8.2.2[39m  [2mready in [0m[1m6476[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m1420[22m/[39m
+        Warn Waiting for your frontend dev server to start on http://127.0.0.1:1420/...
+     Running DevCommand (`cargo  run --no-default-features --color always --`)
+        Info Watching D:\桌面\项目\note\src-tauri for changes...
+[1m[92m   Compiling[0m proc-macro2 v1.0.107
+[1m[92m   Compiling[0m quote v1.0.47
+[1m[92m   Compiling[0m serde_core v1.0.229
+[1m[92m   Compiling[0m icu_properties_data v2.3.0
+[1m[92m   Compiling[0m icu_normalizer_data v2.3.0
+[1m[92m   Compiling[0m zmij v1.0.23
+[1m[92m   Compiling[0m thiserror v2.0.20
+[1m[92m   Compiling[0m serde v1.0.229
+[1m[92m   Compiling[0m parking_lot_core v0.9.12
+[1m[92m   Compiling[0m typeid v1.0.3
+[1m[92m   Compiling[0m erased-serde v0.4.10
+[1m[92m   Compiling[0m thiserror v1.0.69
+[1m[92m   Compiling[0m unic-ucd-version v0.9.0
+[1m[92m   Compiling[0m unic-char-property v0.9.0
+[1m[92m   Compiling[0m regex-automata v0.4.18
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\erased-serde-1c5c7dbef93775ad\\rustcFszmPn\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\erased-serde-1c5c7dbef93775ad\\build_script_build-1c5c7dbef93775ad.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\typeid-c48bd99a0fcdfd67\\rustc6Ababp\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\typeid-c48bd99a0fcdfd67\\build_script_build-c48bd99a0fcdfd67.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\serde_core-39a8ddc2f5dccb6d\\rustcUWiE8F\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\serde_core-39a8ddc2f5dccb6d\\build_script_build-39a8ddc2f5dccb6d.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\parking_lot_core-4c4187ba98fcf160\\rustcqLHXFu\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\parking_lot_core-4c4187ba98fcf160\\build_script_build-4c4187ba98fcf160.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\quote-bc1a824b6415bb16\\rustcgMPNzx\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\quote-bc1a824b6415bb16\\build_script_build-bc1a824b6415bb16.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\icu_properties_data-45082386a79ebcde\\rustczTrqpY\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\icu_properties_data-45082386a79ebcde\\build_script_build-45082386a79ebcde.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\thiserror-0f6e8b0e9663f653\\rustcH8fHnC\\symbols.o" "<3 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\thiserror-0f6e8b0e9663f653\\build_script_build-0f6e8b0e9663f653.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\icu_normalizer_data-c90282c6b1808d56\\rustcJgEkeO\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\icu_normalizer_data-c90282c6b1808d56\\build_script_build-c90282c6b1808d56.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\serde-74ee0f61cc7b4f35\\rustcbDy32M\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\serde-74ee0f61cc7b4f35\\build_script_build-74ee0f61cc7b4f35.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\zmij-92bf4184b13cab0a\\rustczYZl2M\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\zmij-92bf4184b13cab0a\\build_script_build-92bf4184b13cab0a.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\thiserror-a095c58d268be182\\rustcjr8wiw\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\thiserror-a095c58d268be182\\build_script_build-a095c58d268be182.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\serde_core-f2a4e94b947573f6\\rustcySbA1R\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\serde_core-f2a4e94b947573f6\\build_script_build-f2a4e94b947573f6.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m[1m[97m: linking with `link.exe` failed: exit code: 1104[0m
+  [1m[96m|[0m
+  [1m[96m= [0m[1m[97mnote[0m: "link.exe" "/NOLOGO" "D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\proc-macro2-5a3e6cf60574dd1c\\rustczdPzvC\\symbols.o" "<2 object files omitted>" "<sysroot>\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib/{libstd-*,libpanic_unwind-*,libcfg_if-*,libwindows_link-*,librustc_demangle-*,libstd_detect-*,libhashbrown-*,librustc_std_workspace_alloc-*,libunwind-*,librustc_std_workspace_core-*,liballoc-*,libcore-*,libcompiler_builtins-*}.rlib" "kernel32.lib" "kernel32.lib" "kernel32.lib" "ntdll.lib" "userenv.lib" "ws2_32.lib" "dbghelp.lib" "/defaultlib:msvcrt" "/NXCOMPAT" "/OUT:D:\\桌面\\项目\\note\\src-tauri\\target\\debug\\build\\proc-macro2-5a3e6cf60574dd1c\\build_script_build-5a3e6cf60574dd1c.exe" "/OPT:REF,NOICF" "/DEBUG" "/PDBALTPATH:%_PDB%" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\intrinsic.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\liballoc.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libcore.natvis" "/NATVIS:<sysroot>\\lib\\rustlib\\etc\\libstd.natvis"
+  [1m[96m= [0m[1m[97mnote[0m: some arguments are omitted. use `--verbose` to show all linker arguments
+  [1m[96m= [0m[1m[97mnote[0m: LINK : fatal error LNK1104: 无法打开文件“msvcrt.lib”
+          
+
+[1m[96m    Building[0m [=>                        ] 34/362: proc-ma…                                                            [1m[91merror[0m: could not compile `erased-serde` (build script) due to 1 previous error
+[1m[93mwarning[0m: build failed, waiting for other jobs to finish...
+[1m[96m    Building[0m [=>                        ] 35/362: proc-ma…                                                            [1m[91merror[0m: could not compile `typeid` (build script) due to 1 previous error
+[1m[96m    Building[0m [=>                        ] 36/362: proc-ma…                                                            [1m[91merror[0m: could not compile `icu_normalizer_data` (build script) due to 1 previous error
+[1m[96m    Building[0m [=>                        ] 37/362: proc-ma…                                                            [1m[91merror[0m: could not compile `parking_lot_core` (build script) due to 1 previous error
+[1m[96m    Building[0m [=>                        ] 38/362: proc-ma…                                                            [1m[91merror[0m: could not compile `thiserror` (build script) due to 1 previous error
+[1m[96m    Building[0m [=>                        ] 39/362: proc-ma…                                                            [1m[91merror[0m: could not compile `serde_core` (build script) due to 1 previous error
+[1m[96m    Building[0m [=>                        ] 40/362: proc-ma…                                                            [1m[91merror[0m: could not compile `zmij` (build script) due to 1 previous error
+[1m[96m    Building[0m [=>                        ] 41/362: proc-ma…                                                            [1m[91merror[0m: could not compile `quote` (build script) due to 1 previous error
+[1m[96m    Building[0m [==>                       ] 42/362: proc-ma…                                                            [1m[91merror[0m: could not compile `icu_properties_data` (build script) due to 1 previous error
+[1m[96m    Building[0m [==>                       ] 43/362: proc-ma…                                                            [1m[91merror[0m: could not compile `thiserror` (build script) due to 1 previous error
+[1m[96m    Building[0m [==>                       ] 44/362: proc-ma…                                                            [1m[91merror[0m: could not compile `serde` (build script) due to 1 previous error
+[1m[96m    Building[0m [==>                       ] 45/362: proc-ma…                                                            [1m[91merror[0m: could not compile `serde_core` (build script) due to 1 previous error
+[1m[96m    Building[0m [==>                       ] 46/362: proc-ma…                                                            [1m[91merror[0m: could not compile `proc-macro2` (build script) due to 1 previous error
+[1m[96m    Building[0m [==>                       ] 47/362: unic-uc…[1m[96m    Building[0m [==>                       ] 48/362: unic-ch…[1m[96m    Building[0m [==>                       ] 49/362: regex-a…                                                            

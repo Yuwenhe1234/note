@@ -1,0 +1,10 @@
+﻿=== Tauri 进程探测 ===
+[!] 没找到任何 Tauri 进程。
+[!] 你的 npm run tauri dev 已经退出了,所以根本没进程能开组件窗口。
+
+=== 所有 MainWindowTitle 含'东'字样的进程 ===
+[!] 没有进程标题含'东'字样,确认 Tauri 进程没在跑。
+
+=== 所有进程名(部分) ===
+Memory Compression
+
