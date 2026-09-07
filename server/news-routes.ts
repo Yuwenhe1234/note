@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { createConfigStore } from "./ai-config.js";
 import { collectSourcePage, validatePlatformSourceUrl } from "./news-adapters.js";
 import { refreshNewsSources } from "./news-service.js";
-import type { CollectedContent, RefreshSource } from "./news-types.js";
+import type { CollectedContent, NewsContentBasis, RefreshSource } from "./news-types.js";
 import { createNewsBrowser } from "./news-browser.js";
 
 const configStore = createConfigStore(join(process.cwd(), ".local", "ai-config.json"));
@@ -19,12 +19,14 @@ async function summarize(content: CollectedContent) {
   let lastError: unknown;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      const result = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${config.apiKey}` }, body: JSON.stringify({ model: config.model, temperature: 0.2, messages: [{ role: "system", content: "你是信息摘要助手，只返回严格 JSON：{\"summary\":\"简短摘要\",\"highlights\":[\"重点\"]}，重点 3 到 5 条。" }, { role: "user", content: `标题：${content.title}\n来源：${content.sourceName}\n正文或字幕：${content.transcript || content.text || "无可用正文"}` }] }) });
+      const result = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${config.apiKey}` }, body: JSON.stringify({ model: config.model, temperature: 0.2, messages: [{ role: "system", content: "你是信息摘要助手。只能根据提供的原始内容总结，不得补充、猜测或编造未出现的信息。只返回严格 JSON：{\"summary\":\"一句话总结\",\"coreContent\":[\"核心内容\"],\"highlights\":[\"重点信息\"],\"whyItMatters\":\"值得关注\"}。coreContent 和 highlights 各 3 到 5 条。" }, { role: "user", content: `标题：${content.title}\n来源：${content.sourceName}\n原始内容：${content.transcript || content.text || "无可用正文"}` }] }) });
       if (!result.ok) throw new Error(`模型请求失败 (${result.status})`);
       const payload: any = await result.json();
       const parsed = parseJson(payload.choices?.[0]?.message?.content || "");
-      if (typeof parsed.summary !== "string" || !Array.isArray(parsed.highlights)) throw new Error("AI 摘要格式异常");
-      return { summary: parsed.summary.trim(), highlights: parsed.highlights.filter((entry: unknown) => typeof entry === "string").slice(0, 5) };
+      if (typeof parsed.summary !== "string" || !Array.isArray(parsed.coreContent) || !Array.isArray(parsed.highlights) || typeof parsed.whyItMatters !== "string") throw new Error("AI 摘要格式异常");
+      const strings = (entries: unknown[]) => entries.filter((entry): entry is string => typeof entry === "string" && Boolean(entry.trim())).map((entry) => entry.trim()).slice(0, 5);
+      const contentBasis: NewsContentBasis = content.transcript ? "视频字幕" : content.platform === "website" ? "网页正文" : "视频简介";
+      return { summary: parsed.summary.trim(), coreContent: strings(parsed.coreContent), highlights: strings(parsed.highlights), whyItMatters: parsed.whyItMatters.trim(), contentBasis };
     } catch (error) { lastError = error; }
   }
   throw lastError;

@@ -47,6 +47,29 @@ describe("news refresh service", () => {
     expect(result.sources[0].cursor).toBe("2026-09-05T12:00:00.000Z");
   });
 
+  it("preserves the structured AI summary used by the detail panel", async () => {
+    const result = await refreshNewsSources({
+      sources: [source("structured")], knownKeys: [],
+      collect: async () => [{ id: "video-1", url: "https://example.com/video-1", title: "AI Agent 的最新进展", sourceName: "科技观察站", platform: "website", publishedAt: "2026-09-05T11:00:00Z", text: "正文" }],
+      summarize: async () => ({
+        summary: "一句话总结",
+        coreContent: ["核心一", "核心二"],
+        highlights: ["重点一"],
+        whyItMatters: "值得关注的原因",
+        contentBasis: "网页正文" as const,
+      }),
+      now: () => new Date("2026-09-05T12:00:00Z"),
+    });
+
+    expect(result.items[0]).toMatchObject({
+      summary: "一句话总结",
+      coreContent: ["核心一", "核心二"],
+      highlights: ["重点一"],
+      whyItMatters: "值得关注的原因",
+      contentBasis: "网页正文",
+    });
+  });
+
   it("isolates source failures and does not advance failed cursor", async () => {
     const result = await refreshNewsSources({
       sources: [source("bad"), source("good")], knownKeys: [],

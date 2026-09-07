@@ -22,7 +22,10 @@ export type NewsItem = {
   savedAt: string;
   thumbnailUrl?: string;
   summary: string;
+  coreContent?: string[];
   highlights: string[];
+  whyItMatters?: string;
+  contentBasis?: "视频字幕" | "语音转写" | "视频简介" | "网页正文";
 };
 
 export type NewsRefreshSummary = { added: number; failed: number; loginRequired: number; errors: string[] };

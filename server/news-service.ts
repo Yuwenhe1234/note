@@ -1,7 +1,6 @@
-import type { CollectedContent, CompletedNewsItem, RefreshSource } from "./news-types.js";
+import type { CollectedContent, CompletedNewsItem, NewsSummary, RefreshSource } from "./news-types.js";
 
-type Summary = { summary: string; highlights: string[] };
-type Options = { sources: RefreshSource[]; knownKeys: string[]; collect: (source: RefreshSource) => Promise<CollectedContent[]>; summarize: (content: CollectedContent) => Promise<Summary>; now?: () => Date };
+type Options = { sources: RefreshSource[]; knownKeys: string[]; collect: (source: RefreshSource) => Promise<CollectedContent[]>; summarize: (content: CollectedContent) => Promise<NewsSummary>; now?: () => Date };
 
 const normalized = (value: string) => { const url = new URL(value); url.hash = ""; [...url.searchParams.keys()].filter((key) => key.startsWith("utm_")).forEach((key) => url.searchParams.delete(key)); return url.toString().replace(/\/$/, ""); };
 
@@ -27,7 +26,7 @@ export async function refreshNewsSources({ sources, knownKeys, collect, summariz
         const keys = [content.id, normalized(content.url)];
         const result = await summarize(content);
         keys.forEach((key) => seen.add(key));
-        items.push({ ...content, sourceId: source.id, savedAt: now().toISOString(), summary: result.summary, highlights: result.highlights.slice(0, 5) });
+        items.push({ ...content, sourceId: source.id, savedAt: now().toISOString(), ...result, coreContent: result.coreContent?.slice(0, 5), highlights: result.highlights.slice(0, 5) });
       }
       const refreshedAt = now().toISOString();
       return { ...source, cursor: refreshedAt, lastSuccessfulRefreshAt: refreshedAt };
