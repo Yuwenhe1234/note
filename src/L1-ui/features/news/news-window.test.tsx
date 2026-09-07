@@ -19,7 +19,7 @@ describe("NewsWindow", () => {
     expect(screen.queryByText("www.douyin.com")).not.toBeInTheDocument();
   });
 
-  it("shows compact cards and toggles one structured detail panel", async () => {
+  it("opens structured details in a centered modal and supports every close path", async () => {
     const refresh = vi.fn().mockResolvedValue({ items: [
       { id: "n1", sourceId: "s1", platform: "website", title: "新视频", url: "https://example.com/new", sourceName: "Example", publishedAt: "2026-09-05T12:00:00Z", savedAt: "2026-09-05T12:01:00Z", summary: "Agent 能够拆分复杂任务", coreContent: ["核心一", "核心二"], highlights: ["重点一", "重点二"], whyItMatters: "值得关注的原因", contentBasis: "网页正文" },
       { id: "n2", sourceId: "s1", platform: "website", title: "第二个视频", url: "https://example.com/second", sourceName: "Another", publishedAt: "2026-09-05T13:00:00Z", savedAt: "2026-09-05T13:01:00Z", summary: "第二条总结", highlights: ["第二条重点"] },
@@ -35,20 +35,44 @@ describe("NewsWindow", () => {
     expect(screen.queryByText("Agent 能够拆分复杂任务")).not.toBeInTheDocument();
 
     fireEvent.click(firstCard);
-    const detail = screen.getByRole("region", { name: "消息详情" });
+    const detail = screen.getByRole("dialog", { name: "新视频" });
+    const closeButton = screen.getByRole("button", { name: "关闭消息详情" });
+    expect(detail).toHaveAttribute("aria-modal", "true");
+    expect(closeButton).toHaveFocus();
+    expect(document.body).toHaveClass("news-modal-open");
     expect(detail).toHaveTextContent("Agent 能够拆分复杂任务");
     expect(detail).toHaveTextContent("核心内容");
     expect(detail).toHaveTextContent("值得关注的原因");
     expect(detail).toHaveTextContent("内容依据：网页正文");
     expect(within(detail).getByRole("link", { name: "查看原内容" })).toHaveAttribute("href", "https://example.com/new");
-    expect(firstCard).toHaveClass("is-active");
+
+    fireEvent.click(closeButton);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(firstCard).toHaveFocus();
+    expect(document.body).not.toHaveClass("news-modal-open");
 
     fireEvent.click(secondCard);
-    expect(screen.getByRole("region", { name: "消息详情" })).toHaveTextContent("第二条总结");
-    expect(screen.queryByText("Agent 能够拆分复杂任务")).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "第二个视频" })).toHaveTextContent("第二条总结");
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    fireEvent.click(secondCard);
-    expect(screen.queryByRole("region", { name: "消息详情" })).not.toBeInTheDocument();
+    fireEvent.click(firstCard);
+    const overlay = screen.getByTestId("news-detail-overlay");
+    fireEvent.mouseDown(screen.getByRole("dialog", { name: "新视频" }));
+    expect(screen.getByRole("dialog", { name: "新视频" })).toBeInTheDocument();
+    fireEvent.mouseDown(overlay);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps only four source cards visible before internal scrolling", () => {
+    render(<NewsWindow />);
+    for (let index = 1; index <= 5; index += 1) {
+      fireEvent.change(screen.getByLabelText("订阅链接"), { target: { value: `https://source-${index}.example.com/feed` } });
+      fireEvent.click(screen.getByRole("button", { name: "添加来源" }));
+    }
+    const list = screen.getByRole("list", { name: "订阅来源列表" });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(5);
+    expect(list).toHaveClass("news-source-scroll");
   });
 
   it("keeps successful sources visible when another source fails", async () => {

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ExternalLink, LogIn, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ExternalLink, LogIn, Plus, RefreshCw, Trash2, X } from "lucide-react";
 import { createNewsRepository } from "../../../L4-data/news-repository";
 import type { NewsSource } from "../../../L4-data/news-model";
 import { openNewsLogin, refreshNews, type NewsRefreshResponse } from "./news-client";
@@ -11,8 +11,19 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
   const [refreshing, setRefreshing] = useState(false);
   const [notice, setNotice] = useState("");
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const triggerCardRef = useRef<HTMLButtonElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const sortedItems = useMemo(() => state.items.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)), [state.items]);
   const selectedItem = sortedItems.find((item) => `${item.sourceId}-${item.id}` === selectedItemId);
+  const closeDetail = () => { setSelectedItemId(null); triggerCardRef.current?.focus(); };
+  useEffect(() => {
+    if (!selectedItemId) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") closeDetail(); };
+    document.body.classList.add("news-modal-open");
+    document.addEventListener("keydown", closeOnEscape);
+    closeButtonRef.current?.focus();
+    return () => { document.body.classList.remove("news-modal-open"); document.removeEventListener("keydown", closeOnEscape); };
+  }, [selectedItemId]);
   const reload = () => setState(repo.load());
   const add = () => { try { if (!url.trim()) return; repo.addSource(url.trim()); setUrl(""); setNotice(""); reload(); } catch (error) { setNotice(error instanceof Error ? error.message : "请输入有效的 HTTP 或 HTTPS 链接"); } };
   const runRefresh = async () => {
@@ -33,7 +44,7 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
     <div className="news-layout">
       <div className="news-sidebar" data-testid="news-sidebar">
         <aside className="news-sources"><h2>订阅来源</h2><label><span>订阅链接</span><input aria-label="订阅链接" value={url} onChange={(event) => setUrl(event.target.value)} onKeyDown={(event) => event.key === "Enter" && add()} placeholder="粘贴账号主页或网站链接" /></label><button className="news-add" onClick={add}><Plus />添加来源</button>
-          <div className="news-source-list">{state.sources.map((source) => <article key={source.id}><div><strong>{source.name}</strong><span>{source.platform} · {source.loginStatus === "required" ? "需要重新登录" : "已订阅"}</span></div>{source.platform !== "website" && <button aria-label={`登录 ${source.name}`} onClick={async () => { try { await loginRequest(source.url); repo.updateSource(source.id, { loginStatus: "connected" }); setNotice("已打开 Edge 登录窗口，完成登录后再点击刷新"); reload(); } catch (error) { setNotice(error instanceof Error ? error.message : "登录窗口打开失败"); } }}><LogIn /></button>}<button aria-label={`删除 ${source.name}`} onClick={() => { repo.removeSource(source.id); reload(); }}><Trash2 /></button></article>)}</div>
+          <div className="news-source-list news-source-scroll" role="list" aria-label="订阅来源列表">{state.sources.map((source) => <article role="listitem" key={source.id}><div><strong>{source.name}</strong><span>{source.platform} · {source.loginStatus === "required" ? "需要重新登录" : "已订阅"}</span></div>{source.platform !== "website" && <button aria-label={`登录 ${source.name}`} onClick={async () => { try { await loginRequest(source.url); repo.updateSource(source.id, { loginStatus: "connected" }); setNotice("已打开 Edge 登录窗口，完成登录后再点击刷新"); reload(); } catch (error) { setNotice(error instanceof Error ? error.message : "登录窗口打开失败"); } }}><LogIn /></button>}<button aria-label={`删除 ${source.name}`} onClick={() => { repo.removeSource(source.id); reload(); }}><Trash2 /></button></article>)}</div>
         </aside>
         <button className="news-refresh" onClick={runRefresh} disabled={refreshing}><RefreshCw aria-hidden="true" />{refreshing ? "刷新中…" : "刷新"}</button>
       </div>
@@ -44,22 +55,25 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
             <div className="news-card-grid">{sortedItems.map((item) => {
               const itemKey = `${item.sourceId}-${item.id}`;
               const active = selectedItemId === itemKey;
-              return <button className={`news-card${active ? " is-active" : ""}`} key={itemKey} aria-label={`${item.sourceName}：${item.title}`} aria-expanded={active} onClick={() => setSelectedItemId(active ? null : itemKey)}>
+              return <button className="news-card" key={itemKey} aria-label={`${item.sourceName}：${item.title}`} aria-expanded={active} onClick={(event) => { triggerCardRef.current = event.currentTarget; setSelectedItemId(itemKey); }}>
                 <strong>{item.sourceName}</strong><span>{item.title}</span>
               </button>;
             })}</div>
           </div>
-          {selectedItem && <section className="news-detail" role="region" aria-label="消息详情">
-            <div className="news-detail-heading"><small>UP 主</small><strong>{selectedItem.sourceName}</strong><small>视频标题</small><h2>{selectedItem.title}</h2></div>
-            <div><h3>一句话总结</h3><p>{selectedItem.summary}</p></div>
-            <div><h3>核心内容</h3><ol>{(selectedItem.coreContent?.length ? selectedItem.coreContent : [selectedItem.summary]).map((entry) => <li key={entry}>{entry}</li>)}</ol></div>
-            <div><h3>重点信息</h3><ul>{selectedItem.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}</ul></div>
-            {selectedItem.whyItMatters && <div><h3>值得关注</h3><p>{selectedItem.whyItMatters}</p></div>}
-            <div className="news-detail-meta"><h3>内容依据</h3><p>根据爬取到的视频简介、字幕或正文生成。未在原始内容中出现的信息不得补充或推测。</p><small>内容依据：{selectedItem.contentBasis || (selectedItem.platform === "website" ? "网页正文" : "视频简介")}</small><time dateTime={selectedItem.publishedAt}>发布时间：{new Date(selectedItem.publishedAt).toLocaleString("zh-CN")}</time></div>
-            <a href={selectedItem.url} target="_blank" rel="noreferrer">查看原内容 <ExternalLink /></a>
-          </section>}
         </>}
       </section>
     </div>
+    {selectedItem && <div className="news-detail-overlay" data-testid="news-detail-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closeDetail(); }}>
+      <section className="news-detail-modal" role="dialog" aria-modal="true" aria-labelledby="news-detail-title">
+        <button ref={closeButtonRef} className="news-detail-close" aria-label="关闭消息详情" onClick={closeDetail}><X /></button>
+        <div className="news-detail-heading"><small>UP 主</small><strong>{selectedItem.sourceName}</strong><small>视频标题</small><h2 id="news-detail-title">{selectedItem.title}</h2></div>
+        <div><h3>一句话总结</h3><p>{selectedItem.summary}</p></div>
+        <div><h3>核心内容</h3><ol>{(selectedItem.coreContent?.length ? selectedItem.coreContent : [selectedItem.summary]).map((entry) => <li key={entry}>{entry}</li>)}</ol></div>
+        <div><h3>重点信息</h3><ul>{selectedItem.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}</ul></div>
+        {selectedItem.whyItMatters && <div><h3>值得关注</h3><p>{selectedItem.whyItMatters}</p></div>}
+        <div className="news-detail-meta"><h3>内容依据</h3><p>根据爬取到的视频简介、字幕或正文生成。未在原始内容中出现的信息不得补充或推测。</p><small>内容依据：{selectedItem.contentBasis || (selectedItem.platform === "website" ? "网页正文" : "视频简介")}</small><time dateTime={selectedItem.publishedAt}>发布时间：{new Date(selectedItem.publishedAt).toLocaleString("zh-CN")}</time></div>
+        <a href={selectedItem.url} target="_blank" rel="noreferrer">查看原内容 <ExternalLink /></a>
+      </section>
+    </div>}
   </section>;
 }
