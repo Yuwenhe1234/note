@@ -320,7 +320,13 @@ describe("application shell", () => {
     expect(screen.getByText("喝水")).toBeInTheDocument();
     expect(reminderToast).toBeInTheDocument();
     expect(reminderDialog).toBeInTheDocument();
-    expect(window.getComputedStyle(reminderToast!).pointerEvents).toBe("none");
+    const toastStyles = window.getComputedStyle(reminderToast!);
+    expect(toastStyles.position).toBe("fixed");
+    expect(toastStyles.top).toBe("24px");
+    expect(toastStyles.left).toBe("24px");
+    expect(toastStyles.inset).not.toBe("0px");
+    expect(Number.parseFloat(toastStyles.width)).toBeLessThan(window.innerWidth);
+    expect(toastStyles.pointerEvents).toBe("none");
     expect(window.getComputedStyle(reminderDialog!).pointerEvents).toBe("auto");
     expect(document.querySelector(".reminder-overlay")).not.toBeInTheDocument();
     expect(notification).not.toHaveBeenCalled();
