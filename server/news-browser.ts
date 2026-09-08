@@ -53,10 +53,36 @@ export function createNewsBrowser({ launchPersistentContext = chromium.launchPer
       const browser = await context("background");
       const page = await browser.newPage();
       try {
+        const douyinPayloads: unknown[] = [];
+        const bilibiliPayloads: unknown[] = [];
+        const responseTasks: Promise<void>[] = [];
+        const isDouyinProfile = new URL(url).hostname.endsWith("douyin.com") && new URL(url).pathname.startsWith("/user/");
+        const isPostResponse = (response: any) => { try { return new URL(response.url()).pathname === "/aweme/v1/web/aweme/post/" && response.status() === 200; } catch { return false; } };
+        const captureDouyinPayload = (response: any) => response.json().then((payload: unknown) => { douyinPayloads.push(payload); }).catch(() => undefined);
+        page.on?.("response", (response) => {
+          if (isPostResponse(response)) { responseTasks.push(captureDouyinPayload(response)); return; }
+          try { if (new URL(response.url()).pathname === "/x/space/wbi/arc/search" && response.status() === 200) responseTasks.push(response.json().then((payload: unknown) => { bilibiliPayloads.push(payload); }).catch(() => undefined)); } catch { /* ignore unrelated responses */ }
+        });
+        const awaitedDouyinPosts = isDouyinProfile
+          ? page.waitForResponse?.(isPostResponse, { timeout: 8_000 }).then(captureDouyinPayload).catch(() => undefined)
+          : undefined;
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
         await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
         await page.waitForTimeout?.(1_500);
-        return await page.content();
+        await awaitedDouyinPosts;
+        await Promise.all(responseTasks);
+        if (isDouyinProfile && douyinPayloads.length === 0 && page.reload) {
+          const retryResponse = page.waitForResponse?.(isPostResponse, { timeout: 8_000 }).then(captureDouyinPayload).catch(() => undefined);
+          await page.reload({ waitUntil: "domcontentloaded", timeout: 30_000 });
+          await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+          await page.waitForTimeout?.(1_500);
+          await retryResponse;
+          await Promise.all(responseTasks);
+        }
+        const html = await page.content();
+        const captured = douyinPayloads.map((payload) => `<script type="application/json" data-memo-douyin-posts>${JSON.stringify(payload).replace(/</g, "\\u003c")}</script>`).join("");
+        const bilibiliCaptured = bilibiliPayloads.map((payload) => `<script type="application/json" data-memo-bilibili-posts>${JSON.stringify(payload).replace(/</g, "\\u003c")}</script>`).join("");
+        return `${html}${captured}${bilibiliCaptured}`;
       } finally {
         await page.close?.();
       }

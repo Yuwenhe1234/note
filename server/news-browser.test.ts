@@ -13,6 +13,43 @@ describe("persistent news browser", () => {
     expect(launch).toHaveBeenCalledWith("D:/profile", expect.objectContaining({ channel: "msedge", headless: true }));
   });
 
+  it("embeds captured Douyin post API data into the rendered result", async () => {
+    let responseHandler: ((response: any) => void) | undefined;
+    const page = {
+      goto: vi.fn(), waitForLoadState: vi.fn().mockResolvedValue(undefined), waitForTimeout: vi.fn(), close: vi.fn(),
+      content: vi.fn().mockResolvedValue("<html></html>"),
+      on: vi.fn((event: string, handler: (response: any) => void) => { if (event === "response") responseHandler = handler; }),
+    };
+    page.goto.mockImplementation(async () => {
+      responseHandler?.({ url: () => "https://www.douyin.com/aweme/v1/web/aweme/post/?sec_user_id=abc", status: () => 200, json: vi.fn().mockResolvedValue({ aweme_list: [{ aweme_id: "7682720407166959025", desc: "新作品" }] }) });
+    });
+    const context = { newPage: vi.fn().mockResolvedValue(page), pages: vi.fn().mockReturnValue([]), on: vi.fn(), close: vi.fn() };
+    const browser = createNewsBrowser({ launchPersistentContext: vi.fn().mockResolvedValue(context) as any, profileDir: "D:/profile" });
+
+    const html = await browser.render("https://www.douyin.com/user/abc");
+
+    expect(html).toContain("data-memo-douyin-posts");
+    expect(html).toContain("7682720407166959025");
+  });
+
+  it("reloads a Douyin profile once when the post API is missing on first navigation", async () => {
+    let responseHandler: ((response: any) => void) | undefined;
+    const response = { url: () => "https://www.douyin.com/aweme/v1/web/aweme/post/", status: () => 200, json: vi.fn().mockResolvedValue({ aweme_list: [{ aweme_id: "7682720407166959025" }] }) };
+    const page = {
+      goto: vi.fn(), reload: vi.fn().mockImplementation(async () => { responseHandler?.(response); }),
+      waitForLoadState: vi.fn().mockResolvedValue(undefined), waitForTimeout: vi.fn(), close: vi.fn(),
+      content: vi.fn().mockResolvedValue("<html></html>"),
+      on: vi.fn((event: string, handler: (value: any) => void) => { if (event === "response") responseHandler = handler; }),
+    };
+    const context = { newPage: vi.fn().mockResolvedValue(page), pages: vi.fn().mockReturnValue([]), on: vi.fn(), close: vi.fn() };
+    const browser = createNewsBrowser({ launchPersistentContext: vi.fn().mockResolvedValue(context) as any, profileDir: "D:/profile" });
+
+    const html = await browser.render("https://www.douyin.com/user/abc");
+
+    expect(page.reload).toHaveBeenCalledOnce();
+    expect(html).toContain("7682720407166959025");
+  });
+
   it("opens an official login page without exposing cookies", async () => {
     const page = { goto: vi.fn(), bringToFront: vi.fn() };
     const context = { newPage: vi.fn().mockResolvedValue(page), pages: vi.fn().mockReturnValue([]), close: vi.fn() };

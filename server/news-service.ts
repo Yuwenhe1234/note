@@ -11,17 +11,11 @@ export async function refreshNewsSources({ sources, knownKeys, collect, summariz
   const refreshed = await Promise.all(sources.map(async (source) => {
     try {
       const found = await collect(source);
-      const sourceSeen = new Set<string>();
-      const available = found.filter((content) => {
-        const keys = [content.id, normalized(content.url)];
-        if (keys.some((key) => seen.has(key) || sourceSeen.has(key))) return false;
-        keys.forEach((key) => sourceSeen.add(key));
-        return true;
-      });
-      const cutoff = source.lastSuccessfulRefreshAt || source.cursor;
-      const eligible = cutoff
-        ? available.filter((content) => new Date(content.publishedAt).getTime() > new Date(cutoff).getTime())
-        : available.slice().sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()).slice(0, 1);
+      const newestFirst = found.slice().sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+      const newest = newestFirst[0];
+      const newestTime = newest ? new Date(newest.publishedAt).getTime() : NaN;
+      const candidate = newest ? newestFirst.filter((content) => new Date(content.publishedAt).getTime() === newestTime).find((content) => ![content.id, normalized(content.url)].some((key) => seen.has(key))) : undefined;
+      const eligible = candidate ? [candidate] : [];
       for (const content of eligible) {
         const keys = [content.id, normalized(content.url)];
         const result = await summarize(content);

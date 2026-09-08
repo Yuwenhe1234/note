@@ -1,6 +1,6 @@
-import { detectNewsPlatform, isExpiredNewsItem, normalizeContentUrl, validateNewsSourceUrl, type NewsItem, type NewsSource } from "./news-model";
+import { detectNewsPlatform, isExpiredNewsItem, normalizeContentUrl, normalizeRefreshSchedule, normalizeSourceProfile, validateNewsSourceUrl, type NewsItem, type NewsRefreshSchedule, type NewsSource, type NewsSourceProfile } from "./news-model";
 
-type NewsState = { version: 1; sources: NewsSource[]; items: NewsItem[]; fingerprints: string[] };
+type NewsState = { version: 1; sources: NewsSource[]; items: NewsItem[]; fingerprints: string[]; schedule?: NewsRefreshSchedule };
 const KEY = "memo-agent-news-v1";
 const empty = (): NewsState => ({ version: 1, sources: [], items: [], fingerprints: [] });
 
@@ -16,6 +16,8 @@ export function createNewsRepository(storage: Storage, now: () => Date = () => n
   const save = (state: NewsState) => storage.setItem(KEY, JSON.stringify(state));
   return {
     load,
+    getSchedule: () => normalizeRefreshSchedule(load().schedule || {}),
+    saveSchedule(schedule: Partial<NewsRefreshSchedule>) { const state = load(); save({ ...state, schedule: normalizeRefreshSchedule(schedule) }); },
     addSource(urlValue: string, name?: string): NewsSource {
       validateNewsSourceUrl(urlValue);
       const url = normalizeContentUrl(urlValue);
@@ -23,11 +25,13 @@ export function createNewsRepository(storage: Storage, now: () => Date = () => n
       const existing = state.sources.find((source) => source.url === url);
       if (existing) return existing;
       const source: NewsSource = { id: crypto.randomUUID(), url, name: name?.trim() || new URL(url).hostname, platform: detectNewsPlatform(url), subscribedAt: now().toISOString(), loginStatus: "unknown" };
-      save({ ...state, sources: [...state.sources, source] });
+      save({ ...state, sources: [source, ...state.sources] });
       return source;
     },
     removeSource(id: string) { const state = load(); save({ ...state, sources: state.sources.filter((source) => source.id !== id), items: state.items.filter((item) => item.sourceId !== id) }); },
     updateSource(id: string, patch: Partial<NewsSource>) { const state = load(); save({ ...state, sources: state.sources.map((source) => source.id === id ? { ...source, ...patch, id: source.id } : source) }); },
+    updateSourceProfile(id: string, profile: NewsSourceProfile) { const state = load(); const normalized = normalizeSourceProfile(profile); save({ ...state, sources: state.sources.map((source) => source.id === id ? { ...source, ...normalized, profileEdited: true } : source) }); },
+    applyExtractedProfile(id: string, profile: NewsSourceProfile) { const state = load(); const normalized = normalizeSourceProfile(profile); save({ ...state, sources: state.sources.map((source) => source.id === id && !source.profileEdited ? { ...source, ...normalized } : source) }); },
     mergeItems(incoming: NewsItem[]) {
       const state = load();
       const seen = new Set([...state.fingerprints, ...state.items.flatMap((entry) => [entry.id, normalizeContentUrl(entry.url)])]);
@@ -40,6 +44,16 @@ export function createNewsRepository(storage: Storage, now: () => Date = () => n
       save({ ...state, items: [...added, ...state.items], fingerprints: [...seen] });
       return added.length;
     },
+    replaceLatestItems(incoming: NewsItem[]) {
+      const state = load();
+      const newest = new Map<string, NewsItem>();
+      incoming.forEach((entry) => { const current = newest.get(entry.sourceId); if (!current || entry.publishedAt > current.publishedAt) newest.set(entry.sourceId, entry); });
+      const replaceIds = new Set(newest.keys());
+      const items = [...state.items.filter((entry) => !replaceIds.has(entry.sourceId)), ...newest.values()];
+      save({ ...state, items });
+      return newest.size;
+    },
+    removeItemsForSources(sourceIds: string[]) { const ids = new Set(sourceIds); const state = load(); save({ ...state, items: state.items.filter((item) => !ids.has(item.sourceId)) }); },
     cleanup(at = now()) { const state = load(); const items = state.items.filter((entry) => !isExpiredNewsItem(entry.savedAt, at)); save({ ...state, items }); return state.items.length - items.length; },
   };
 }

@@ -28,7 +28,37 @@ describe("news refresh service", () => {
       summarize: async () => ({ summary: "总结", highlights: ["重点"] }),
       now: () => new Date("2026-09-05T12:00:00Z"),
     });
-    expect(result.items.map((item) => item.id).sort()).toEqual(["new-1", "new-2"]);
+    expect(result.items.map((item) => item.id)).toEqual(["new-2"]);
+  });
+
+  it("recovers an unknown newest dynamic post when a failed collector already advanced the cursor", async () => {
+    const result = await refreshNewsSources({
+      sources: [{ ...source("self", "https://www.douyin.com/user/self"), platform: "douyin", cursor: "2026-09-07T10:00:00Z" }],
+      knownKeys: [],
+      collect: async () => [
+        { id: "latest-real-post", url: "https://www.douyin.com/video/latest-real-post", title: "latest", sourceName: "self", platform: "douyin", publishedAt: "2026-09-07T09:18:58Z", text: "new" },
+        { id: "history", url: "https://www.douyin.com/video/history", title: "history", sourceName: "self", platform: "douyin", publishedAt: "2026-09-01T09:00:00Z", text: "old" },
+      ],
+      summarize: async () => ({ summary: "总结", highlights: ["重点"] }),
+      now: () => new Date("2026-09-07T10:30:00Z"),
+    });
+
+    expect(result.items.map((item) => item.id)).toEqual(["latest-real-post"]);
+  });
+
+  it("does not import dynamic history when the newest post is already known", async () => {
+    const result = await refreshNewsSources({
+      sources: [{ ...source("self", "https://www.douyin.com/user/self"), platform: "douyin", cursor: "2026-09-07T10:00:00Z" }],
+      knownKeys: ["latest-real-post"],
+      collect: async () => [
+        { id: "latest-real-post", url: "https://www.douyin.com/video/latest-real-post", title: "latest", sourceName: "self", platform: "douyin", publishedAt: "2026-09-07T09:18:58Z", text: "new" },
+        { id: "history", url: "https://www.douyin.com/video/history", title: "history", sourceName: "self", platform: "douyin", publishedAt: "2026-09-01T09:00:00Z", text: "old" },
+      ],
+      summarize: async () => ({ summary: "总结", highlights: ["重点"] }),
+      now: () => new Date("2026-09-07T10:30:00Z"),
+    });
+
+    expect(result.items).toEqual([]);
   });
 
   it("filters old and duplicate content and returns complete summaries", async () => {

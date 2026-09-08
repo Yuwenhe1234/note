@@ -40,4 +40,14 @@ describe("news repository", () => {
     localStorage.setItem("memo-agent-news-v1", JSON.stringify({ version: 1, sources: [{ id: "bad", url: "https://www.douyin.com/", name: "douyin", platform: "douyin", subscribedAt: "2026-09-05T00:00:00Z", loginStatus: "unknown" }], items: [], fingerprints: [] }));
     expect(createNewsRepository(localStorage).load().sources).toEqual([]);
   });
+
+  it("keeps one latest item per source and preserves manual source profiles", () => {
+    const repo = createNewsRepository(localStorage);
+    const source = repo.addSource("https://example.com/feed");
+    repo.updateSourceProfile(source.id, { displayName: "FIAT-凡", profileDescription: "AI / 编程工具与效率提升", tags: ["AI工具", "编程", "多余"] });
+    repo.replaceLatestItems([{ ...item("old"), sourceId: source.id }, { ...item("new", "2026-09-06T00:00:00Z"), sourceId: source.id }]);
+    expect(repo.load().sources[0]).toMatchObject({ displayName: "FIAT-凡", tags: ["AI工具", "编程"], profileEdited: true });
+    expect(repo.load().items).toHaveLength(1);
+    expect(repo.load().items[0].id).toBe("new");
+  });
 });

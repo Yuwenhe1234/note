@@ -22,7 +22,7 @@ describe("NewsWindow", () => {
   it("opens structured details in a centered modal and supports every close path", async () => {
     const refresh = vi.fn().mockResolvedValue({ items: [
       { id: "n1", sourceId: "s1", platform: "website", title: "新视频", url: "https://example.com/new", sourceName: "Example", publishedAt: "2026-09-05T12:00:00Z", savedAt: "2026-09-05T12:01:00Z", summary: "Agent 能够拆分复杂任务", coreContent: ["核心一", "核心二"], highlights: ["重点一", "重点二"], whyItMatters: "值得关注的原因", contentBasis: "网页正文" },
-      { id: "n2", sourceId: "s1", platform: "website", title: "第二个视频", url: "https://example.com/second", sourceName: "Another", publishedAt: "2026-09-05T13:00:00Z", savedAt: "2026-09-05T13:01:00Z", summary: "第二条总结", highlights: ["第二条重点"] },
+      { id: "n2", sourceId: "s2", platform: "website", title: "第二个视频", url: "https://example.com/second", sourceName: "Another", publishedAt: "2026-09-05T13:00:00Z", savedAt: "2026-09-05T13:01:00Z", summary: "第二条总结", highlights: ["第二条重点"] },
     ], sources: [], errors: [] });
     render(<NewsWindow refreshRequest={refresh} initialSourceUrl="https://example.com/feed" />);
     const sidebar = screen.getByTestId("news-sidebar");

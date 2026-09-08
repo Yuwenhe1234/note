@@ -9,6 +9,10 @@ export type NewsSource = {
   lastSuccessfulRefreshAt?: string;
   cursor?: string;
   loginStatus: "unknown" | "connected" | "required";
+  displayName?: string;
+  profileDescription?: string;
+  tags?: string[];
+  profileEdited?: boolean;
 };
 
 export type NewsItem = {
@@ -29,6 +33,19 @@ export type NewsItem = {
 };
 
 export type NewsRefreshSummary = { added: number; failed: number; loginRequired: number; errors: string[] };
+
+export type NewsSourceProfile = Pick<NewsSource, "displayName" | "profileDescription" | "tags">;
+export type NewsRefreshSchedule = { enabled: boolean; times: string[]; lastTriggeredMinute?: string; lastCompletedAt?: string };
+export function normalizeRefreshSchedule(schedule: Partial<NewsRefreshSchedule>): NewsRefreshSchedule {
+  const times = [...new Set((schedule.times || []).filter((value) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value)))].sort().slice(0, 3);
+  return { enabled: Boolean(schedule.enabled) && times.length > 0, times, ...(schedule.lastTriggeredMinute ? { lastTriggeredMinute: schedule.lastTriggeredMinute } : {}), ...(schedule.lastCompletedAt ? { lastCompletedAt: schedule.lastCompletedAt } : {}) };
+}
+export function normalizeSourceProfile(profile: NewsSourceProfile): NewsSourceProfile {
+  const displayName = profile.displayName?.trim().slice(0, 40) || undefined;
+  const profileDescription = profile.profileDescription?.trim().slice(0, 25) || undefined;
+  const tags = [...new Set((profile.tags || []).map((tag) => tag.trim()).filter(Boolean))].slice(0, 2);
+  return { ...(displayName ? { displayName } : {}), ...(profileDescription ? { profileDescription } : {}), ...(tags.length ? { tags } : {}) };
+}
 
 export function detectNewsPlatform(value: string): NewsPlatform {
   const host = new URL(value).hostname.toLowerCase();

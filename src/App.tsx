@@ -41,6 +41,9 @@ import {
   normalizeWidgetSettings,
 } from "./L1-ui/features/desktop/widget-model";
 import { NewsWindow } from "./L1-ui/features/news/news-window";
+import { refreshNews } from "./L1-ui/features/news/news-client";
+import { createNewsRepository } from "./L4-data/news-repository";
+import { createNewsRefreshScheduler } from "./L5-services/news-refresh-scheduler";
 import { CompanionWindow } from "./L1-ui/features/companion/companion-window";
 import { PluginCenterWindow } from "./L1-ui/features/plugins/plugin-center-window";
 import { PageBackButton } from "./L1-ui/components/page-back-button";
@@ -111,6 +114,23 @@ export default function App() {
   const voiceRecognitionRef = useRef<any>(null);
   const voiceTranscriptRef = useRef("");
   const voiceCancelledRef = useRef(false);
+  useEffect(() => {
+    const repo = createNewsRepository(localStorage);
+    const scheduler = createNewsRefreshScheduler({
+      load: repo.getSchedule,
+      save: repo.saveSchedule,
+      refresh: async () => {
+        const state = repo.load();
+        if (!state.sources.length) return;
+        const result = await refreshNews(state.sources, state.items.flatMap((item) => [item.id, item.url]));
+        repo.replaceLatestItems(result.items);
+        result.sources.forEach((source) => repo.updateSource(source.id, { cursor: source.cursor, lastSuccessfulRefreshAt: source.lastSuccessfulRefreshAt || source.cursor }));
+        repo.removeItemsForSources(result.errors.map((error) => error.sourceId));
+      },
+    });
+    const timer = scheduler.start();
+    return () => clearInterval(timer);
+  }, []);
   useEffect(() => {
     loadWorkspace().then((data) => {
       if (data) { setTasks(data.tasks.map((task) => migrateTask(task))); setTodayTodos(data.todayTodos); setWorkspaceRevision(data.revision); applyEditableText(data.editableText); setSiteName(data.editableText.siteName); setSiteNameDraft(data.editableText.siteName); setDesktopWidget(normalizeWidgetSettings(data.desktopWidget)); }
