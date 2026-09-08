@@ -312,9 +312,16 @@ describe("application shell", () => {
     await act(async () => {});
     act(() => vi.advanceTimersByTime(60_000));
 
-    expect(screen.getByRole("heading", { name: "待办提醒" })).toBeInTheDocument();
+    const reminderHeading = screen.getByRole("heading", { name: "待办提醒" });
+    const reminderToast = reminderHeading.closest(".reminder-toast");
+    const reminderDialog = reminderHeading.closest(".reminder-dialog");
+
+    expect(reminderHeading).toBeInTheDocument();
     expect(screen.getByText("喝水")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "待办提醒" }).closest(".reminder-toast")).toBeInTheDocument();
+    expect(reminderToast).toBeInTheDocument();
+    expect(reminderDialog).toBeInTheDocument();
+    expect(window.getComputedStyle(reminderToast!).pointerEvents).toBe("none");
+    expect(window.getComputedStyle(reminderDialog!).pointerEvents).toBe("auto");
     expect(document.querySelector(".reminder-overlay")).not.toBeInTheDocument();
     expect(notification).not.toHaveBeenCalled();
   });
