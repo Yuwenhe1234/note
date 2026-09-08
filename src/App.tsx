@@ -44,6 +44,7 @@ import { NewsWindow } from "./L1-ui/features/news/news-window";
 import { refreshNews } from "./L1-ui/features/news/news-client";
 import { createNewsRepository } from "./L4-data/news-repository";
 import { createNewsRefreshScheduler } from "./L5-services/news-refresh-scheduler";
+import { createTodoReminderScheduler } from "./L5-services/todo-reminder-scheduler";
 import { CompanionWindow } from "./L1-ui/features/companion/companion-window";
 import { PluginCenterWindow } from "./L1-ui/features/plugins/plugin-center-window";
 import { PageBackButton } from "./L1-ui/components/page-back-button";
@@ -114,6 +115,8 @@ export default function App() {
   const voiceRecognitionRef = useRef<any>(null);
   const voiceTranscriptRef = useRef("");
   const voiceCancelledRef = useRef(false);
+  const reminderSchedulerRef = useRef<ReturnType<typeof createTodoReminderScheduler> | null>(null);
+  const reminderQueueRef = useRef<TodayTodo[]>([]);
   useEffect(() => {
     const repo = createNewsRepository(localStorage);
     const scheduler = createNewsRefreshScheduler({
@@ -154,17 +157,30 @@ export default function App() {
   }, []);
   useEffect(() => localStorage.setItem("memo-agent-today-todos", JSON.stringify(todayTodos)), [todayTodos]);
   useEffect(() => {
-    const timers = todayTodos.filter((todo) => todo.reminderTime && !todo.completed).map((todo) => {
-      const [hours, minutes] = todo.reminderTime.split(":").map(Number);
-      const deadline = new Date(); deadline.setHours(hours, minutes, 0, 0);
-      const delay = deadline.getTime() - Date.now();
-      if (delay <= 0) return undefined;
-      return window.setTimeout(() => {
-        setActiveReminder(todo);
-        if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(`待办提醒：${todo.content}`);
-      }, delay);
+    const scheduler = createTodoReminderScheduler({
+      now: () => Date.now(),
+      setTimer: window.setTimeout.bind(window),
+      clearTimer: window.clearTimeout.bind(window),
     });
-    return () => timers.forEach((timer) => timer !== undefined && window.clearTimeout(timer));
+    reminderSchedulerRef.current = scheduler;
+    const unsubscribe = scheduler.subscribe(({ todo }) => {
+      setActiveReminder((active) => {
+        if (active) {
+          reminderQueueRef.current.push(todo);
+          return active;
+        }
+        return todo;
+      });
+    });
+    return () => {
+      unsubscribe();
+      scheduler.dispose();
+      reminderSchedulerRef.current = null;
+      reminderQueueRef.current = [];
+    };
+  }, []);
+  useEffect(() => {
+    reminderSchedulerRef.current?.sync(todayTodos);
   }, [todayTodos]);
   useEffect(() => {
     if (!todayMenu && !taskMenu) return;
@@ -770,7 +786,7 @@ export default function App() {
       )}
       {todayOpen && <div className="overlay"><section className="modal today-todo-modal"><button className="close" onClick={() => { setTodayOpen(false); setEditingTodayId(null); }}><X /></button><em>TODAY TODO</em><h2>{editingTodayId ? "编辑待办" : "添加待办"}</h2><label>待办内容<input aria-label="待办内容" value={todayContent} onChange={(event) => setTodayContent(event.target.value)} placeholder="输入今天要做的事" autoFocus /></label><label>提醒时间点（可选）<button type="button" className="time-wheel-trigger" onClick={() => setTimePickerOpen(true)}>{todayReminder || "选择提醒时间"}</button></label><button className="primary" onClick={addTodayTodo}>{editingTodayId ? "保存修改" : "添加待办"} <Check /></button></section></div>}
       {timePickerOpen && <TimeWheelPicker value={todayReminder} onCancel={() => setTimePickerOpen(false)} onConfirm={(value) => { setTodayReminder(value); setTimePickerOpen(false); }} />}
-      {activeReminder && <div className="reminder-overlay"><section className="reminder-dialog"><em>REMINDER</em><h2>待办提醒</h2><p>{activeReminder.content}</p><small>设定时间：{activeReminder.reminderTime}</small><button className="primary" onClick={() => setActiveReminder(null)}>我知道了 <Check /></button></section></div>}
+      {activeReminder && <div className="reminder-overlay"><section className="reminder-dialog"><em>REMINDER</em><h2>待办提醒</h2><p>{activeReminder.content}</p><small>设定时间：{activeReminder.reminderTime}</small><button className="primary" onClick={() => setActiveReminder(reminderQueueRef.current.shift() || null)}>我知道了 <Check /></button></section></div>}
       {voiceListening && <div className="voice-overlay" role="dialog" aria-modal="true" aria-label="语音输入"><div className="voice-orb-wrap"><button className="voice-orb" aria-label="完成语音输入" onClick={() => voiceRecognitionRef.current?.stop()}><span /></button><h2>正在聆听</h2><p>{voiceTranscript || "请说出待办内容和提醒时间…"}</p><button className="voice-cancel" onClick={() => { voiceCancelledRef.current = true; voiceRecognitionRef.current?.abort(); setVoiceListening(false); }}>取消</button></div></div>}
       {todayMenu && (() => { const todo = todayTodos.find((item) => item.id === todayMenu.id); if (!todo) return null; return <div className="task-context-menu" onMouseDown={(event) => event.stopPropagation()} style={{ left: todayMenu.x, top: todayMenu.y }}><span>项目</span><button onClick={() => { setTodayTodos((items) => items.map((item) => item.id === todo.id ? { ...item, dailyReusable: !item.dailyReusable } : item)); setTodayMenu(null); }}>{todo.dailyReusable ? "取消复用任务" : "设置为复用任务"}</button></div>; })()}
       {taskMenu && (() => { const task = tasks.find((item) => item.id === taskMenu.id); if (!task) return null; return <div className="task-context-menu" onMouseDown={(event) => event.stopPropagation()} style={{ left: taskMenu.x, top: taskMenu.y }}><span>项目</span><button onClick={() => { setTasks((items) => items.map((item) => item.id === task.id ? { ...item, dailyReusable: !item.dailyReusable } : item)); setTaskMenu(null); }}>{task.dailyReusable ? "取消复用任务" : "设置为复用任务"}</button></div>; })()}

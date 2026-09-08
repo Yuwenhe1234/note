@@ -297,4 +297,41 @@ describe("application shell", () => {
     expect(screen.getByDisplayValue("完成 React 界面迁移")).toBeInTheDocument();
     expect(window.location.search).toBe("");
   });
+
+  it("shows due todos in an in-page dialog without creating a browser notification", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-08T09:00:00"));
+    const notification = vi.fn();
+    Object.assign(notification, { permission: "granted" });
+    Object.defineProperty(window, "Notification", { configurable: true, value: notification });
+    localStorage.setItem("memo-agent-today-todos", JSON.stringify([
+      { id: "drink", content: "喝水", reminderTime: "09:01", completed: false },
+    ]));
+
+    render(<App />);
+    await act(async () => {});
+    act(() => vi.advanceTimersByTime(60_000));
+
+    expect(screen.getByRole("heading", { name: "待办提醒" })).toBeInTheDocument();
+    expect(screen.getByText("喝水")).toBeInTheDocument();
+    expect(notification).not.toHaveBeenCalled();
+  });
+
+  it("queues reminders that become due at the same time", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-08T09:00:00"));
+    localStorage.setItem("memo-agent-today-todos", JSON.stringify([
+      { id: "first", content: "第一项", reminderTime: "09:01", completed: false },
+      { id: "second", content: "第二项", reminderTime: "09:01", completed: false },
+    ]));
+
+    render(<App />);
+    await act(async () => {});
+    act(() => vi.advanceTimersByTime(60_000));
+
+    expect(screen.getByText("第一项")).toBeInTheDocument();
+    expect(screen.queryByText("第二项")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /我知道了/ }));
+    expect(screen.getByText("第二项")).toBeInTheDocument();
+  });
 });
