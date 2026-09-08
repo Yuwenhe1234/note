@@ -666,10 +666,10 @@ main {
 .wheel-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .wheel-actions button { padding: 10px 16px; border-radius: 10px; }
 .wheel-actions .primary { width: auto; margin: 0; }
-.reminder-overlay { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; padding: 20px; background: #000b; backdrop-filter: blur(14px); }
-.reminder-dialog { width: min(460px, 100%); padding: 32px; border: 1px solid #a9ffbd55; border-radius: 26px; background: #111216; box-shadow: 0 30px 90px #000; }
-.reminder-dialog h2 { margin: 10px 0 18px; font: 400 44px "Instrument Serif"; }
-.reminder-dialog p { margin: 0 0 8px; color: #f4f4f4; font-size: 20px; }
+.reminder-toast { position: fixed; top: 24px; left: 24px; z-index: 130; width: min(360px, calc(100vw - 48px)); pointer-events: none; }
+.reminder-dialog { padding: 22px; border: 1px solid #a9ffbd55; border-radius: 18px; background: #111216; box-shadow: 0 20px 50px #000a; pointer-events: auto; }
+.reminder-dialog h2 { margin: 10px 0 18px; font: 400 32px "Instrument Serif"; }
+.reminder-dialog p { margin: 0 0 8px; color: #f4f4f4; font-size: 16px; }
 .reminder-dialog small { color: #8a8d92; }
 .voice-overlay { position: fixed; inset: 0; z-index: 160; display: grid; place-items: center; background: radial-gradient(circle at 50% 45%, #193328 0, #08090bf2 42%, #050607 100%); backdrop-filter: blur(22px); }
 .voice-orb-wrap { width: min(620px, 90vw); text-align: center; }

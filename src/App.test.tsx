@@ -298,7 +298,7 @@ describe("application shell", () => {
     expect(window.location.search).toBe("");
   });
 
-  it("shows due todos in an in-page dialog without creating a browser notification", async () => {
+  it("shows due todos in a non-blocking top-left toast without creating a browser notification", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-09-08T09:00:00"));
     const notification = vi.fn();
@@ -314,6 +314,8 @@ describe("application shell", () => {
 
     expect(screen.getByRole("heading", { name: "待办提醒" })).toBeInTheDocument();
     expect(screen.getByText("喝水")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "待办提醒" }).closest(".reminder-toast")).toBeInTheDocument();
+    expect(document.querySelector(".reminder-overlay")).not.toBeInTheDocument();
     expect(notification).not.toHaveBeenCalled();
   });
 
