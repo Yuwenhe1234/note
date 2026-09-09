@@ -1,14 +1,159 @@
-use std::{fs, path::{Path, PathBuf}, time::SystemTime};
+use std::{
+  collections::{HashSet, VecDeque},
+  fs,
+  path::{Path, PathBuf},
+  sync::Mutex,
+  time::{Duration, SystemTime},
+};
 
-use tauri::{AppHandle, LogicalSize, Manager, PhysicalPosition, Size};
+use chrono::Local;
+use serde::Serialize;
+use tauri::{AppHandle, Emitter, LogicalSize, Manager, PhysicalPosition, Size};
 
 const WIDGET_LABEL: &str = "desktop-widget";
 const MAIN_LABEL: &str = "main";
+const REMINDER_LABEL: &str = "desktop-reminder";
+const REMINDER_EVENT: &str = "todo-reminder";
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ReminderTodo {
+  id: String,
+  content: String,
+  reminder_time: String,
+}
+
+impl ReminderTodo {
+  fn new(id: impl Into<String>, content: impl Into<String>, reminder_time: impl Into<String>) -> Self {
+    Self {
+      id: id.into(),
+      content: content.into(),
+      reminder_time: reminder_time.into(),
+    }
+  }
+}
+
+struct NativeReminderState {
+  inner: Mutex<NativeReminderQueue>,
+}
+
+struct NativeReminderQueue {
+  day: String,
+  triggered: HashSet<String>,
+  todos: VecDeque<ReminderTodo>,
+}
+
+impl Default for NativeReminderState {
+  fn default() -> Self {
+    Self {
+      inner: Mutex::new(NativeReminderQueue {
+        day: String::new(),
+        triggered: HashSet::new(),
+        todos: VecDeque::new(),
+      }),
+    }
+  }
+}
 
 struct LaunchMode {
   widget_only: bool,
   user_id: Option<String>,
   website_origin: String,
+}
+
+fn is_valid_reminder_time(value: &str) -> bool {
+  let bytes = value.as_bytes();
+  bytes.len() == 5
+    && bytes[2] == b':'
+    && bytes.iter().enumerate().all(|(index, byte)| index == 2 || byte.is_ascii_digit())
+    && value[0..2].parse::<u8>().is_ok_and(|hour| hour < 24)
+    && value[3..5].parse::<u8>().is_ok_and(|minute| minute < 60)
+}
+
+fn due_reminders(
+  todos: &[serde_json::Value],
+  current_hhmm: &str,
+  triggered: &HashSet<String>,
+) -> Vec<ReminderTodo> {
+  if !is_valid_reminder_time(current_hhmm) {
+    return Vec::new();
+  }
+
+  todos.iter().filter_map(|todo| {
+    if todo.get("completed").and_then(serde_json::Value::as_bool) == Some(true) {
+      return None;
+    }
+    let id = todo.get("id")?.as_str()?;
+    let content = todo.get("content")?.as_str()?;
+    let reminder_time = todo.get("reminderTime")?.as_str()?;
+    if id.is_empty() || !is_valid_reminder_time(reminder_time)
+      || reminder_time != current_hhmm || triggered.contains(id) {
+      return None;
+    }
+    Some(ReminderTodo::new(id, content, reminder_time))
+  }).collect()
+}
+
+fn emit_reminder(app: &AppHandle, todo: &ReminderTodo) {
+  let Some(window) = app.get_webview_window(REMINDER_LABEL) else {
+    return;
+  };
+  let _ = window.emit(REMINDER_EVENT, todo);
+  let _ = window.show();
+}
+
+fn schedule_due_reminders(app: &AppHandle) {
+  let mode = app.state::<LaunchMode>();
+  let Ok(workspace_path) = current_workspace_path(mode.user_id.as_deref()) else {
+    return;
+  };
+  let Ok(content) = fs::read_to_string(workspace_path) else {
+    return;
+  };
+  let Ok(workspace) = serde_json::from_str::<serde_json::Value>(&content) else {
+    return;
+  };
+  let Some(todos) = workspace.get("todayTodos").and_then(serde_json::Value::as_array) else {
+    return;
+  };
+
+  let now = Local::now();
+  let day = now.format("%F").to_string();
+  let current_hhmm = now.format("%H:%M").to_string();
+  let state = app.state::<NativeReminderState>();
+  let Ok(mut queue) = state.inner.lock() else {
+    return;
+  };
+  if queue.day != day {
+    queue.day = day;
+    queue.triggered.clear();
+  }
+  let queue_was_empty = queue.todos.is_empty();
+  let due = due_reminders(todos, &current_hhmm, &queue.triggered);
+  for todo in due {
+    queue.triggered.insert(todo.id.clone());
+    queue.todos.push_back(todo);
+  }
+  let next = queue_was_empty.then(|| queue.todos.front().cloned()).flatten();
+  drop(queue);
+  if let Some(todo) = next {
+    emit_reminder(app, &todo);
+  }
+}
+
+#[tauri::command]
+fn acknowledge_todo_reminder(app: AppHandle) -> Result<Option<ReminderTodo>, String> {
+  let state = app.state::<NativeReminderState>();
+  let mut queue = state.inner.lock().map_err(|_| "提醒队列不可用".to_string())?;
+  queue.todos.pop_front();
+  let next = queue.todos.front().cloned();
+  drop(queue);
+  if let Some(todo) = &next {
+    emit_reminder(&app, todo);
+  } else if let Some(window) = app.get_webview_window(REMINDER_LABEL) {
+    let _ = window.hide();
+  }
+  Ok(next)
 }
 
 fn is_widget_request<I, S>(args: I) -> bool
@@ -438,6 +583,7 @@ pub fn run() {
       }
     }))
     .manage(LaunchMode { widget_only, user_id, website_origin })
+    .manage(NativeReminderState::default())
     .setup(|app| {
       let widget_only = app.state::<LaunchMode>().widget_only;
       if widget_only {
@@ -457,6 +603,11 @@ pub fn run() {
             .build(),
         )?;
       }
+      let reminder_app = app.handle().clone();
+      std::thread::spawn(move || loop {
+        schedule_due_reminders(&reminder_app);
+        std::thread::sleep(Duration::from_secs(30));
+      });
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
@@ -472,7 +623,8 @@ pub fn run() {
       add_desktop_widget_todo,
       update_desktop_widget_todo,
       update_desktop_widget_task,
-      start_widget_dragging
+      start_widget_dragging,
+      acknowledge_todo_reminder
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
@@ -491,8 +643,31 @@ mod tests {
     update_task_value,
     update_today_todo_value,
     widget_user_id,
+    due_reminders,
+    ReminderTodo,
   };
-  use std::{fs, time::Duration};
+  use std::{collections::HashSet, fs, time::Duration};
+
+  #[test]
+  fn finds_uncompleted_todos_due_now_once_in_workspace_order() {
+    let todos = serde_json::json!([
+      { "id": "first", "content": "第一项", "reminderTime": "09:30", "completed": false },
+      { "id": "done", "content": "完成项", "reminderTime": "09:30", "completed": true },
+      { "id": "invalid", "content": "无效时间", "reminderTime": "9:30", "completed": false },
+      { "id": "past", "content": "过去时间", "reminderTime": "09:29", "completed": false },
+      { "id": "again", "content": "已触发", "reminderTime": "09:30", "completed": false },
+      { "id": "second", "content": "第二项", "reminderTime": "09:30", "completed": false }
+    ]);
+    let triggered = HashSet::from(["again".to_string()]);
+
+    assert_eq!(
+      due_reminders(todos.as_array().unwrap(), "09:30", &triggered),
+      vec![
+        ReminderTodo::new("first", "第一项", "09:30"),
+        ReminderTodo::new("second", "第二项", "09:30"),
+      ],
+    );
+  }
 
   #[test]
   fn detects_widget_protocol_and_flag() {
