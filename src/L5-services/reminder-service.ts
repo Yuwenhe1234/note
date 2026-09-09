@@ -29,6 +29,11 @@ export function createReminderService(dependencies: Dependencies) {
     });
     return true;
   }
+  function notifyTodo(title: string, reminderTime: string) {
+    if (dependencies.permission() !== "granted") return false;
+    dependencies.notify(`待办提醒：${title}`, { body: `设定时间：${reminderTime}` });
+    return true;
+  }
   function cancel(id: string) {
     const timer = timers.get(id);
     if (timer) dependencies.clearTimer(timer);
@@ -56,7 +61,7 @@ export function createReminderService(dependencies: Dependencies) {
   function cancelAll() {
     for (const id of timers.keys()) cancel(id);
   }
-  return { enable, test, schedule, cancel, cancelAll };
+  return { enable, test, notifyTodo, schedule, cancel, cancelAll };
 }
 
 export const browserReminderService = createReminderService({

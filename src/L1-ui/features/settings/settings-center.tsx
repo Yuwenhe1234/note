@@ -558,6 +558,7 @@ function ReminderPanel({
           发送测试通知
         </button>
       </div>
+      {permission === "denied" && <p className="setting-feedback" role="status">浏览器已拒绝通知。请在地址栏的网站权限中将通知改为允许，然后重新开启此开关。</p>}
       {message && (
         <p className="setting-feedback" role="status">
           {message}

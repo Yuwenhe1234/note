@@ -45,6 +45,7 @@ import { refreshNews } from "./L1-ui/features/news/news-client";
 import { createNewsRepository } from "./L4-data/news-repository";
 import { createNewsRefreshScheduler } from "./L5-services/news-refresh-scheduler";
 import { createTodoReminderScheduler } from "./L5-services/todo-reminder-scheduler";
+import { browserReminderService } from "./L5-services/reminder-service";
 import { CompanionWindow } from "./L1-ui/features/companion/companion-window";
 import { PluginCenterWindow } from "./L1-ui/features/plugins/plugin-center-window";
 import { PageBackButton } from "./L1-ui/components/page-back-button";
@@ -164,6 +165,9 @@ export default function App() {
     });
     reminderSchedulerRef.current = scheduler;
     const unsubscribe = scheduler.subscribe(({ todo }) => {
+      if (loadSettings().reminders.notifications) {
+        browserReminderService.notifyTodo(todo.content, todo.reminderTime);
+      }
       setActiveReminder((active) => {
         if (active) {
           reminderQueueRef.current.push(todo);
