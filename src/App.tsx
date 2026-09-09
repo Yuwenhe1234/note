@@ -659,7 +659,7 @@ export default function App() {
                 onBack={() => setDesktopConfigOpen(false)}
               />
             ) : featurePage ? (
-              <div className="secondary-feature-page">
+              <div className={`secondary-feature-page${featurePage === "news" ? " news-feature-page" : ""}`}>
                 <PageBackButton label="返回其他功能" onClick={() => setFeaturePage(null)} />
                 {featurePage === "news" && <NewsWindow />}
                 {featurePage === "companion" && <CompanionWindow />}

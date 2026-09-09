@@ -16,6 +16,10 @@
 .feature-window-header h1 { margin: 8px 0 6px; font: 400 58px "Instrument Serif"; }
 .feature-window-header p { margin: 0; color: #95989d; }
 .feature-window-header > svg { width: 44px; height: 44px; color: #a9ffbd; }
+.news-feature-page > .page-back-button { margin: 36px 0 0; }
+.news-feature-page .news-window .feature-window-header { justify-content: center; margin: 0 0 42px; padding-top: 20px; text-align: center; }
+.news-feature-page .news-window .feature-window-header h1 { margin: 12px 0 10px; font-size: 72px; }
+.news-feature-page .news-window .feature-window-header p { font-size: 17px; }
 .news-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; }
 .news-sources, .news-feed, .coming-soon-card, .privacy-card, .plugin-empty, .plugin-grid > article { border: 1px solid #ffffff1c; border-radius: 24px; background: #ffffff08; }
 .news-sidebar { display: grid; align-self: start; gap: 14px; min-width: 0; }
