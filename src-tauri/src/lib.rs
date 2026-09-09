@@ -79,6 +79,7 @@ fn due_reminders(
     return Vec::new();
   }
 
+  let mut seen = triggered.clone();
   todos.iter().filter_map(|todo| {
     if todo.get("completed").and_then(serde_json::Value::as_bool) == Some(true) {
       return None;
@@ -87,7 +88,7 @@ fn due_reminders(
     let content = todo.get("content")?.as_str()?;
     let reminder_time = todo.get("reminderTime")?.as_str()?;
     if id.is_empty() || !is_valid_reminder_time(reminder_time)
-      || reminder_time != current_hhmm || triggered.contains(id) {
+      || reminder_time != current_hhmm || !seen.insert(id.to_string()) {
       return None;
     }
     Some(ReminderTodo::new(id, content, reminder_time))
@@ -666,6 +667,19 @@ mod tests {
         ReminderTodo::new("first", "第一项", "09:30"),
         ReminderTodo::new("second", "第二项", "09:30"),
       ],
+    );
+  }
+
+  #[test]
+  fn accepts_only_the_first_due_todo_for_a_duplicate_id() {
+    let todos = serde_json::json!([
+      { "id": "duplicate", "content": "第一项", "reminderTime": "09:30", "completed": false },
+      { "id": "duplicate", "content": "第二项", "reminderTime": "09:30", "completed": false }
+    ]);
+
+    assert_eq!(
+      due_reminders(todos.as_array().unwrap(), "09:30", &HashSet::new()),
+      vec![ReminderTodo::new("duplicate", "第一项", "09:30")],
     );
   }
 
