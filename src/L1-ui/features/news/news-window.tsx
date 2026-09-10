@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ExternalLink, Pencil, Plus, RefreshCw, Trash2, X } from "lucide-react";
+import { ExternalLink, LogIn, Pencil, Plus, RefreshCw, Trash2, X } from "lucide-react";
 import { createNewsRepository } from "../../../L4-data/news-repository";
 import type { NewsSource } from "../../../L4-data/news-model";
 import { openNewsLogin, refreshNews, type NewsRefreshResponse } from "./news-client";
@@ -53,7 +53,7 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
     <div className="news-layout">
       <div className="news-sidebar" data-testid="news-sidebar">
         <aside className="news-sources"><h2>订阅来源</h2><label><span>订阅链接</span><input aria-label="订阅链接" value={url} onChange={(event) => setUrl(event.target.value)} onKeyDown={(event) => event.key === "Enter" && add()} placeholder="粘贴账号主页或网站链接" /></label><button className="news-add" onClick={add}><Plus />添加来源</button>
-          <div className="news-source-list news-source-scroll" role="list" aria-label="订阅来源列表">{state.sources.slice().sort((a, b) => b.subscribedAt.localeCompare(a.subscribedAt)).map((source) => <article className="news-source-card" role="listitem" key={source.id}><div><div className="news-source-heading"><strong>{source.displayName || "待补充资料"}</strong><time dateTime={source.subscribedAt}>{new Date(source.subscribedAt).toLocaleDateString("zh-CN")}</time></div>{source.tags?.length ? <em>{source.tags.map((tag) => <span key={tag}>{tag}</span>)}</em> : null}<small>{source.platform}</small></div><div className="news-source-actions"><button aria-label={`去UP主主页 ${source.displayName || source.name}`} onClick={() => window.open(source.url, "_blank", "noopener,noreferrer")}><ExternalLink /></button><button aria-label={`编辑资料 ${source.displayName || source.name}`} onClick={() => { setEditingSource(source); setProfileDraft({ displayName: source.displayName || "", profileDescription: source.profileDescription || "", tags: (source.tags || []).join(",") }); }}><Pencil /></button><button aria-label={`删除 ${source.displayName || source.name}`} onClick={() => { repo.removeSource(source.id); reload(); }}><Trash2 /></button></div></article>)}</div>
+          <div className="news-source-list news-source-scroll" role="list" aria-label="订阅来源列表">{state.sources.slice().sort((a, b) => b.subscribedAt.localeCompare(a.subscribedAt)).map((source) => <article className="news-source-card" role="listitem" key={source.id}><div><div className="news-source-heading"><strong>{source.displayName || source.name}</strong><time dateTime={source.subscribedAt}>{new Date(source.subscribedAt).toLocaleDateString("zh-CN")}</time></div>{source.tags?.length ? <em>{source.tags.map((tag) => <span key={tag}>{tag}</span>)}</em> : null}<small>{source.platform}</small></div><div className="news-source-actions"><button aria-label={`去UP主主页 ${source.displayName || source.name}`} onClick={() => window.open(source.url, "_blank", "noopener,noreferrer")}><ExternalLink /></button>{source.platform !== "website" && <button aria-label={`登录 ${source.displayName || source.name}`} onClick={async () => { try { await loginRequest(source.url); repo.updateSource(source.id, { loginStatus: "connected" }); setRefreshNotice("已打开 Edge 登录窗口，完成登录后再点击刷新"); reload(); } catch (error) { setRefreshNotice(error instanceof Error ? error.message : "登录窗口打开失败"); } }}><LogIn /></button>}<button aria-label={`编辑资料 ${source.displayName || source.name}`} onClick={() => { setEditingSource(source); setProfileDraft({ displayName: source.displayName || "", profileDescription: source.profileDescription || "", tags: (source.tags || []).join(",") }); }}><Pencil /></button><button aria-label={`删除 ${source.displayName || source.name}`} onClick={() => { repo.removeSource(source.id); reload(); }}><Trash2 /></button></div></article>)}</div>
         </aside>
         <button className="news-refresh" onClick={runRefresh} disabled={refreshing}><RefreshCw aria-hidden="true" />{refreshing ? "刷新中…" : "刷新"}</button>
         <button className="news-refresh" onClick={() => { setScheduleDraft(repo.getSchedule()); setScheduleError(""); setScheduleOpen(true); }}>定点刷新{repo.getSchedule().times.length ? ` · ${repo.getSchedule().times.join(" / ")}` : ""}</button>
@@ -66,7 +66,7 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
               const itemKey = `${item.sourceId}-${item.id}`;
               const active = selectedItemId === itemKey;
               return <button className="news-card" key={itemKey} aria-label={`${item.sourceName}：${item.title}`} aria-expanded={active} onClick={(event) => { triggerCardRef.current = event.currentTarget; setSelectedItemId(itemKey); }}>
-                <strong>{creatorName(item.sourceName)}</strong><small>{item.platform}</small><span>{item.title}</span>{item.summary && <p>{item.summary}</p>}<time>{new Date(item.publishedAt).toLocaleDateString("zh-CN")}</time>
+                <strong>{creatorName(item.sourceName)}</strong><small>{item.platform}</small><span>{item.title}</span><time>{new Date(item.publishedAt).toLocaleDateString("zh-CN")}</time>
               </button>;
             })}</div>
           </div>
@@ -78,9 +78,9 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
         <button ref={closeButtonRef} className="news-detail-close" aria-label="关闭消息详情" onClick={closeDetail}><X /></button>
         <div className="news-detail-heading"><small>UP 主</small><strong>{creatorName(selectedItem.sourceName)}</strong><small>视频标题</small><h2 id="news-detail-title">{selectedItem.title}</h2></div>
         {selectedItem.summary && <div><h3>一句话总结</h3><p>{selectedItem.summary}</p></div>}
-        {selectedItem.coreContent && selectedItem.coreContent.length >= 3 && <div><h3>核心内容</h3><ol>{selectedItem.coreContent.slice(0, 5).map((entry) => <li key={entry}>{entry}</li>)}</ol></div>}
+        {selectedItem.coreContent && selectedItem.coreContent.length > 0 && <div><h3>核心内容</h3><ol>{selectedItem.coreContent.slice(0, 5).map((entry) => <li key={entry}>{entry}</li>)}</ol></div>}
         {selectedItem.whyItMatters && <div><h3>值得关注</h3><p>{selectedItem.whyItMatters}</p></div>}
-        <div className="news-detail-meta"><small>{selectedItem.platform}</small><time dateTime={selectedItem.publishedAt}>发布时间：{new Date(selectedItem.publishedAt).toLocaleString("zh-CN")}</time></div>
+        <div className="news-detail-meta"><small>内容依据：{selectedItem.contentBasis || (selectedItem.platform === "website" ? "网页正文" : "视频简介")}</small><time dateTime={selectedItem.publishedAt}>发布时间：{new Date(selectedItem.publishedAt).toLocaleString("zh-CN")}</time></div>
         <a href={selectedItem.url} target="_blank" rel="noreferrer">查看原内容 <ExternalLink /></a>
       </section>
     </div>}
