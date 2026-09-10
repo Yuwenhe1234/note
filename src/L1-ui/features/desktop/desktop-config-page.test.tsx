@@ -29,6 +29,12 @@ function renderPage() {
 }
 
 describe("DesktopConfigPage", () => {
+  it("explains that native widgets require the desktop edition", () => {
+    render(<DesktopConfigPage settings={DEFAULT_WIDGET_SETTINGS} onChange={vi.fn()} siteName="东非大裂谷" tasks={tasks} todayTodos={todos} onToggleToday={vi.fn()} onAddToday={vi.fn()} onOpenTask={vi.fn()} desktopWidgetAvailable={false} />);
+    expect(screen.getByText(/桌面组件仅在桌面版中可用/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "运行桌面挂件" })).not.toBeInTheDocument();
+  });
+
   it("runs the configured desktop widget from the console", async () => {
     openDesktopWidget.mockResolvedValue("requested");
     renderPage();

@@ -5,6 +5,7 @@ import type { StoredTodayTodo } from "../../../L4-data/workspace-repository";
 import { type DesktopWidgetSettings } from "./widget-model";
 import { WidgetPreview } from "./widget-preview";
 import { openDesktopWidget } from "../../../L5-services/widget-window";
+import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
 
 export function DesktopConfigPage({
   settings,
@@ -15,6 +16,7 @@ export function DesktopConfigPage({
   onToggleToday,
   onAddToday,
   onOpenTask,
+  desktopWidgetAvailable = runtimeCapabilities.desktopWidget,
 }: {
   settings: DesktopWidgetSettings;
   onChange: (next: DesktopWidgetSettings) => void;
@@ -24,6 +26,7 @@ export function DesktopConfigPage({
   onToggleToday: (id: string) => void;
   onAddToday: () => void;
   onOpenTask: (task: Task) => void;
+  desktopWidgetAvailable?: boolean;
 }) {
   const set = (patch: Partial<DesktopWidgetSettings>) =>
     onChange({ ...settings, ...patch });
@@ -120,7 +123,7 @@ export function DesktopConfigPage({
         />
       </div>
       <div className="desktop-widget-actions">
-        <button
+        {desktopWidgetAvailable ? <button
           className="primary"
           onClick={() =>
             openDesktopWidget()
@@ -133,7 +136,7 @@ export function DesktopConfigPage({
           }
         >
           运行桌面挂件 <MonitorUp aria-hidden="true" />
-        </button>
+        </button> : <p className="desktop-phase-note">桌面组件仅在桌面版中可用。网页版仍可使用任务、待办和提醒。</p>}
         {placeStatus && <p className="desktop-phase-note">{placeStatus}</p>}
       </div>
     </>

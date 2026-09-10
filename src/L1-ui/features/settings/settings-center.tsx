@@ -13,6 +13,8 @@ import {
 } from "../../../L4-data/backup-schema";
 import { browserReminderService } from "../../../L5-services/reminder-service";
 import { PageBackButton } from "../../components/page-back-button";
+import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
+import { loadBrowserAiConfig } from "../../../L5-services/browser-ai-client";
 
 type Route =
   | "root"
@@ -538,6 +540,12 @@ function DiagnosticsPanel() {
   const [api, setApi] = useState("检查中");
   const [provider, setProvider] = useState("未配置");
   useEffect(() => {
+    if (!runtimeCapabilities.serverAi) {
+      const config = loadBrowserAiConfig();
+      setApi("浏览器直连");
+      setProvider(config.enabled ? `${config.provider} / ${config.model}` : "未配置");
+      return;
+    }
     fetch("/api/ai/config")
       .then((response) => response.json())
       .then((result) => {

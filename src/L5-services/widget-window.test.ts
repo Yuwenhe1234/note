@@ -51,6 +51,13 @@ describe("desktop widget window service", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
+  it("does not call a local launch API from the static website", async () => {
+    tauriState.active = false;
+    const fetch = vi.fn();
+    await expect(openDesktopWidget(fetch, true)).rejects.toThrow("桌面组件仅在桌面版中可用");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("surfaces local launch API errors", async () => {
     tauriState.active = false;
     const fetch = vi.fn().mockResolvedValue({

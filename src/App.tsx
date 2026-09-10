@@ -45,6 +45,7 @@ import { refreshNews } from "./L1-ui/features/news/news-client";
 import { createNewsRepository } from "./L4-data/news-repository";
 import { createNewsRefreshScheduler } from "./L5-services/news-refresh-scheduler";
 import { generateTodayTodos as requestTodayTodos } from "./L5-services/today-ai";
+import { runtimeCapabilities } from "./L5-services/runtime-capabilities";
 import { createTodoReminderScheduler } from "./L5-services/todo-reminder-scheduler";
 import { browserReminderService } from "./L5-services/reminder-service";
 import { CompanionWindow } from "./L1-ui/features/companion/companion-window";
@@ -123,6 +124,7 @@ export default function App() {
   const reminderSchedulerRef = useRef<ReturnType<typeof createTodoReminderScheduler> | null>(null);
   const reminderQueueRef = useRef<TodayTodo[]>([]);
   useEffect(() => {
+    if (!runtimeCapabilities.automaticNews) return;
     const repo = createNewsRepository(localStorage);
     const scheduler = createNewsRefreshScheduler({
       load: repo.getSchedule,

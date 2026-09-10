@@ -1,6 +1,7 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { WorkspaceDataV1 } from "../L4-data/workspace-repository";
+import { runtimeCapabilities } from "./runtime-capabilities";
 
 export type DesktopWidgetResult = "created" | "shown" | "requested";
 
@@ -12,7 +13,9 @@ export type DesktopWidgetResult = "created" | "shown" | "requested";
  */
 export async function openDesktopWidget(
   fetcher: typeof fetch = fetch,
+  staticWeb = runtimeCapabilities.staticWeb,
 ): Promise<DesktopWidgetResult> {
+  if (staticWeb) throw new Error("桌面组件仅在桌面版中可用");
   if (!isTauri()) {
     const response = await fetcher("/api/desktop-widget/open", { method: "POST" });
     const result = await response.json();

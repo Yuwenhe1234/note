@@ -26,7 +26,7 @@ export function capabilitiesFor(input: { staticWeb: boolean; tauri: boolean }): 
     serverWorkspace: true,
     serverAi: true,
     automaticNews: true,
-    desktopWidget: input.tauri,
+    desktopWidget: true,
   };
 }
 
