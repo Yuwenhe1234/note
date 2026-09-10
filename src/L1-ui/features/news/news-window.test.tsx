@@ -4,11 +4,12 @@ import { NewsWindow } from "./news-window";
 
 describe("NewsWindow", () => {
   it("offers manual messages instead of automatic collection on static web", () => {
-    render(<NewsWindow automaticNews={false} initialSourceUrl="https://example.com/feed" />);
+    render(<NewsWindow automaticNews={false} initialSourceUrl="https://space.bilibili.com/123/video" />);
     expect(screen.getByText(/网页版不自动抓取/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "手动添加消息" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "刷新" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /定点刷新/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /登录/ })).not.toBeInTheDocument();
   });
 
   it("adds a source without importing history", () => {

@@ -4,6 +4,11 @@ import App from "./App";
 import "./index.css";
 
 describe("application shell", () => {
+  it("starts the static website without desktop demo tasks", () => {
+    render(<App staticWeb />);
+    expect(screen.queryByText("完成 React 界面迁移")).not.toBeInTheDocument();
+  });
+
   it("reserves scrollbar space so the centered navigation never jumps", () => {
     render(<App />);
     expect(getComputedStyle(document.documentElement).scrollbarGutter).toBe(

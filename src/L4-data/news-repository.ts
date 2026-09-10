@@ -1,19 +1,19 @@
 import { detectNewsPlatform, isExpiredNewsItem, normalizeContentUrl, normalizeRefreshSchedule, normalizeSourceProfile, validateNewsSourceUrl, type ManualNewsInput, type ManualNewsSummary, type NewsItem, type NewsRefreshSchedule, type NewsSource, type NewsSourceProfile } from "./news-model";
 
 type NewsState = { version: 1; sources: NewsSource[]; items: NewsItem[]; fingerprints: string[]; schedule?: NewsRefreshSchedule };
-const KEY = "memo-agent-news-v1";
+export const NEWS_STORAGE_KEY = "memo-agent-news-v1";
 const empty = (): NewsState => ({ version: 1, sources: [], items: [], fingerprints: [] });
 
 export function createNewsRepository(storage: Storage, now: () => Date = () => new Date()) {
   const load = (): NewsState => {
     try {
-      const value = JSON.parse(storage.getItem(KEY) || "null");
+      const value = JSON.parse(storage.getItem(NEWS_STORAGE_KEY) || "null");
       if (value?.version !== 1) return empty();
       const state = { ...empty(), ...value } as NewsState;
       return { ...state, sources: state.sources.filter((source) => { try { validateNewsSourceUrl(source.url); return true; } catch { return false; } }) };
     } catch { return empty(); }
   };
-  const save = (state: NewsState) => storage.setItem(KEY, JSON.stringify(state));
+  const save = (state: NewsState) => storage.setItem(NEWS_STORAGE_KEY, JSON.stringify(state));
   return {
     load,
     getSchedule: () => normalizeRefreshSchedule(load().schedule || {}),
@@ -61,13 +61,16 @@ export function createNewsRepository(storage: Storage, now: () => Date = () => n
       const title = input.title.trim();
       const body = input.body.trim();
       if (!title && !body) throw new Error("请填写标题或正文");
+      const id = crypto.randomUUID();
       let url: string;
-      try { url = normalizeContentUrl(input.url.trim()); }
-      catch { throw new Error("请输入有效的内容链接"); }
+      try {
+        if (input.url.trim()) url = normalizeContentUrl(input.url.trim());
+        else { const localUrl = new URL(source.url); localUrl.searchParams.set("memo_manual", id); url = localUrl.toString(); }
+      } catch { throw new Error("请输入有效的内容链接"); }
       if (state.items.some((entry) => normalizeContentUrl(entry.url) === url) || state.fingerprints.includes(url)) throw new Error("这条消息已经添加过了");
       const timestamp = now().toISOString();
       const item: NewsItem = {
-        id: crypto.randomUUID(), sourceId: source.id, platform: detectNewsPlatform(url),
+        id, sourceId: source.id, platform: detectNewsPlatform(url),
         title: title || body.slice(0, 40), url, sourceName: source.displayName || source.name,
         publishedAt: timestamp, savedAt: timestamp, summary: summary?.summary || "",
         coreContent: summary?.coreContent || [], highlights: summary?.highlights || [],

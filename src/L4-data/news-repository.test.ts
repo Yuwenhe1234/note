@@ -59,4 +59,10 @@ describe("news repository", () => {
     expect(repo.load().items[0]).toMatchObject({ summary: "摘要", contentBasis: "网页正文" });
     expect(() => repo.addManualItem({ sourceId: source.id, url: "https://example.com/post", title: "重复", body: "正文" })).toThrow("这条消息已经添加过了");
   });
+
+  it("accepts a title-only manual message without a content link", () => {
+    const repo = createNewsRepository(localStorage);
+    const source = repo.addSource("https://example.com/feed");
+    expect(repo.addManualItem({ sourceId: source.id, url: "", title: "只有标题", body: "" }).url).toContain("memo_manual=");
+  });
 });

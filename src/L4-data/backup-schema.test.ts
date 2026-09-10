@@ -27,4 +27,17 @@ describe("backup schema", () => {
     const backup = createBackup([{ id: "g", title: "任务", completed: false, goal: "完成验收" }], DEFAULT_SETTINGS);
     expect(parseBackup(JSON.stringify(backup)).tasks[0].goal).toBe("完成验收");
   });
+  it("round-trips browser workspace, news and non-secret AI metadata", () => {
+    const backup = createBackup([], DEFAULT_SETTINGS, {
+      workspace: { version: 1, revision: 2, updatedAt: "now", tasks: [], todayTodos: [], settings: DEFAULT_SETTINGS, editableText: { siteName: "站点", heroEyebrow: "", heroTitle: "", heroDescription: "", todayFocus: "" } },
+      news: { version: 1, sources: [], items: [], fingerprints: [] },
+      ai: { provider: "openai", baseUrl: "https://api.openai.com/v1", model: "gpt", enabled: true, apiKey: "must-not-export" },
+    });
+    const parsed = parseBackup(JSON.stringify(backup));
+    expect(parsed.version).toBe(2);
+    expect(parsed.workspace?.revision).toBe(2);
+    expect(parsed.news).toMatchObject({ version: 1 });
+    expect(parsed.ai).toEqual({ provider: "openai", baseUrl: "https://api.openai.com/v1", model: "gpt", enabled: true });
+    expect(JSON.stringify(parsed)).not.toContain("must-not-export");
+  });
 });

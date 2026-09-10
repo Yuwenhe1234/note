@@ -14,7 +14,9 @@ import {
 import { browserReminderService } from "../../../L5-services/reminder-service";
 import { PageBackButton } from "../../components/page-back-button";
 import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
-import { loadBrowserAiConfig } from "../../../L5-services/browser-ai-client";
+import { BROWSER_AI_CONFIG_KEY, loadBrowserAiConfig } from "../../../L5-services/browser-ai-client";
+import { WEB_WORKSPACE_KEY } from "../../../L4-data/workspace-repository";
+import { NEWS_STORAGE_KEY } from "../../../L4-data/news-repository";
 
 type Route =
   | "root"
@@ -403,8 +405,10 @@ function DataPanel({
 }) {
   const [message, setMessage] = useState("");
   const download = () => {
+    const readJson = (key: string) => { try { return JSON.parse(localStorage.getItem(key) || "null") || undefined; } catch { return undefined; } };
+    const ai = loadBrowserAiConfig();
     const blob = new Blob(
-      [JSON.stringify(createBackup(tasks, settings), null, 2)],
+      [JSON.stringify(createBackup(tasks, settings, { workspace: readJson(WEB_WORKSPACE_KEY), news: readJson(NEWS_STORAGE_KEY), ai }), null, 2)],
       { type: "application/json" },
     );
     const url = URL.createObjectURL(blob);
@@ -418,7 +422,11 @@ function DataPanel({
   const importFile = async (file?: File) => {
     if (!file) return;
     try {
-      onImport(parseBackup(await file.text()));
+      const backup = parseBackup(await file.text());
+      if (backup.workspace) localStorage.setItem(WEB_WORKSPACE_KEY, JSON.stringify(backup.workspace));
+      if (backup.news) localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(backup.news));
+      if (backup.ai) localStorage.setItem(BROWSER_AI_CONFIG_KEY, JSON.stringify({ ...backup.ai, apiKey: "" }));
+      onImport(backup);
       setMessage("备份已导入");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "导入失败");

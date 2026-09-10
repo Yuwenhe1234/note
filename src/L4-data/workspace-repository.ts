@@ -16,7 +16,7 @@ export type WorkspaceDataV1 = {
   desktopWidget?: DesktopWidgetSettings;
 };
 
-const WEB_WORKSPACE_KEY = "memo-agent-workspace-v1";
+export const WEB_WORKSPACE_KEY = "memo-agent-workspace-v1";
 type WorkspaceOptions = { storage?: Storage; serverWorkspace?: boolean };
 const resolveOptions = (value: WorkspaceOptions = {}) => ({
   storage: value.storage ?? localStorage,

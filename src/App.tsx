@@ -77,7 +77,7 @@ const initial: Task[] = [
     steps: createSteps(3, 1, (index) => `task-2-step-${index}`),
   },
 ];
-export default function App() {
+export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { staticWeb?: boolean } = {}) {
   const [view, setView] = useState<View>("任务清单"),
     [open, setOpen] = useState(false),
     [stage, setStage] = useState(1),
@@ -92,7 +92,7 @@ export default function App() {
     [analysisError, setAnalysisError] = useState(""),
     [analysisLoading, setAnalysisLoading] = useState(false),
     [draftSteps, setDraftSteps] = useState<TaskStep[]>([]),
-    [tasks, setTasks] = useState(initial),
+    [tasks, setTasks] = useState(() => staticWeb ? [] : initial),
     [todayTodos, setTodayTodos] = useState<TodayTodo[]>(() => JSON.parse(localStorage.getItem("memo-agent-today-todos") || "[]")),
     [todayOpen, setTodayOpen] = useState(false),
     [todayContent, setTodayContent] = useState(""),
@@ -146,14 +146,15 @@ export default function App() {
       if (data) { setTasks(data.tasks.map((task) => migrateTask(task))); setTodayTodos(data.todayTodos); setWorkspaceRevision(data.revision); applyEditableText(data.editableText); setSiteName(data.editableText.siteName); setSiteNameDraft(data.editableText.siteName); setDesktopWidget(normalizeWidgetSettings(data.desktopWidget)); }
       setWorkspaceReady(true); setSaveStatus("已保存");
     }).catch((error) => {
-      setSaveStatus(error instanceof Error ? error.message : "载入失败");
-      setWorkspaceReady(true);
+      const message = error instanceof Error ? error.message : "载入失败";
+      setSaveStatus(message);
+      if (message !== "浏览器工作区数据已损坏") setWorkspaceReady(true);
     });
   }, []);
   useEffect(() => {
     if (!workspaceReady) return;
     setSaveStatus("保存中…");
-    const timer = window.setTimeout(() => saveWorkspace({ version: 1, revision: workspaceRevision, updatedAt: "", tasks, todayTodos, settings: loadSettings(), editableText: { ...readEditableText(), siteName }, desktopWidget }).then((saved) => { setWorkspaceRevision(saved.revision); setSaveStatus("已保存"); }).catch(() => setSaveStatus("保存失败")), 300);
+    const timer = window.setTimeout(() => saveWorkspace({ version: 1, revision: workspaceRevision, updatedAt: "", tasks, todayTodos, settings: loadSettings(), editableText: { ...readEditableText(), siteName }, desktopWidget }).then((saved) => { setWorkspaceRevision(saved.revision); setSaveStatus("已保存"); }).catch((error) => setSaveStatus(error instanceof Error ? error.message : "保存失败")), 300);
     return () => window.clearTimeout(timer);
   }, [tasks, todayTodos, siteName, desktopWidget, workspaceReady]);
   useEffect(() => {
