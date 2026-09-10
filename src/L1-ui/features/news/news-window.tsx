@@ -3,8 +3,12 @@ import { ExternalLink, LogIn, Pencil, Plus, RefreshCw, Trash2, X } from "lucide-
 import { createNewsRepository } from "../../../L4-data/news-repository";
 import type { NewsSource } from "../../../L4-data/news-model";
 import { openNewsLogin, refreshNews, type NewsRefreshResponse } from "./news-client";
+import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
+import { summarizeNewsInBrowser } from "../../../L5-services/browser-ai-client";
+import { ManualNewsDialog } from "./manual-news-dialog";
+import type { ManualNewsInput } from "../../../L4-data/news-model";
 
-export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNewsLogin, initialSourceUrl }: { refreshRequest?: (sources: NewsSource[], knownKeys: string[]) => Promise<NewsRefreshResponse>; loginRequest?: (url: string) => Promise<void>; initialSourceUrl?: string }) {
+export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNewsLogin, initialSourceUrl, automaticNews = runtimeCapabilities.automaticNews }: { refreshRequest?: (sources: NewsSource[], knownKeys: string[]) => Promise<NewsRefreshResponse>; loginRequest?: (url: string) => Promise<void>; initialSourceUrl?: string; automaticNews?: boolean }) {
   const repo = useMemo(() => createNewsRepository(localStorage), []);
   const [state, setState] = useState(() => { repo.cleanup(); if (initialSourceUrl) repo.addSource(initialSourceUrl); return repo.load(); });
   const [url, setUrl] = useState("");
@@ -16,6 +20,7 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleDraft, setScheduleDraft] = useState(() => repo.getSchedule());
   const [scheduleError, setScheduleError] = useState("");
+  const [manualOpen, setManualOpen] = useState(false);
   const triggerCardRef = useRef<HTMLButtonElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const sortedItems = useMemo(() => state.items.slice().sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)), [state.items]);
@@ -48,6 +53,12 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
     } catch (error) { setRefreshNotice(error instanceof Error ? error.message : "刷新失败"); }
     finally { setRefreshing(false); }
   };
+  const saveManual = async (input: ManualNewsInput, summarize: boolean) => {
+    const summary = summarize ? await summarizeNewsInBrowser({ title: input.title, body: input.body }) : undefined;
+    repo.addManualItem(input, summary);
+    setRefreshNotice("消息已保存到当前浏览器");
+    reload();
+  };
   return <section className="feature-window news-window">
     <header className="feature-window-header"><div><small>DAILY SIGNALS</small><h1>今日消息</h1><p>刷新订阅来源，让 AI 把新内容整理成重点。</p></div></header>
     <div className="news-layout">
@@ -55,8 +66,8 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
         <aside className="news-sources"><h2>订阅来源</h2><label><span>订阅链接</span><input aria-label="订阅链接" value={url} onChange={(event) => setUrl(event.target.value)} onKeyDown={(event) => event.key === "Enter" && add()} placeholder="粘贴账号主页或网站链接" /></label><button className="news-add" onClick={add}><Plus />添加来源</button>
           <div className="news-source-list news-source-scroll" role="list" aria-label="订阅来源列表">{state.sources.slice().sort((a, b) => b.subscribedAt.localeCompare(a.subscribedAt)).map((source) => <article className="news-source-card" role="listitem" key={source.id}><div><div className="news-source-heading"><strong>{source.displayName || source.name}</strong><time dateTime={source.subscribedAt}>{new Date(source.subscribedAt).toLocaleDateString("zh-CN")}</time></div>{source.tags?.length ? <em>{source.tags.map((tag) => <span key={tag}>{tag}</span>)}</em> : null}<small>{source.platform}</small></div><div className="news-source-actions"><button aria-label={`去UP主主页 ${source.displayName || source.name}`} onClick={() => window.open(source.url, "_blank", "noopener,noreferrer")}><ExternalLink /></button>{source.platform !== "website" && <button aria-label={`登录 ${source.displayName || source.name}`} onClick={async () => { try { await loginRequest(source.url); repo.updateSource(source.id, { loginStatus: "connected" }); setRefreshNotice("已打开 Edge 登录窗口，完成登录后再点击刷新"); reload(); } catch (error) { setRefreshNotice(error instanceof Error ? error.message : "登录窗口打开失败"); } }}><LogIn /></button>}<button aria-label={`编辑资料 ${source.displayName || source.name}`} onClick={() => { setEditingSource(source); setProfileDraft({ displayName: source.displayName || "", profileDescription: source.profileDescription || "", tags: (source.tags || []).join(",") }); }}><Pencil /></button><button aria-label={`删除 ${source.displayName || source.name}`} onClick={() => { repo.removeSource(source.id); reload(); }}><Trash2 /></button></div></article>)}</div>
         </aside>
-        <button className="news-refresh" onClick={runRefresh} disabled={refreshing}><RefreshCw aria-hidden="true" />{refreshing ? "刷新中…" : "刷新"}</button>
-        <button className="news-refresh" onClick={() => { setScheduleDraft(repo.getSchedule()); setScheduleError(""); setScheduleOpen(true); }}>定点刷新{repo.getSchedule().times.length ? ` · ${repo.getSchedule().times.join(" / ")}` : ""}</button>
+        {automaticNews ? <><button className="news-refresh" onClick={runRefresh} disabled={refreshing}><RefreshCw aria-hidden="true" />{refreshing ? "刷新中…" : "刷新"}</button>
+        <button className="news-refresh" onClick={() => { setScheduleDraft(repo.getSchedule()); setScheduleError(""); setScheduleOpen(true); }}>定点刷新{repo.getSchedule().times.length ? ` · ${repo.getSchedule().times.join(" / ")}` : ""}</button></> : <><p className="news-web-notice">网页版不自动抓取；请手动提供链接、标题或正文。桌面版仍支持自动刷新。</p><button className="news-refresh" onClick={() => setManualOpen(true)} disabled={!state.sources.length}>手动添加消息</button></>}
       </div>
       <section className="news-feed" aria-live="polite">
         <div className="news-notice" aria-live="polite">{notice || "尚未刷新，请点击刷新获取最新消息"}</div>
@@ -86,5 +97,6 @@ export function NewsWindow({ refreshRequest = refreshNews, loginRequest = openNe
     </div>}
     {editingSource && <div className="news-detail-overlay"><section className="news-detail-modal" role="dialog" aria-label="编辑订阅资料"><button className="news-detail-close" aria-label="关闭编辑资料" onClick={() => setEditingSource(null)}><X /></button><h2>编辑订阅资料</h2><label>UP 主名称<input value={profileDraft.displayName} onChange={(event) => setProfileDraft({ ...profileDraft, displayName: event.target.value })} /></label><label>一句话定位<input value={profileDraft.profileDescription} onChange={(event) => setProfileDraft({ ...profileDraft, profileDescription: event.target.value })} /></label><label>分类标签（最多2个，逗号分隔）<input value={profileDraft.tags} onChange={(event) => setProfileDraft({ ...profileDraft, tags: event.target.value })} /></label><button className="news-refresh" onClick={() => { repo.updateSourceProfile(editingSource.id, { displayName: profileDraft.displayName, profileDescription: profileDraft.profileDescription, tags: profileDraft.tags.split(",") }); setEditingSource(null); reload(); }}>保存资料</button></section></div>}
     {scheduleOpen && <div className="news-detail-overlay"><section className="news-detail-modal" role="dialog" aria-label="定点刷新设置"><button className="news-detail-close" aria-label="关闭定点刷新设置" onClick={() => setScheduleOpen(false)}><X /></button><h2>定点刷新</h2><label className="news-schedule-toggle"><input type="checkbox" checked={scheduleDraft.enabled} onChange={(event) => setScheduleDraft({ ...scheduleDraft, enabled: event.target.checked })} /> 启用每日定点刷新</label><div className="news-schedule-times">{scheduleDraft.times.map((time, index) => { const [hour = "", minute = ""] = time.split(":"); const update = (nextHour: string, nextMinute: string) => { setScheduleError(""); setScheduleDraft({ ...scheduleDraft, times: scheduleDraft.times.map((value, itemIndex) => itemIndex === index ? `${nextHour}:${nextMinute}` : value) }); }; return <div key={index}><label>刷新时间<span className="news-time-inputs"><input type="text" inputMode="numeric" maxLength={2} placeholder="00" value={hour} onChange={(event) => update(event.target.value.replace(/\D/g, ""), minute)} /><b>:</b><input type="text" inputMode="numeric" maxLength={2} placeholder="00" value={minute} onChange={(event) => update(hour, event.target.value.replace(/\D/g, ""))} /></span></label>{scheduleDraft.times.length > 1 && <button className="news-schedule-remove" onClick={() => setScheduleDraft({ ...scheduleDraft, times: scheduleDraft.times.filter((_, itemIndex) => itemIndex !== index) })}>删除</button>}</div>; })}</div>{scheduleError && <p className="news-schedule-error">{scheduleError}</p>}<div className="news-schedule-actions">{scheduleDraft.times.length < 3 && <button className="news-schedule-add" onClick={() => setScheduleDraft({ ...scheduleDraft, times: [...scheduleDraft.times, ":"] })}>+ 添加时间点</button>}<button className="news-refresh" onClick={() => { const times = scheduleDraft.times.map((time) => { const [hour = "", minute = ""] = time.split(":"); return `${(hour || "00").padStart(2, "0")}:${(minute || "00").padStart(2, "0")}`; }); if (times.some((time) => { const [hour, minute] = time.split(":").map(Number); return hour > 23 || minute > 59; })) return setScheduleError("小时请输入 00–23，分钟请输入 00–59"); repo.saveSchedule({ ...scheduleDraft, times }); setScheduleOpen(false); reload(); }}>保存设置</button></div></section></div>}
+    {manualOpen && <ManualNewsDialog sources={state.sources} onClose={() => setManualOpen(false)} onSave={saveManual} />}
   </section>;
 }

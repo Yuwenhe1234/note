@@ -33,6 +33,8 @@ export type NewsItem = {
 };
 
 export type NewsRefreshSummary = { added: number; failed: number; loginRequired: number; errors: string[] };
+export type ManualNewsInput = { sourceId: string; url: string; title: string; body: string };
+export type ManualNewsSummary = Pick<NewsItem, "summary" | "coreContent" | "highlights" | "whyItMatters">;
 
 export type NewsSourceProfile = Pick<NewsSource, "displayName" | "profileDescription" | "tags">;
 export type NewsRefreshSchedule = { enabled: boolean; times: string[]; lastTriggeredMinute?: string; lastCompletedAt?: string };

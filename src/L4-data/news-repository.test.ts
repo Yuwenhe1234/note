@@ -50,4 +50,13 @@ describe("news repository", () => {
     expect(repo.load().items).toHaveLength(1);
     expect(repo.load().items[0].id).toBe("new");
   });
+
+  it("adds a manual message and rejects duplicate links", () => {
+    const repo = createNewsRepository(localStorage, () => new Date("2026-09-10T08:00:00Z"));
+    const source = repo.addSource("https://example.com/feed", "Example");
+    const added = repo.addManualItem({ sourceId: source.id, url: "https://example.com/post?utm_source=test", title: "新文章", body: "正文" }, { summary: "摘要", coreContent: ["核心"], highlights: ["重点"], whyItMatters: "有价值" });
+    expect(added.title).toBe("新文章");
+    expect(repo.load().items[0]).toMatchObject({ summary: "摘要", contentBasis: "网页正文" });
+    expect(() => repo.addManualItem({ sourceId: source.id, url: "https://example.com/post", title: "重复", body: "正文" })).toThrow("这条消息已经添加过了");
+  });
 });

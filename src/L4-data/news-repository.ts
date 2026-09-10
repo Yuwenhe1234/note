@@ -1,4 +1,4 @@
-import { detectNewsPlatform, isExpiredNewsItem, normalizeContentUrl, normalizeRefreshSchedule, normalizeSourceProfile, validateNewsSourceUrl, type NewsItem, type NewsRefreshSchedule, type NewsSource, type NewsSourceProfile } from "./news-model";
+import { detectNewsPlatform, isExpiredNewsItem, normalizeContentUrl, normalizeRefreshSchedule, normalizeSourceProfile, validateNewsSourceUrl, type ManualNewsInput, type ManualNewsSummary, type NewsItem, type NewsRefreshSchedule, type NewsSource, type NewsSourceProfile } from "./news-model";
 
 type NewsState = { version: 1; sources: NewsSource[]; items: NewsItem[]; fingerprints: string[]; schedule?: NewsRefreshSchedule };
 const KEY = "memo-agent-news-v1";
@@ -54,6 +54,29 @@ export function createNewsRepository(storage: Storage, now: () => Date = () => n
       return newest.size;
     },
     removeItemsForSources(sourceIds: string[]) { const ids = new Set(sourceIds); const state = load(); save({ ...state, items: state.items.filter((item) => !ids.has(item.sourceId)) }); },
+    addManualItem(input: ManualNewsInput, summary?: ManualNewsSummary): NewsItem {
+      const state = load();
+      const source = state.sources.find((entry) => entry.id === input.sourceId);
+      if (!source) throw new Error("请选择订阅来源");
+      const title = input.title.trim();
+      const body = input.body.trim();
+      if (!title && !body) throw new Error("请填写标题或正文");
+      let url: string;
+      try { url = normalizeContentUrl(input.url.trim()); }
+      catch { throw new Error("请输入有效的内容链接"); }
+      if (state.items.some((entry) => normalizeContentUrl(entry.url) === url) || state.fingerprints.includes(url)) throw new Error("这条消息已经添加过了");
+      const timestamp = now().toISOString();
+      const item: NewsItem = {
+        id: crypto.randomUUID(), sourceId: source.id, platform: detectNewsPlatform(url),
+        title: title || body.slice(0, 40), url, sourceName: source.displayName || source.name,
+        publishedAt: timestamp, savedAt: timestamp, summary: summary?.summary || "",
+        coreContent: summary?.coreContent || [], highlights: summary?.highlights || [],
+        whyItMatters: summary?.whyItMatters, contentBasis: "网页正文",
+      };
+      const seen = new Set([...state.fingerprints, item.id, url]);
+      save({ ...state, items: [item, ...state.items], fingerprints: [...seen] });
+      return item;
+    },
     cleanup(at = now()) { const state = load(); const items = state.items.filter((entry) => !isExpiredNewsItem(entry.savedAt, at)); save({ ...state, items }); return state.items.length - items.length; },
   };
 }
