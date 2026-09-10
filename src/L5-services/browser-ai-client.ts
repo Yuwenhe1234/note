@@ -49,19 +49,19 @@ export async function testBrowserAiConnection(options: { storage?: Storage; fetc
   await chatCompletion([{ role: "user", content: "只回复 OK" }], { ...options, temperature: 0 });
 }
 
-export async function analyzeTaskInBrowser(input: Record<string, unknown>): Promise<Analysis> {
+export async function analyzeTaskInBrowser(input: Record<string, unknown>, options: { storage?: Storage; fetcher?: typeof fetch } = {}): Promise<Analysis> {
   const raw = await chatCompletion([
     { role: "system", content: "你是任务规划助手。只返回严格 JSON，包含 summary、goal、priority、estimatedHours、steps；steps 每项包含 title、hours、description、completionCriteria。步骤 2-8 个，时长以 0.25 小时为刻度且总和等于 estimatedHours。" },
     { role: "user", content: JSON.stringify(input) },
-  ]);
+  ], options);
   return parseAnalysis(raw);
 }
 
-export async function generateTodayInBrowser(tasks: unknown[]): Promise<string[]> {
+export async function generateTodayInBrowser(tasks: unknown[], options: { storage?: Storage; fetcher?: typeof fetch } = {}): Promise<string[]> {
   const raw = await chatCompletion([
     { role: "system", content: "你是今日待办规划助手。" },
     { role: "user", content: `根据任务清单生成 3 条简短可执行的今日待办，只返回 JSON 字符串数组：${JSON.stringify(tasks)}` },
-  ], { temperature: 0.3 });
+  ], { ...options, temperature: 0.3 });
   try {
     const value: unknown = JSON.parse(raw.replace(/^```json\s*|\s*```$/g, ""));
     if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) throw new Error();

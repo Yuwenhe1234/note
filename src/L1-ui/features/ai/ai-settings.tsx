@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { PageBackButton } from "../../components/page-back-button";
+import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
+import { loadBrowserAiConfig, saveBrowserAiConfig, testBrowserAiConnection } from "../../../L5-services/browser-ai-client";
 
 type Config = {
   provider: string;
@@ -51,7 +53,7 @@ const empty: Config = {
   hasApiKey: false,
 };
 
-export function AiSettings() {
+export function AiSettings({ serverAi = runtimeCapabilities.serverAi }: { serverAi?: boolean } = {}) {
   const [config, setConfig] = useState<Config>(empty);
   const [key, setKey] = useState("");
   const [message, setMessage] = useState("");
@@ -66,6 +68,14 @@ export function AiSettings() {
   const [page, setPage] = useState<"list" | "custom">("list");
   const choices = [...Object.values(providers), ...customProfiles];
   useEffect(() => {
+    if (!serverAi) {
+      const stored = loadBrowserAiConfig();
+      setConfig({ ...stored, hasApiKey: Boolean(stored.apiKey) });
+      setKey(stored.apiKey);
+      setSelected(stored.provider);
+      setActiveProvider(stored.provider);
+      return;
+    }
     fetch("/api/ai/config")
       .then((r) => r.json())
       .then((r) => {
@@ -76,7 +86,7 @@ export function AiSettings() {
         }
       })
       .catch(() => setMessage("本地 AI 服务未启动"));
-  }, []);
+  }, [serverAi]);
   const select = (id: string) => {
     const profile = choices.find((item) => item.id === id)!;
     setSelected(id);
@@ -88,6 +98,14 @@ export function AiSettings() {
     });
   };
   const save = async () => {
+    if (!serverAi) {
+      const previous = loadBrowserAiConfig();
+      saveBrowserAiConfig({ ...config, apiKey: key || previous.apiKey, enabled: true });
+      setConfig({ ...config, enabled: true, hasApiKey: Boolean(key || previous.apiKey) });
+      setActiveProvider(selected);
+      setMessage("配置已保存，API Key 仅保存在当前浏览器");
+      return;
+    }
     const response = await fetch("/api/ai/config", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -103,6 +121,11 @@ export function AiSettings() {
   };
   const test = async () => {
     setMessage("正在测试连接…");
+    if (!serverAi) {
+      try { await testBrowserAiConnection(); setMessage("连接成功"); }
+      catch (error) { setMessage(error instanceof Error ? error.message : "连接失败"); }
+      return;
+    }
     const result = await fetch("/api/ai/test", { method: "POST" }).then((r) =>
       r.json(),
     );
@@ -189,6 +212,7 @@ export function AiSettings() {
         当前服务商：
         {choices.find((item) => item.id === activeProvider)?.label || "未选择"}
       </p>
+      {!serverAi && <p className="ai-browser-warning">API Key 仅保存在当前浏览器。请只在可信设备上使用。</p>}
       <div className="provider-grid">
         {choices.map((profile) => (
           <button

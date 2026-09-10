@@ -8,6 +8,18 @@ afterEach(() => {
 });
 
 describe("AI settings", () => {
+  it("stores a visitor-owned API key without calling local server routes", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    render(<AiSettings serverAi={false} />);
+    expect(screen.getByText(/仅保存在当前浏览器/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "visitor-key" } });
+    fireEvent.click(screen.getByRole("button", { name: "保存并设为当前" }));
+    expect(await screen.findByText(/配置已保存/)).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem("memo-agent-ai-config-v1") || "{}").apiKey).toBe("visitor-key");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("switches the active provider from a provider card", async () => {
     const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => ({
       json: async () => ({

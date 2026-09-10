@@ -44,6 +44,7 @@ import { NewsWindow } from "./L1-ui/features/news/news-window";
 import { refreshNews } from "./L1-ui/features/news/news-client";
 import { createNewsRepository } from "./L4-data/news-repository";
 import { createNewsRefreshScheduler } from "./L5-services/news-refresh-scheduler";
+import { generateTodayTodos as requestTodayTodos } from "./L5-services/today-ai";
 import { createTodoReminderScheduler } from "./L5-services/todo-reminder-scheduler";
 import { browserReminderService } from "./L5-services/reminder-service";
 import { CompanionWindow } from "./L1-ui/features/companion/companion-window";
@@ -205,10 +206,8 @@ export default function App() {
   const openTodayEditor = (todo?: TodayTodo) => { setEditingTodayId(todo?.id || null); setTodayContent(todo?.content || ""); setTodayReminder(todo?.reminderTime || ""); setTodayOpen(true); };
   const generateTodayTodos = async () => {
     try {
-      const response = await fetch("/api/generate-today", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tasks }) });
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.error);
-      setTodayAiCandidates(result.data); setTodayAiError(""); setTodayAiOpen(true);
+      const result = await requestTodayTodos(tasks);
+      setTodayAiCandidates(result); setTodayAiError(""); setTodayAiOpen(true);
     } catch (error) { setTodayAiCandidates([]); setTodayAiError(error instanceof Error ? error.message : "AI 生成失败"); setTodayAiOpen(true); }
   };
   const startVoiceInput = () => {
