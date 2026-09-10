@@ -258,7 +258,7 @@ describe("application shell", () => {
       expect(card).toBeEnabled();
       fireEvent.click(card);
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
-      fireEvent.click(screen.getByRole("button", { name: "返回其他功能" }));
+      fireEvent.click(screen.getByRole("button", { name: "其他功能" }));
       expect(screen.getByRole("heading", { name: "更多智能能力" })).toBeInTheDocument();
     }
     expect(open).not.toHaveBeenCalled();
@@ -269,7 +269,7 @@ describe("application shell", () => {
     fireEvent.click(screen.getByRole("button", { name: "其他功能" }));
     fireEvent.click(screen.getByRole("button", { name: /放入桌面/ }));
     expect(screen.getByRole("heading", { name: "放入桌面" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "返回更多功能" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "返回更多功能" })).not.toBeInTheDocument();
     expect(screen.queryByText("正在通过 Windows 桌面助手打开挂件…")).not.toBeInTheDocument();
     expect(screen.queryByText("调整设置")).not.toBeInTheDocument();
     expect(screen.queryByText("这是桌面客户端功能")).not.toBeInTheDocument();
@@ -298,12 +298,13 @@ describe("application shell", () => {
     expect(window.location.search).toBe("");
   });
 
-  it("shows due todos in a non-blocking top-left toast without creating a browser notification", async () => {
+  it("shows due todos in a non-blocking top-left toast and browser notification when enabled", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-09-08T09:00:00"));
     const notification = vi.fn();
     Object.assign(notification, { permission: "granted" });
     Object.defineProperty(window, "Notification", { configurable: true, value: notification });
+    localStorage.setItem("memo-agent-settings-v1", JSON.stringify({ reminders: { notifications: true } }));
     localStorage.setItem("memo-agent-today-todos", JSON.stringify([
       { id: "drink", content: "喝水", reminderTime: "09:01", completed: false },
     ]));
@@ -329,12 +330,27 @@ describe("application shell", () => {
     expect(toastStyles.pointerEvents).toBe("none");
     expect(window.getComputedStyle(reminderDialog!).pointerEvents).toBe("auto");
     expect(document.querySelector(".reminder-overlay")).not.toBeInTheDocument();
-    expect(notification).not.toHaveBeenCalled();
+    expect(notification).toHaveBeenCalledWith("待办提醒：喝水", { body: "设定时间：09:01" });
+  });
+
+  it("does not show an in-page reminder while the reminder setting is disabled", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-09-08T09:00:00"));
+    localStorage.setItem("memo-agent-today-todos", JSON.stringify([
+      { id: "silent", content: "不应提醒", reminderTime: "09:01", completed: false },
+    ]));
+
+    render(<App />);
+    await act(async () => {});
+    act(() => vi.advanceTimersByTime(60_000));
+
+    expect(screen.queryByRole("heading", { name: "待办提醒" })).not.toBeInTheDocument();
   });
 
   it("queues reminders that become due at the same time", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-09-08T09:00:00"));
+    localStorage.setItem("memo-agent-settings-v1", JSON.stringify({ reminders: { notifications: true } }));
     localStorage.setItem("memo-agent-today-todos", JSON.stringify([
       { id: "first", content: "第一项", reminderTime: "09:01", completed: false },
       { id: "second", content: "第二项", reminderTime: "09:01", completed: false },

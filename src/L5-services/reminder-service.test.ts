@@ -48,4 +48,21 @@ describe("reminder service", () => {
     vi.advanceTimersByTime(60000);
     expect(notify).toHaveBeenCalledTimes(1);
   });
+
+  it("sends the todo title and configured time when permission is granted", () => {
+    const notify = vi.fn();
+    const service = createReminderService({
+      permission: () => "granted",
+      requestPermission: async () => "granted",
+      notify,
+      now: () => 0,
+      setTimer: setTimeout,
+      clearTimer: clearTimeout,
+    });
+
+    expect(service.notifyTodo("提交报告", "18:30")).toBe(true);
+    expect(notify).toHaveBeenCalledWith("待办提醒：提交报告", {
+      body: "设定时间：18:30",
+    });
+  });
 });

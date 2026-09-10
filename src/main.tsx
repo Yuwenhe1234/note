@@ -4,8 +4,15 @@ import App from "./App";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { enterAccount, getSession, logout, type LocalUser } from "./L4-data/auth-repository";
 import { LoginScreen } from "./L1-ui/features/auth/login-screen";
+import { loadSettings } from "./L4-data/settings-repository";
 import { WidgetWindowRoot } from "./L1-ui/features/desktop/desktop-widget-window";
 import "./index.css";
+
+const initialSettings = loadSettings();
+document.documentElement.dataset.theme = initialSettings.appearance.theme === "light" ? "light" : "dark";
+document.documentElement.dataset.accent = initialSettings.appearance.accent;
+delete document.documentElement.dataset.fontSize;
+delete document.documentElement.dataset.density;
 
 function isWidgetWindow(): boolean {
   try {

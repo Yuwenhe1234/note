@@ -68,9 +68,10 @@ export function SettingsCenter({
   const [settings, setSettings] = useState(loadSettings);
   useEffect(() => {
     saveSettings(settings);
+    document.documentElement.dataset.theme = settings.appearance.theme === "light" ? "light" : "dark";
     document.documentElement.dataset.accent = settings.appearance.accent;
-    document.documentElement.dataset.fontSize = settings.appearance.fontSize;
-    document.documentElement.dataset.density = settings.appearance.density;
+    delete document.documentElement.dataset.fontSize;
+    delete document.documentElement.dataset.density;
     document.documentElement.classList.toggle(
       "reduce-motion",
       settings.interaction.reducedMotion || !settings.interaction.animations,
@@ -264,6 +265,12 @@ export function SettingsCenter({
       ) : route === "appearance" ? (
         <section className="settings-panel">
           <SettingSelect
+            label="主题"
+            value={settings.appearance.theme === "light" ? "light" : "dark"}
+            onChange={(theme) => setSettings((current) => ({ ...current, appearance: { ...current.appearance, theme: theme as "dark" | "light" } }))}
+            options={["dark:深色", "light:浅色"]}
+          />
+          <SettingSelect
             label="强调色"
             value={settings.appearance.accent}
             onChange={(accent) =>
@@ -276,34 +283,6 @@ export function SettingsCenter({
               }))
             }
             options={["green:绿色", "blue:蓝色", "orange:橙色"]}
-          />
-          <SettingSelect
-            label="字体大小"
-            value={settings.appearance.fontSize}
-            onChange={(fontSize) =>
-              setSettings((current) => ({
-                ...current,
-                appearance: {
-                  ...current.appearance,
-                  fontSize: fontSize as typeof current.appearance.fontSize,
-                },
-              }))
-            }
-            options={["compact:紧凑", "standard:标准", "large:宽松"]}
-          />
-          <SettingSelect
-            label="界面密度"
-            value={settings.appearance.density}
-            onChange={(density) =>
-              setSettings((current) => ({
-                ...current,
-                appearance: {
-                  ...current.appearance,
-                  density: density as typeof current.appearance.density,
-                },
-              }))
-            }
-            options={["compact:紧凑", "standard:标准", "comfortable:舒适"]}
           />
         </section>
       ) : (
@@ -520,7 +499,7 @@ function ReminderPanel({
     <section className="settings-panel reminder-panel">
       <div className="setting-row">
         <div>
-          <strong>浏览器通知</strong>
+          <strong>待办提醒</strong>
           <small>
             权限状态：
             {permission === "granted"
@@ -533,31 +512,18 @@ function ReminderPanel({
           </small>
         </div>
         <input
-          aria-label="浏览器通知"
+          aria-label="待办提醒"
           type="checkbox"
           checked={value.notifications && permission === "granted"}
           onChange={(event) => enable(event.target.checked)}
         />
       </div>
-      <SettingNumber
-        label="默认提前分钟"
-        value={value.defaultLeadMinutes}
-        min={0}
-        max={1440}
-        onChange={(defaultLeadMinutes) =>
-          onChange({ ...value, defaultLeadMinutes })
-        }
-      />
-      <SettingToggle
-        label="逾期提醒"
-        checked={value.overdueReminder}
-        onChange={(overdueReminder) => onChange({ ...value, overdueReminder })}
-      />
       <div className="settings-action-row">
-        <button className="btn-secondary" onClick={test}>
+        <button className="btn-secondary" onClick={test} disabled={!value.notifications}>
           发送测试通知
         </button>
       </div>
+      {!value.notifications && <p className="setting-feedback" role="status">请先开启待办提醒后再发送测试通知</p>}
       {permission === "denied" && <p className="setting-feedback" role="status">浏览器已拒绝通知。请在地址栏的网站权限中将通知改为允许，然后重新开启此开关。</p>}
       {message && (
         <p className="setting-feedback" role="status">

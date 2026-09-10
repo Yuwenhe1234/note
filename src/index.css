@@ -11,15 +11,19 @@
 .page-back-button { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 24px; padding: 10px 16px; border: 1px solid #ffffff24; border-radius: 999px; background: #ffffff05; color: #d7dbd8; font-size: 14px; cursor: pointer; transition: border-color .2s, background .2s, color .2s; }
 .page-back-button svg { width: 16px; height: 16px; color: var(--accent-user); }
 .page-back-button:hover { border-color: #a9ffbd66; background: #a9ffbd12; color: #f4f2ed; }
+.settings-page-title { padding-bottom: 0; }
+.settings-page-title h1 { margin: 0; }
+.settings-page-title + .page-back-button { margin: -56px 0 12px; }
+.settings-page-title + .page-back-button + .settings-panel,
+.settings-page-title + .page-back-button + .ai-settings { margin-top: 0; }
 .feature-window-header { position: static; width: 100%; margin: 0 0 28px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; backdrop-filter: none; display: flex; justify-content: space-between; align-items: flex-end; }
 .feature-window-header small { color: #a9ffbd; letter-spacing: .14em; }
 .feature-window-header h1 { margin: 8px 0 6px; font: 400 58px "Instrument Serif"; }
 .feature-window-header p { margin: 0; color: #95989d; }
 .feature-window-header > svg { width: 44px; height: 44px; color: #a9ffbd; }
-.news-feature-page > .page-back-button { margin: 36px 0 0; }
-.news-feature-page .news-window .feature-window-header { justify-content: center; margin: 0 0 42px; padding-top: 20px; text-align: center; }
-.news-feature-page .news-window .feature-window-header h1 { margin: 12px 0 10px; font-size: 72px; }
-.news-feature-page .news-window .feature-window-header p { font-size: 17px; }
+.desktop-config-hero { padding-top: 16px; }
+.desktop-config-hero em { color: #a9ffbd; letter-spacing: .14em; }
+.desktop-config-hero h1 { margin: 8px 0 28px; font: 400 58px "Instrument Serif"; }
 .news-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; }
 .news-sources, .news-feed, .coming-soon-card, .privacy-card, .plugin-empty, .plugin-grid > article { border: 1px solid #ffffff1c; border-radius: 24px; background: #ffffff08; }
 .news-sidebar { display: grid; align-self: start; gap: 14px; min-width: 0; }
@@ -749,6 +753,13 @@ main {
 .page h1 {
   font-size: clamp(60px, 8vw, 105px);
 }
+.page.desktop-config-hero h1 {
+  margin: 8px 0 16px;
+  font: 400 58px "Instrument Serif";
+}
+.page.desktop-config-hero {
+  padding-bottom: 8px;
+}
 .focus {
   padding: 28px;
   margin-bottom: 14px;
@@ -995,6 +1006,10 @@ main {
 .modal {
   position: relative;
   width: min(760px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a9ffbd66 transparent;
   padding: 36px;
   border: 1px solid #ffffff22;
   border-radius: 30px;
@@ -1068,6 +1083,11 @@ main {
 .analysis-step-editor-list {
   display: grid;
   gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #a9ffbd66 transparent;
 }
 .analysis-step-edit-row {
   display: grid;
@@ -1328,6 +1348,16 @@ main {
 }
 :root {
   --accent-user: #a9ffbd;
+  --accent-soft: color-mix(in srgb, var(--accent-user) 12%, transparent);
+  --accent-border: color-mix(in srgb, var(--accent-user) 42%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent-user) 24%, transparent);
+  --page-bg: #08090b;
+  --surface-1: #0f1113;
+  --surface-2: #15161a;
+  --surface-glass: #0b0c0eb8;
+  --text-main: #f4f2ed;
+  --text-muted: #95989d;
+  --line: #ffffff1c;
   --ui-body-size: 16px;
   --ui-card-padding: 22px;
 }
@@ -1448,8 +1478,27 @@ html[data-density="comfortable"] .settings-panel {
   display: grid;
   grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   gap: 28px;
-  align-items: start;
-  margin-top: 24px;
+  height: 460px;
+  align-items: stretch;
+  margin-top: 0;
+}
+.analysis-step-edit-row:has(input[aria-label^="候选待办"]) {
+  grid-template-columns: minmax(0, 1fr) 42px;
+  padding: 12px;
+}
+.analysis-step-edit-row:has(input[aria-label^="候选待办"]) input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #34353a;
+  border-radius: 12px;
+  background: #191a1f;
+}
+.desktop-config-page > .settings-panel,
+.desktop-config-page > .desktop-preview {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a9ffbd66 transparent;
 }
 .desktop-preview .preview-empty {
   padding: 6px 4px;
@@ -1516,6 +1565,95 @@ body.widget-window-mode {
 .widget-inline-editor input:focus, .widget-inline-editor textarea:focus { border-color: #a9ffbd88; }
 .widget-inline-editor-error { margin: 0; color: #ff8b8b; font-size: 12px; }
 .widget-inline-editor-save { padding: 10px; border-radius: 10px; background: #a9ffbd; color: #102015; font-weight: 600; }
+
+/* Persistent site theme and accent-color application */
+body { background: var(--page-bg); color: var(--text-main); }
+.app { background: radial-gradient(circle at 75% 0, color-mix(in srgb, var(--accent-user) 10%, var(--page-bg)) 0, transparent 28%), radial-gradient(circle at 5% 50%, var(--surface-2) 0, transparent 28%); }
+.brand i,
+.login-intro i,
+.mark,
+.new,
+.check.checked,
+.features button > svg:first-child,
+.focus,
+.news-add,
+.primary,
+.widget-inline-editor-save { background: var(--accent-user); }
+.feature-window-header small,
+.feature-window-header > svg,
+.desktop-config-hero em,
+.news-notice,
+.news-card strong,
+.news-source-card em span,
+.news-schedule-add,
+.news-time-inputs b,
+.news-detail-heading small,
+.news-detail-meta small,
+.news-detail-modal > a,
+.coming-soon-card > svg,
+.privacy-card > svg,
+.plugin-empty > svg,
+.login-intro em,
+.login-card em,
+.login-switch,
+.task-context-menu button,
+.desktop-preview header,
+.desktop-preview .widget-add { color: var(--accent-user); }
+button:not(:disabled):hover,
+button:not(:disabled):focus-visible { box-shadow: 0 0 0 2px var(--accent-border), 0 0 18px var(--accent-glow); }
+button:not(:disabled):active { box-shadow: 0 0 0 3px var(--accent-border), 0 0 22px var(--accent-glow); }
+.news-card:hover,
+.page-back-button:hover,
+.task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }
+.news-schedule-toggle input:checked { border-color: var(--accent-user); background: var(--accent-user); }
+.news-card-rail,
+.analysis-step-editor-list,
+.desktop-config-page > .settings-panel,
+.desktop-config-page > .desktop-preview { scrollbar-color: var(--accent-border) transparent; }
+
+html[data-theme="light"] {
+  --page-bg: #eef1f0;
+  --surface-1: #ffffff;
+  --surface-2: #f5f7f6;
+  --surface-glass: #fffffff0;
+  --text-main: #202522;
+  --text-muted: #616963;
+  --line: #2430291c;
+}
+html[data-theme="light"][data-accent="green"] { --accent-user: #208b4f; }
+html[data-theme="light"][data-accent="blue"] { --accent-user: #316fca; }
+html[data-theme="light"][data-accent="orange"] { --accent-user: #b96019; }
+html[data-theme="light"] .app { color: var(--text-main); }
+html[data-theme="light"] .app { background: radial-gradient(circle at 75% 0, color-mix(in srgb, var(--accent-user) 5%, var(--page-bg)) 0, transparent 30%), var(--page-bg); }
+html[data-theme="light"] .glow { opacity: .55; background-image: linear-gradient(#2430290a 1px, transparent 1px), linear-gradient(90deg, #2430290a 1px, transparent 1px); }
+html[data-theme="light"] header,
+html[data-theme="light"] .login-card,
+html[data-theme="light"] .settings-panel,
+html[data-theme="light"] .ai-settings,
+html[data-theme="light"] .tasks article,
+html[data-theme="light"] .news-sources,
+html[data-theme="light"] .news-feed,
+html[data-theme="light"] .coming-soon-card,
+html[data-theme="light"] .privacy-card,
+html[data-theme="light"] .plugin-empty,
+html[data-theme="light"] .plugin-grid > article,
+html[data-theme="light"] .modal,
+html[data-theme="light"] .reminder-dialog { border-color: var(--line); background: var(--surface-1); color: var(--text-main); box-shadow: 0 12px 36px #24302918; }
+html[data-theme="light"] header { box-shadow: inset 0 1px #ffffff, 0 10px 30px #24302914; }
+html[data-theme="light"] .settings > button,
+html[data-theme="light"] .features button { border-color: transparent; background: color-mix(in srgb, var(--surface-1) 82%, transparent); }
+html[data-theme="light"] .settings > button:hover,
+html[data-theme="light"] .features button:hover { border-color: var(--accent-border); background: color-mix(in srgb, var(--accent-user) 7%, var(--surface-1)); box-shadow: 0 10px 28px #24302912; }
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select,
+html[data-theme="light"] .analysis label,
+html[data-theme="light"] .analysis-step-edit-row { border-color: var(--line); background: var(--surface-2); color: var(--text-main); }
+html[data-theme="light"] .feature-window-header p,
+html[data-theme="light"] .login-intro p { color: var(--text-muted); }
+html[data-theme="light"] .account-logout { border-color: var(--line); background: var(--surface-glass); color: var(--text-main); }
+html[data-theme="light"] .page-back-button { border-color: var(--line); background: var(--surface-1); color: var(--text-main); }
+html[data-theme="light"] .hero h1 i { color: #69716c; }
 .desktop-widget-window-hide {
   display: inline-flex;
   align-items: center;
@@ -1547,9 +1685,9 @@ body.widget-window-mode {
   color: #fff;
 }
 .desktop-widget-window-pin.is-active {
-  background: #a9ffbd22;
-  border-color: #a9ffbd88;
-  color: #a9ffbd;
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: var(--accent-user);
 }
 .desktop-widget-window-pin svg {
   width: 14px;
@@ -1565,3 +1703,33 @@ body.widget-window-mode {
   color: #8b8f94;
   font-size: 13px;
 }
+.app-loading,
+.brand-name:hover,
+.hero > p,
+.hero svg,
+.heading em,
+.modal em,
+.current-provider,
+.ai-message,
+.back-settings { color: var(--accent-user); }
+.long-press-target::after { background: var(--accent-user); }
+.brand-input,
+.hero-editor { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-soft); }
+.hero-editable:hover { text-shadow: 0 0 22px var(--accent-glow); }
+.tasks article:hover,
+.task-step-bubble:hover { border-color: var(--accent-border); background: var(--accent-soft); }
+.task-step-bubble.completed,
+.daily-reuse-tag,
+.wheel-columns button.selected { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-user); }
+.task-context-menu,
+.reminder-dialog,
+.desktop-preview,
+.widget-inline-editor { border-color: var(--accent-border); }
+.wheel-columns > div { scrollbar-color: var(--accent-user) transparent; }
+.wheel-columns > div::-webkit-scrollbar-thumb { background: var(--accent-user); }
+.widget-theme-control input:checked + span { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-user); }
+.features button:hover { border-color: var(--accent-border); box-shadow: 0 0 0 1px var(--accent-border), 0 10px 36px var(--accent-glow), inset 0 0 24px var(--accent-soft); }
+.desktop-widget-resize-handle { background: linear-gradient(135deg, transparent 44%, var(--accent-user) 45% 49%, transparent 50% 59%, var(--accent-user) 60% 64%, transparent 65%); }
+.desktop-widget-resize-handle:hover { background-color: var(--accent-soft); }
+.widget-inline-editor input:focus,
+.widget-inline-editor textarea:focus { border-color: var(--accent-border); }

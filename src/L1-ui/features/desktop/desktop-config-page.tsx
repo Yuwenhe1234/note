@@ -5,7 +5,6 @@ import type { StoredTodayTodo } from "../../../L4-data/workspace-repository";
 import { type DesktopWidgetSettings } from "./widget-model";
 import { WidgetPreview } from "./widget-preview";
 import { openDesktopWidget } from "../../../L5-services/widget-window";
-import { PageBackButton } from "../../components/page-back-button";
 
 export function DesktopConfigPage({
   settings,
@@ -16,7 +15,6 @@ export function DesktopConfigPage({
   onToggleToday,
   onAddToday,
   onOpenTask,
-  onBack,
 }: {
   settings: DesktopWidgetSettings;
   onChange: (next: DesktopWidgetSettings) => void;
@@ -26,15 +24,13 @@ export function DesktopConfigPage({
   onToggleToday: (id: string) => void;
   onAddToday: () => void;
   onOpenTask: (task: Task) => void;
-  onBack: () => void;
 }) {
   const set = (patch: Partial<DesktopWidgetSettings>) =>
     onChange({ ...settings, ...patch });
   const [placeStatus, setPlaceStatus] = useState("");
   return (
     <>
-      <PageBackButton label="返回更多功能" onClick={onBack} />
-      <section className="page">
+      <section className="page desktop-config-hero">
         <em>DESKTOP WIDGET</em>
         <h1>放入桌面</h1>
       </section>

@@ -13,7 +13,6 @@ const todos = [{ id: "t1", content: "写周报", reminderTime: "", completed: fa
 
 function renderPage() {
   const onChange = vi.fn();
-  const onBack = vi.fn();
   render(
     <DesktopConfigPage
       settings={DEFAULT_WIDGET_SETTINGS}
@@ -24,10 +23,9 @@ function renderPage() {
       onToggleToday={vi.fn()}
       onAddToday={vi.fn()}
       onOpenTask={vi.fn()}
-      onBack={onBack}
     />,
   );
-  return { onChange, onBack };
+  return { onChange };
 }
 
 describe("DesktopConfigPage", () => {
@@ -57,9 +55,4 @@ describe("DesktopConfigPage", () => {
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ theme: "light" }));
   });
 
-  it("calls onBack", () => {
-    const { onBack } = renderPage();
-    fireEvent.click(screen.getByRole("button", { name: "返回更多功能" }));
-    expect(onBack).toHaveBeenCalled();
-  });
 });
