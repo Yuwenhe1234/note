@@ -52,7 +52,8 @@ export function parseBackup(raw: string): MemoAgentBackup {
       return typeof item === typeof template;
     };
     const validSettings = (item: unknown) => sameShape(DEFAULT_SETTINGS, item);
-    const validTask = (item: unknown) => record(item) && typeof item.id === "string" && typeof item.title === "string" && typeof item.completed === "boolean";
+    const validStep = (item: unknown) => record(item) && (item.id === undefined || typeof item.id === "string") && (item.title === undefined || typeof item.title === "string") && (item.hours === undefined || typeof item.hours === "number") && (item.minutes === undefined || typeof item.minutes === "number") && (item.completed === undefined || typeof item.completed === "boolean");
+    const validTask = (item: unknown) => record(item) && typeof item.id === "string" && typeof item.title === "string" && typeof item.completed === "boolean" && (item.steps === undefined || typeof item.steps === "number" || (Array.isArray(item.steps) && item.steps.every(validStep)));
     const validTodo = (item: unknown) => record(item) && typeof item.id === "string" && typeof item.content === "string" && typeof item.reminderTime === "string" && typeof item.completed === "boolean";
     const validEditableText = (item: unknown) => record(item) && ["siteName", "heroEyebrow", "heroTitle", "heroDescription", "todayFocus"].every((key) => typeof item[key] === "string");
     const validSource = (item: unknown) => record(item) && ["id", "url", "name", "platform", "subscribedAt", "loginStatus"].every((key) => typeof item[key] === "string");
