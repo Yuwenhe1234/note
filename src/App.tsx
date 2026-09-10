@@ -147,7 +147,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
       setWorkspaceReady(true); setSaveStatus("已保存");
     }).catch((error) => {
       const message = error instanceof Error ? error.message : "载入失败";
-      setSaveStatus(message);
+      setSaveStatus(message === "浏览器工作区数据已损坏" ? `${message}，请到设置导入备份或清除本站数据后重试` : message);
       if (message !== "浏览器工作区数据已损坏") setWorkspaceReady(true);
     });
   }, []);

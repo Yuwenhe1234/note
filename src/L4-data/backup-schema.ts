@@ -46,10 +46,17 @@ export function createBackup(
 export function parseBackup(raw: string): MemoAgentBackup {
   try {
     const value = JSON.parse(raw) as MemoAgentBackup;
+    const record = (item: unknown): item is Record<string, unknown> => typeof item === "object" && item !== null;
+    const validSettings = (item: unknown) => record(item) && item.version === 1 && record(item.taskDefaults) && record(item.appearance) && record(item.interaction) && record(item.reminders);
+    const settingsValid = validSettings(value.settings);
+    const workspaceValid = value.workspace === undefined || (record(value.workspace) && value.workspace.version === 1 && typeof value.workspace.revision === "number" && Array.isArray(value.workspace.tasks) && Array.isArray(value.workspace.todayTodos) && validSettings(value.workspace.settings) && record(value.workspace.editableText));
+    const newsValid = value.news === undefined || (record(value.news) && value.news.version === 1 && Array.isArray(value.news.sources) && Array.isArray(value.news.items) && Array.isArray(value.news.fingerprints) && value.news.fingerprints.every((entry) => typeof entry === "string"));
+    const aiValid = value.ai === undefined || (record(value.ai) && typeof value.ai.provider === "string" && typeof value.ai.baseUrl === "string" && typeof value.ai.model === "string" && typeof value.ai.enabled === "boolean" && !("apiKey" in value.ai));
     if (
       ![1, 2].includes(value.version) ||
       !Array.isArray(value.tasks) ||
-      !value.settings ||
+      !settingsValid || !workspaceValid || !newsValid || !aiValid ||
+      (value.version === 1 && (value.workspace !== undefined || value.news !== undefined || value.ai !== undefined)) ||
       value.tasks.some(
         (task) =>
           typeof task.id !== "string" ||
@@ -61,5 +68,18 @@ export function parseBackup(raw: string): MemoAgentBackup {
     return value;
   } catch {
     throw new Error("备份格式不正确，现有数据未被修改");
+  }
+}
+
+export function restoreBrowserBackup(backup: MemoAgentBackup, storage: Storage = localStorage): void {
+  const entries: [string, string][] = [];
+  if (backup.workspace) entries.push(["memo-agent-workspace-v1", JSON.stringify(backup.workspace)]);
+  if (backup.news) entries.push(["memo-agent-news-v1", JSON.stringify(backup.news)]);
+  if (backup.ai) entries.push(["memo-agent-ai-config-v1", JSON.stringify({ ...backup.ai, apiKey: "" })]);
+  const previous = new Map(entries.map(([key]) => [key, storage.getItem(key)]));
+  try { entries.forEach(([key, value]) => storage.setItem(key, value)); }
+  catch {
+    previous.forEach((value, key) => value === null ? storage.removeItem(key) : storage.setItem(key, value));
+    throw new Error("备份导入失败，原有数据已恢复");
   }
 }

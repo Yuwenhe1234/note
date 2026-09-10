@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createBackup, parseBackup } from "./backup-schema";
+import { createBackup, parseBackup, restoreBrowserBackup } from "./backup-schema";
 import { DEFAULT_SETTINGS } from "./settings-repository";
 
 describe("backup schema", () => {
@@ -39,5 +39,21 @@ describe("backup schema", () => {
     expect(parsed.news).toMatchObject({ version: 1 });
     expect(parsed.ai).toEqual({ provider: "openai", baseUrl: "https://api.openai.com/v1", model: "gpt", enabled: true });
     expect(JSON.stringify(parsed)).not.toContain("must-not-export");
+  });
+  it("rejects malformed nested version 2 data", () => {
+    expect(() => parseBackup(JSON.stringify({ version: 2, exportedAt: "now", tasks: [], settings: DEFAULT_SETTINGS, workspace: { version: 9 }, news: { version: 1, sources: "bad", items: [], fingerprints: [] } }))).toThrow("备份格式不正确");
+  });
+  it("rolls back browser keys when an import write fails", () => {
+    const values = new Map([["memo-agent-workspace-v1", "old-workspace"], ["memo-agent-news-v1", "old-news"]]);
+    let writes = 0;
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => { writes += 1; if (writes === 2) throw new DOMException("full", "QuotaExceededError"); values.set(key, value); },
+      removeItem: (key: string) => { values.delete(key); },
+    } as unknown as Storage;
+    const backup = createBackup([], DEFAULT_SETTINGS, { workspace: { version: 1, revision: 0, updatedAt: "", tasks: [], todayTodos: [], settings: DEFAULT_SETTINGS, editableText: { siteName: "站点", heroEyebrow: "", heroTitle: "", heroDescription: "", todayFocus: "" } }, news: { version: 1, sources: [], items: [], fingerprints: [] } });
+    expect(() => restoreBrowserBackup(backup, storage)).toThrow("备份导入失败，原有数据已恢复");
+    expect(values.get("memo-agent-workspace-v1")).toBe("old-workspace");
+    expect(values.get("memo-agent-news-v1")).toBe("old-news");
   });
 });

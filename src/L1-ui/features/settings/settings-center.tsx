@@ -9,6 +9,7 @@ import {
 import {
   createBackup,
   parseBackup,
+  restoreBrowserBackup,
   type BackupTask,
 } from "../../../L4-data/backup-schema";
 import { browserReminderService } from "../../../L5-services/reminder-service";
@@ -423,9 +424,7 @@ function DataPanel({
     if (!file) return;
     try {
       const backup = parseBackup(await file.text());
-      if (backup.workspace) localStorage.setItem(WEB_WORKSPACE_KEY, JSON.stringify(backup.workspace));
-      if (backup.news) localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(backup.news));
-      if (backup.ai) localStorage.setItem(BROWSER_AI_CONFIG_KEY, JSON.stringify({ ...backup.ai, apiKey: "" }));
+      restoreBrowserBackup(backup);
       onImport(backup);
       setMessage("备份已导入");
     } catch (error) {
