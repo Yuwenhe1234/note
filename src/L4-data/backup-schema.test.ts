@@ -43,6 +43,14 @@ describe("backup schema", () => {
   it("rejects malformed nested version 2 data", () => {
     expect(() => parseBackup(JSON.stringify({ version: 2, exportedAt: "now", tasks: [], settings: DEFAULT_SETTINGS, workspace: { version: 9 }, news: { version: 1, sources: "bad", items: [], fingerprints: [] } }))).toThrow("备份格式不正确");
   });
+  it("rejects malformed members inside browser arrays", () => {
+    const base = createBackup([], DEFAULT_SETTINGS, { workspace: { version: 1, revision: 0, updatedAt: "", tasks: [], todayTodos: [], settings: DEFAULT_SETTINGS, editableText: { siteName: "站点", heroEyebrow: "", heroTitle: "", heroDescription: "", todayFocus: "" } }, news: { version: 1, sources: [], items: [], fingerprints: [] } });
+    expect(() => parseBackup(JSON.stringify({ ...base, workspace: { ...base.workspace, tasks: [null] } }))).toThrow("备份格式不正确");
+    expect(() => parseBackup(JSON.stringify({ ...base, workspace: { ...base.workspace, todayTodos: [null] } }))).toThrow("备份格式不正确");
+    expect(() => parseBackup(JSON.stringify({ ...base, news: { ...base.news, sources: [null] } }))).toThrow("备份格式不正确");
+    expect(() => parseBackup(JSON.stringify({ ...base, news: { ...base.news, items: [null] } }))).toThrow("备份格式不正确");
+    expect(() => parseBackup(JSON.stringify({ ...base, workspace: { ...base.workspace, editableText: {} } }))).toThrow("备份格式不正确");
+  });
   it("rolls back browser keys when an import write fails", () => {
     const values = new Map([["memo-agent-workspace-v1", "old-workspace"], ["memo-agent-news-v1", "old-news"]]);
     let writes = 0;

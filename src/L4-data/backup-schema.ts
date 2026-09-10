@@ -1,4 +1,4 @@
-import type { AppSettingsV1 } from "./settings-repository";
+import { DEFAULT_SETTINGS, type AppSettingsV1 } from "./settings-repository";
 import type { TaskStep } from "./task-model";
 import type { WorkspaceDataV1 } from "./workspace-repository";
 
@@ -47,22 +47,26 @@ export function parseBackup(raw: string): MemoAgentBackup {
   try {
     const value = JSON.parse(raw) as MemoAgentBackup;
     const record = (item: unknown): item is Record<string, unknown> => typeof item === "object" && item !== null;
-    const validSettings = (item: unknown) => record(item) && item.version === 1 && record(item.taskDefaults) && record(item.appearance) && record(item.interaction) && record(item.reminders);
+    const sameShape = (template: unknown, item: unknown): boolean => {
+      if (record(template)) return record(item) && Object.keys(template).every((key) => sameShape(template[key], item[key]));
+      return typeof item === typeof template;
+    };
+    const validSettings = (item: unknown) => sameShape(DEFAULT_SETTINGS, item);
+    const validTask = (item: unknown) => record(item) && typeof item.id === "string" && typeof item.title === "string" && typeof item.completed === "boolean";
+    const validTodo = (item: unknown) => record(item) && typeof item.id === "string" && typeof item.content === "string" && typeof item.reminderTime === "string" && typeof item.completed === "boolean";
+    const validEditableText = (item: unknown) => record(item) && ["siteName", "heroEyebrow", "heroTitle", "heroDescription", "todayFocus"].every((key) => typeof item[key] === "string");
+    const validSource = (item: unknown) => record(item) && ["id", "url", "name", "platform", "subscribedAt", "loginStatus"].every((key) => typeof item[key] === "string");
+    const validNewsItem = (item: unknown) => record(item) && ["id", "sourceId", "platform", "title", "url", "sourceName", "publishedAt", "savedAt", "summary"].every((key) => typeof item[key] === "string") && Array.isArray(item.highlights) && item.highlights.every((entry) => typeof entry === "string");
     const settingsValid = validSettings(value.settings);
-    const workspaceValid = value.workspace === undefined || (record(value.workspace) && value.workspace.version === 1 && typeof value.workspace.revision === "number" && Array.isArray(value.workspace.tasks) && Array.isArray(value.workspace.todayTodos) && validSettings(value.workspace.settings) && record(value.workspace.editableText));
-    const newsValid = value.news === undefined || (record(value.news) && value.news.version === 1 && Array.isArray(value.news.sources) && Array.isArray(value.news.items) && Array.isArray(value.news.fingerprints) && value.news.fingerprints.every((entry) => typeof entry === "string"));
+    const workspaceValid = value.workspace === undefined || (record(value.workspace) && value.workspace.version === 1 && typeof value.workspace.revision === "number" && typeof value.workspace.updatedAt === "string" && Array.isArray(value.workspace.tasks) && value.workspace.tasks.every(validTask) && Array.isArray(value.workspace.todayTodos) && value.workspace.todayTodos.every(validTodo) && validSettings(value.workspace.settings) && validEditableText(value.workspace.editableText));
+    const newsValid = value.news === undefined || (record(value.news) && value.news.version === 1 && Array.isArray(value.news.sources) && value.news.sources.every(validSource) && Array.isArray(value.news.items) && value.news.items.every(validNewsItem) && Array.isArray(value.news.fingerprints) && value.news.fingerprints.every((entry) => typeof entry === "string"));
     const aiValid = value.ai === undefined || (record(value.ai) && typeof value.ai.provider === "string" && typeof value.ai.baseUrl === "string" && typeof value.ai.model === "string" && typeof value.ai.enabled === "boolean" && !("apiKey" in value.ai));
     if (
       ![1, 2].includes(value.version) ||
       !Array.isArray(value.tasks) ||
       !settingsValid || !workspaceValid || !newsValid || !aiValid ||
       (value.version === 1 && (value.workspace !== undefined || value.news !== undefined || value.ai !== undefined)) ||
-      value.tasks.some(
-        (task) =>
-          typeof task.id !== "string" ||
-          typeof task.title !== "string" ||
-          typeof task.completed !== "boolean",
-      )
+      value.tasks.some((task) => !validTask(task))
     )
       throw new Error();
     return value;

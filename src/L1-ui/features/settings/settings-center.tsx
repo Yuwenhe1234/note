@@ -426,7 +426,7 @@ function DataPanel({
       const backup = parseBackup(await file.text());
       restoreBrowserBackup(backup);
       onImport(backup);
-      setMessage("备份已导入");
+      setMessage("备份已导入，请刷新页面加载完整工作区");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "导入失败");
     }
