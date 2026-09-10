@@ -5,12 +5,16 @@ import { workspaceRoutes } from './server/workspace-routes.js';
 import { authRoutes } from './server/auth-routes.js';
 import { newsRoutes } from './server/news-routes.js';
 import { desktopWidgetRoutes } from './server/desktop-widget-routes.js';
-export default defineConfig({
-  plugins: [react(), authRoutes(), desktopWidgetRoutes(), workspaceRoutes(), newsRoutes(), aiRoutes()],
-  test: {
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-    css: true,
-    exclude: ['**/node_modules/**', '**/dist/**', '**/.worktrees/**'],
-  },
+export default defineConfig(({ mode }) => {
+  const staticWeb = mode === 'github-pages';
+  return {
+    base: staticWeb ? '/note/' : '/',
+    plugins: [react(), ...(!staticWeb ? [authRoutes(), desktopWidgetRoutes(), workspaceRoutes(), newsRoutes(), aiRoutes()] : [])],
+    test: {
+      environment: 'jsdom',
+      setupFiles: './src/test/setup.ts',
+      css: true,
+      exclude: ['**/node_modules/**', '**/dist/**', '**/.worktrees/**'],
+    },
+  };
 });
