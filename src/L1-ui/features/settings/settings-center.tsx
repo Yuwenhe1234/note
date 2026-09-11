@@ -135,16 +135,16 @@ export function SettingsCenter({
             options={["low:低", "medium:中", "high:高"]}
           />
           <SettingNumber
-            label="默认预计时长"
-            value={settings.taskDefaults.defaultDurationMinutes}
-            min={5}
-            max={1440}
+            label="默认预计时长（小时）"
+            value={settings.taskDefaults.defaultDurationMinutes / 60}
+            min={0.5}
+            max={24}
             onChange={(value) =>
               setSettings((current) => ({
                 ...current,
                 taskDefaults: {
                   ...current.taskDefaults,
-                  defaultDurationMinutes: value,
+                  defaultDurationMinutes: Math.round(value * 60),
                 },
               }))
             }

@@ -42,11 +42,11 @@ describe("settings center", () => {
     fireEvent.change(screen.getByLabelText("默认优先级"), {
       target: { value: "high" },
     });
-    fireEvent.change(screen.getByLabelText("默认预计时长"), {
-      target: { value: "90" },
+    fireEvent.change(screen.getByLabelText("默认预计时长（小时）"), {
+      target: { value: "2.5" },
     });
     expect(loadSettings().taskDefaults.defaultPriority).toBe("high");
-    expect(loadSettings().taskDefaults.defaultDurationMinutes).toBe(90);
+    expect(loadSettings().taskDefaults.defaultDurationMinutes).toBe(150);
   });
   it("applies interaction settings", () => {
     render(<SettingsCenter />);
