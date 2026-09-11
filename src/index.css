@@ -1706,6 +1706,51 @@ html[data-theme="light"] .setting-row input[type="number"],
 html[data-theme="light"] .setting-row select,
 html[data-theme="light"] input[type="file"] { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
 html[data-theme="light"] .feature-window-header { color: var(--text-main); }
+html[data-theme="light"] .feature-window-header {
+  margin-bottom: 28px;
+  padding: 28px 30px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface-1);
+  box-shadow: 0 12px 34px #24302912;
+}
+html[data-theme="light"] .feature-window-header h1 { color: var(--text-main); }
+html[data-theme="light"] .feature-window-header > svg { color: var(--accent-user); }
+html[data-theme="light"] .today-ai-candidate {
+  grid-template-columns: minmax(0, 1fr) 42px;
+  padding: 10px;
+  border-color: var(--line-strong);
+  border-radius: 16px;
+  background: var(--surface-control);
+}
+html[data-theme="light"] .today-ai-candidate input {
+  min-height: 44px;
+  border-color: var(--line-strong);
+  background: var(--surface-1);
+  color: var(--text-main);
+}
+html[data-theme="light"] .today-ai-candidate button {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+html[data-theme="light"] .today-ai-add {
+  margin-top: 4px;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-control);
+  color: var(--text-main);
+}
+html[data-theme="light"] .settings-panel {
+  border-color: var(--line);
+  border-radius: 24px;
+  background: var(--surface-1);
+  box-shadow: 0 12px 34px #24302912;
+}
+html[data-theme="light"] .setting-row { min-height: 68px; border-bottom-color: var(--line); }
+html[data-theme="light"] .setting-row > span,
+html[data-theme="light"] .setting-row strong { color: var(--text-main); font-weight: 600; }
 html[data-theme="light"] .feature-window-header p,
 html[data-theme="light"] .login-intro p { color: var(--text-muted); }
 html[data-theme="light"] .account-logout { border-color: var(--line); background: var(--surface-glass); color: var(--text-main); }

@@ -132,6 +132,17 @@ describe("application shell", () => {
     expect(getComputedStyle(search).color).toBe("var(--text-main)");
   });
 
+  it("renders AI review candidates as editable input rows", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "今日待办" }));
+    fireEvent.click(screen.getByRole("button", { name: "AI 生成今日待办" }));
+    fireEvent.click(await screen.findByRole("button", { name: "+ 添加待办" }));
+    const input = await screen.findByRole("textbox", { name: "候选待办 1" });
+    expect(input.closest(".today-ai-candidate")).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: "手动补充" } });
+    expect(input).toHaveValue("手动补充");
+  });
+
   it("uses one consistent navigation-to-heading spacing across views", () => {
     render(<App />);
     expect(getComputedStyle(screen.getByRole("main")).paddingTop).toBe("64px");
