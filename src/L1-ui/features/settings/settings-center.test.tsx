@@ -54,6 +54,11 @@ describe("settings center", () => {
     fireEvent.click(screen.getByLabelText("减少动态效果"));
     expect(document.documentElement).toHaveClass("reduce-motion");
   });
+  it("does not show the removed task autofocus preference", () => {
+    render(<SettingsCenter />);
+    fireEvent.click(screen.getByRole("button", { name: "交互与快捷操作" }));
+    expect(screen.queryByText("新建任务自动聚焦")).not.toBeInTheDocument();
+  });
   it("shows diagnostics without API keys", async () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "关于与诊断" }));

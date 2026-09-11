@@ -256,16 +256,6 @@ export function SettingsCenter({
               }))
             }
           />
-          <SettingToggle
-            label="新建任务自动聚焦"
-            checked={settings.interaction.autoFocus}
-            onChange={(autoFocus) =>
-              setSettings((current) => ({
-                ...current,
-                interaction: { ...current.interaction, autoFocus },
-              }))
-            }
-          />
         </section>
       ) : route === "appearance" ? (
         <section className="settings-panel">
