@@ -75,6 +75,8 @@ export function SettingsCenter({
     saveSettings(settings);
     document.documentElement.dataset.theme = settings.appearance.theme === "light" ? "light" : "dark";
     document.documentElement.dataset.accent = settings.appearance.accent;
+    if (settings.appearance.accent === "custom") document.documentElement.style.setProperty("--accent-user", settings.appearance.customAccent || "#208b4f");
+    else document.documentElement.style.removeProperty("--accent-user");
     delete document.documentElement.dataset.fontSize;
     delete document.documentElement.dataset.density;
     document.documentElement.classList.toggle(
@@ -265,26 +267,17 @@ export function SettingsCenter({
             onChange={(theme) => setSettings((current) => ({ ...current, appearance: { ...current.appearance, theme: theme as "dark" | "light" } }))}
             options={["dark:深色", "light:浅色"]}
           />
-          <SettingSelect
-            label="强调色"
-            value={settings.appearance.accent}
-            onChange={(accent) =>
-              setSettings((current) => ({
-                ...current,
-                appearance: {
-                  ...current.appearance,
-                  accent: accent as typeof current.appearance.accent,
-                },
-              }))
-            }
-            options={["green:绿色", "blue:蓝色", "orange:橙色"]}
-          />
+          <AccentPicker value={settings.appearance.accent} customValue={settings.appearance.customAccent || "#208b4f"} onChange={(accent, customAccent) => setSettings((current) => ({ ...current, appearance: { ...current.appearance, accent, customAccent } }))} />
         </section>
       ) : (
         <SettingsPlaceholder title={card.title} />
       )}
     </>
   );
+}
+
+function AccentPicker({ value, customValue, onChange }: { value: "green" | "blue" | "orange" | "custom"; customValue: string; onChange: (value: "green" | "blue" | "orange" | "custom", customValue?: string) => void }) {
+  return <label className="setting-row accent-picker"><span>强调色</span><div><select value={value} onChange={(event) => onChange(event.target.value as "green" | "blue" | "orange" | "custom", customValue)}><option value="green">绿色</option><option value="blue">蓝色</option><option value="orange">橙色</option><option value="custom">自定义颜色</option></select>{value === "custom" && <><input aria-label="自定义强调色" type="color" value={customValue} onChange={(event) => onChange("custom", event.target.value)} /><input aria-label="自定义强调色 HEX" value={customValue} onChange={(event) => /^#[0-9a-fA-F]{6}$/.test(event.target.value) && onChange("custom", event.target.value)} /></>}</div></label>;
 }
 
 function SettingSelect({

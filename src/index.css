@@ -1761,6 +1761,9 @@ html[data-theme="light"] .ai-settings label { color: var(--text-muted); }
 html[data-theme="light"] .ai-actions { padding-top: 18px; border-top: 1px solid var(--line); }
 html[data-theme="light"] .ai-actions .btn-secondary { background: var(--accent-user); color: #102015; font-weight: 700; }
 html[data-theme="light"] .ai-actions button:not(.btn-secondary) { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] .accent-picker > div { display: flex; align-items: center; gap: 8px; }
+html[data-theme="light"] .accent-picker input[type="color"] { width: 42px; height: 38px; padding: 3px; border-radius: 10px; cursor: pointer; }
+html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX"] { width: 108px; height: 38px; }
 .description-dialog { border-color: var(--line) !important; background: var(--surface-1) !important; color: var(--text-main) !important; }
 .description-dialog h3 { color: var(--text-main); }
 .description-dialog .task-description-field,

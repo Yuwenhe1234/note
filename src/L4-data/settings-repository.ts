@@ -1,7 +1,7 @@
 export type AppSettingsV1 = {
   version: 1;
   taskDefaults: { defaultPriority: "low" | "medium" | "high"; defaultStatus: "in_progress" | "pending"; defaultDurationMinutes: number; minSteps: number; maxSteps: number; completedVisibility: "show" | "hide"; sortBy: "created" | "priority" | "title"; includeOverdueToday: boolean; weekStartsOn: 0 | 1; timeFormat: "12h" | "24h" };
-  appearance: { theme: "dark" | "light" | "system"; accent: "green" | "blue" | "orange"; fontSize: "compact" | "standard" | "large"; density: "compact" | "standard" | "comfortable"; pageWidth: "fixed" | "wide" };
+  appearance: { theme: "dark" | "light" | "system"; accent: "green" | "blue" | "orange" | "custom"; customAccent?: string; fontSize: "compact" | "standard" | "large"; density: "compact" | "standard" | "comfortable"; pageWidth: "fixed" | "wide" };
   interaction: { animations: boolean; reducedMotion: boolean; confirmComplete: boolean; confirmDelete: boolean; autoFocus: boolean; editTrigger: "double-click" | "long-press" };
   reminders: { notifications: boolean; defaultLeadMinutes: number; overdueReminder: boolean; quietStart: string; quietEnd: string };
 };
