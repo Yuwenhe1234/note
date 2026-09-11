@@ -70,6 +70,7 @@ describe("settings center", () => {
     fireEvent.click(screen.getByRole("button", { name: "关于与诊断" }));
     expect(await screen.findByTestId("diagnostics-grid")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "复制诊断信息" })).toBeVisible();
+    expect(screen.getByTestId("diagnostics-grid")).toHaveClass("diagnostics-status-grid");
   });
   it("shows one factory reset action instead of the removed destructive actions", () => {
     render(<SettingsCenter />);

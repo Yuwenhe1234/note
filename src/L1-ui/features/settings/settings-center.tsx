@@ -540,7 +540,7 @@ function DiagnosticsPanel() {
   const text = `MemoAgent 0.2.0\n数据版本: 1\n本地 API: ${api}\n当前模型: ${provider}\n通知权限: ${permission}\n存储字符数: ${bytes}`;
   return (
     <section className="settings-panel diagnostics">
-      <dl className="diagnostics-grid" data-testid="diagnostics-grid">
+      <dl className="diagnostics-grid diagnostics-status-grid" data-testid="diagnostics-grid">
         <div><dt>应用版本</dt><dd>0.2.0</dd></div>
         <div><dt>数据版本</dt><dd>1</dd></div>
         <div><dt>本地 API</dt><dd>{api}</dd></div>
@@ -549,7 +549,7 @@ function DiagnosticsPanel() {
         <div><dt>存储字符数</dt><dd>{bytes}</dd></div>
       </dl>
       <button
-        className="btn-secondary"
+        className="btn-secondary diagnostics-copy"
         onClick={() => navigator.clipboard?.writeText(text)}
       >
         复制诊断信息
