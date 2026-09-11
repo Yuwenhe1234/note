@@ -503,9 +503,7 @@ function ReminderPanel({
       {!value.notifications && <p className="setting-feedback" role="status">请先开启待办提醒后再发送测试通知</p>}
       {permission === "denied" && <p className="setting-feedback" role="status">浏览器已拒绝通知。请在地址栏的网站权限中将通知改为允许，然后重新开启此开关。</p>}
       {message && (
-        <p className="setting-feedback" role="status">
-          {message}
-        </p>
+        <><p className="setting-feedback" role="status">{message}</p><div className="reminder-test-toast" role="status">{message}</div></>
       )}
     </section>
   );
