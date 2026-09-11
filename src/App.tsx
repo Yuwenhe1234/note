@@ -332,6 +332,8 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
         })),
       );
     } catch (error) {
+      setAnalysis(null);
+      setDraftSteps([]);
       setAnalysisError(error instanceof Error ? error.message : "AI 分析失败");
     } finally {
       setAnalysisLoading(false);

@@ -10,5 +10,7 @@ describe("task analysis prompt", () => {
     expect(prompt).toContain("学习 STM32");
     expect(prompt).toContain("5-7 个");
     expect(prompt).toContain("completionCriteria");
+    expect(prompt).toContain("实际时间预算");
+    expect(prompt).toContain("任务内容和注意事项");
   });
 });

@@ -12,7 +12,7 @@ export type Analysis = {
   steps: AnalysisStep[];
 };
 
-const isQuarterHour = (value: number) => Number.isFinite(value) && value >= 0.25 && value <= 4 && Number.isInteger(value * 4);
+const isQuarterHour = (value: number) => Number.isFinite(value) && value >= 0.25 && value <= 100 && Number.isInteger(value * 4);
 
 export function parseAnalysis(raw: string): Analysis {
   let data: Analysis;
@@ -21,7 +21,7 @@ export function parseAnalysis(raw: string): Analysis {
   } catch {
     throw new Error("分析结果不是有效 JSON");
   }
-  const stepsValid = Array.isArray(data.steps) && data.steps.length >= 2 && data.steps.length <= 8 && data.steps.every((step) =>
+  const stepsValid = Array.isArray(data.steps) && data.steps.length >= 1 && data.steps.length <= 100 && data.steps.every((step) =>
     typeof step.title === "string" && step.title.trim().length > 0 && step.title.trim().length <= 24 &&
     isQuarterHour(step.hours) && typeof step.description === "string" && step.description.trim() &&
     typeof step.completionCriteria === "string" && step.completionCriteria.trim(),
