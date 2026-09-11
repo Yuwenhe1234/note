@@ -65,6 +65,12 @@ describe("settings center", () => {
     expect(await screen.findByText(/本地 API/)).toBeInTheDocument();
     expect(document.body).not.toHaveTextContent("sk-secret");
   });
+  it("groups diagnostics into labeled detail rows", async () => {
+    render(<SettingsCenter />);
+    fireEvent.click(screen.getByRole("button", { name: "关于与诊断" }));
+    expect(await screen.findByTestId("diagnostics-grid")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "复制诊断信息" })).toBeVisible();
+  });
   it("requires enabling reminders before a test notification can be sent", () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "提醒方式" }));

@@ -1340,12 +1340,21 @@ main {
   display: grid;
   gap: 12px;
 }
-.data-actions button {
-  padding: 14px;
-  border-radius: 12px;
-  background: #ffffff0c;
-  text-align: left;
-}
+.data-action-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 16px 18px; border: 1px solid #ffffff16; border-radius: 16px; background: #ffffff08; }
+.data-action-row > div { display: grid; gap: 4px; }
+.data-action-row strong { color: inherit; }
+.data-action-row small { color: #85888d; font-size: 13px; }
+.data-action-row .btn-secondary, .data-action-row.danger > button { min-width: 112px; text-align: center; }
+.data-action-row.danger { border-color: #e46b6b44; }
+.data-action-row.danger > button { background: #b34141; color: white; }
+.file-action { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 132px; padding: 11px 14px; border: 1px solid #ffffff24; border-radius: 999px; background: #ffffff12; color: inherit; cursor: pointer; }
+.file-action input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.diagnostics { display: grid; gap: 18px; }
+.diagnostics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.diagnostics-grid > div { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid #ffffff16; border-radius: 14px; background: #ffffff08; }
+.diagnostics-grid dt { color: #85888d; font-size: 12px; }
+.diagnostics-grid dd { margin: 0; color: inherit; font-size: 14px; }
+@media (max-width: 680px) { .data-action-row { grid-template-columns: 1fr; } .data-action-row > .btn-secondary, .data-action-row.danger > button, .file-action { width: 100%; } .diagnostics-grid { grid-template-columns: 1fr; } }
 :root {
   --accent-user: #a9ffbd;
   --accent-soft: color-mix(in srgb, var(--accent-user) 12%, transparent);
@@ -1727,6 +1736,15 @@ html[data-theme="light"] .settings-panel {
 html[data-theme="light"] .setting-row { min-height: 68px; border-bottom-color: var(--line); }
 html[data-theme="light"] .setting-row > span,
 html[data-theme="light"] .setting-row strong { color: var(--text-main); font-weight: 600; }
+html[data-theme="light"] .data-action-row,
+html[data-theme="light"] .diagnostics-grid > div { border-color: var(--line); background: var(--surface-control); }
+html[data-theme="light"] .data-action-row small,
+html[data-theme="light"] .diagnostics-grid dt { color: var(--text-muted); }
+html[data-theme="light"] .data-action-row .btn-secondary,
+html[data-theme="light"] .file-action { border-color: var(--line-strong); background: var(--surface-1); color: var(--text-main); }
+html[data-theme="light"] .data-action-row.danger { border-color: #cb5d5d66; background: #fff5f4; }
+html[data-theme="light"] .data-action-row.danger > button { background: #b84646; }
+html[data-theme="light"] .diagnostics-grid dd { color: var(--text-main); }
 html[data-theme="light"] .feature-window-header p,
 html[data-theme="light"] .login-intro p { color: var(--text-muted); }
 html[data-theme="light"] .account-logout { border-color: var(--line); background: var(--surface-glass); color: var(--text-main); }

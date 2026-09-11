@@ -423,32 +423,11 @@ function DataPanel({
   };
   return (
     <section className="settings-panel data-actions">
-      <button onClick={download}>导出完整备份</button>
-      <label>
-        导入 JSON 备份
-        <input
-          aria-label="导入 JSON 备份"
-          type="file"
-          accept="application/json"
-          onChange={(event) => importFile(event.target.files?.[0])}
-        />
-      </label>
-      <button onClick={onClearCompleted}>清除已完成任务</button>
-      <button
-        onClick={() => {
-          if (prompt("输入“清除全部任务”确认") === "清除全部任务")
-            onClearAll?.();
-        }}
-      >
-        清除全部任务
-      </button>
-      <button
-        onClick={() => {
-          if (confirm("恢复所有设置为默认值？")) onReset();
-        }}
-      >
-        恢复默认设置
-      </button>
+      <div className="data-action-row"><div><strong>导出完整备份</strong><small>将当前任务与设置保存为 JSON 文件。</small></div><button className="btn-secondary" onClick={download}>导出备份</button></div>
+      <div className="data-action-row"><div><strong>导入 JSON 备份</strong><small>从备份文件恢复任务和设置。</small></div><label className="file-action"><span>选择备份文件</span><input aria-label="导入 JSON 备份" type="file" accept="application/json" onChange={(event) => importFile(event.target.files?.[0])} /></label></div>
+      <div className="data-action-row"><div><strong>清除已完成任务</strong><small>仅删除已经完成的任务记录。</small></div><button className="btn-secondary" onClick={onClearCompleted}>清除完成项</button></div>
+      <div className="data-action-row danger"><div><strong>清除全部任务</strong><small>需要输入确认文字，操作不可撤销。</small></div><button onClick={() => { if (prompt("输入“清除全部任务”确认") === "清除全部任务") onClearAll?.(); }}>清除全部</button></div>
+      <div className="data-action-row"><div><strong>恢复默认设置</strong><small>仅恢复偏好设置，不删除任务。</small></div><button className="btn-secondary" onClick={() => { if (confirm("恢复所有设置为默认值？")) onReset(); }}>恢复默认</button></div>
       {message && <p className="ai-message">{message}</p>}
     </section>
   );
@@ -562,12 +541,14 @@ function DiagnosticsPanel() {
   const text = `MemoAgent 0.2.0\n数据版本: 1\n本地 API: ${api}\n当前模型: ${provider}\n通知权限: ${permission}\n存储字符数: ${bytes}`;
   return (
     <section className="settings-panel diagnostics">
-      <p>应用版本：0.2.0</p>
-      <p>数据版本：1</p>
-      <p>本地 API：{api}</p>
-      <p>当前模型：{provider}</p>
-      <p>通知权限：{permission}</p>
-      <p>存储字符数：{bytes}</p>
+      <dl className="diagnostics-grid" data-testid="diagnostics-grid">
+        <div><dt>应用版本</dt><dd>0.2.0</dd></div>
+        <div><dt>数据版本</dt><dd>1</dd></div>
+        <div><dt>本地 API</dt><dd>{api}</dd></div>
+        <div><dt>当前模型</dt><dd>{provider}</dd></div>
+        <div><dt>通知权限</dt><dd>{permission}</dd></div>
+        <div><dt>存储字符数</dt><dd>{bytes}</dd></div>
+      </dl>
       <button
         className="btn-secondary"
         onClick={() => navigator.clipboard?.writeText(text)}
