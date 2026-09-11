@@ -465,12 +465,18 @@ function ReminderPanel({
     return granted;
   };
   const test = async () => {
+    setMessage("正在发送测试通知…");
     if (permission === "unsupported") {
       setMessage("当前浏览器不支持通知");
       return;
     }
-    const granted = permission === "granted" || (await enable(true));
-    if (granted && browserReminderService.test()) setMessage("测试通知已发送");
+    try {
+      const granted = permission === "granted" || (await enable(true));
+      if (granted && browserReminderService.test()) setMessage("测试通知已发送（已显示页面内反馈）");
+      else setMessage("通知未发送：请检查浏览器通知权限");
+    } catch {
+      setMessage("系统通知被拦截，已显示页面内测试反馈");
+    }
   };
   return (
     <section className="settings-panel reminder-panel">
