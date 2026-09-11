@@ -1761,15 +1761,13 @@ html[data-theme="light"] .ai-settings label { color: var(--text-muted); }
 html[data-theme="light"] .ai-actions { padding-top: 18px; border-top: 1px solid var(--line); }
 html[data-theme="light"] .ai-actions .btn-secondary { background: var(--accent-user); color: #102015; font-weight: 700; }
 html[data-theme="light"] .ai-actions button:not(.btn-secondary) { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
-html[data-theme="dark"] .description-dialog { border-color: #ffffff20; background: #121419; color: #f4f2ed; }
-html[data-theme="dark"] .description-dialog h3 { color: #f4f2ed; }
-html[data-theme="dark"] .description-dialog .task-description-field,
-html[data-theme="dark"] .description-dialog .task-goal-editor { color: #b9bdbb; }
-html[data-theme="dark"] .description-dialog textarea { border-color: #343a38; background: #1b1f20; color: #f4f2ed; }
-html[data-theme="dark"] .description-dialog textarea::placeholder { color: #949b97; opacity: 1; }
-html[data-theme="dark"] .description-dialog textarea:focus { border-color: var(--accent-user); box-shadow: 0 0 0 3px var(--accent-soft); }
-html:not([data-theme="light"]) .description-dialog textarea { border-color: #343a38 !important; background: #1b1f20 !important; color: #f4f2ed !important; }
-html[data-theme="light"] .description-dialog textarea { border-color: var(--line-strong) !important; background: var(--surface-control) !important; color: var(--text-main) !important; }
+.description-dialog { border-color: var(--line) !important; background: var(--surface-1) !important; color: var(--text-main) !important; }
+.description-dialog h3 { color: var(--text-main); }
+.description-dialog .task-description-field,
+.description-dialog .task-goal-editor { color: var(--text-muted); }
+.description-dialog textarea { border-color: var(--line) !important; background: var(--surface-2) !important; color: var(--text-main) !important; }
+.description-dialog textarea::placeholder { color: var(--text-muted); opacity: 1; }
+.description-dialog textarea:focus { border-color: var(--accent-user) !important; box-shadow: 0 0 0 3px var(--accent-soft); }
 html[data-theme="light"] .feature-window-header p,
 html[data-theme="light"] .login-intro p { color: var(--text-muted); }
 html[data-theme="light"] .account-logout { border-color: var(--line); background: var(--surface-glass); color: var(--text-main); }
