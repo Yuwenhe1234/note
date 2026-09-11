@@ -132,6 +132,13 @@ describe("application shell", () => {
     expect(getComputedStyle(search).color).toBe("var(--text-main)");
   });
 
+  it("uses the configured default duration when opening a new task", () => {
+    localStorage.setItem("memo-agent-settings-v1", JSON.stringify({ taskDefaults: { defaultDurationMinutes: 150 } }));
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "新建任务" }));
+    expect(screen.getByDisplayValue("2.5 小时")).toBeInTheDocument();
+  });
+
   it("adds one today todo for each non-empty line in the AI review draft", async () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "今日待办" }));

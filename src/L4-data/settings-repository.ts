@@ -9,7 +9,7 @@ export type AppSettingsV1 = {
 export const SETTINGS_STORAGE_KEY = "memo-agent-settings-v1";
 export const DEFAULT_SETTINGS: AppSettingsV1 = {
   version: 1,
-  taskDefaults: { defaultPriority: "medium", defaultStatus: "in_progress", defaultDurationMinutes: 60, minSteps: 3, maxSteps: 6, completedVisibility: "show", sortBy: "created", includeOverdueToday: true, weekStartsOn: 1, timeFormat: "24h" },
+  taskDefaults: { defaultPriority: "medium", defaultStatus: "in_progress", defaultDurationMinutes: 150, minSteps: 3, maxSteps: 6, completedVisibility: "show", sortBy: "created", includeOverdueToday: true, weekStartsOn: 1, timeFormat: "24h" },
   appearance: { theme: "dark", accent: "green", fontSize: "standard", density: "standard", pageWidth: "fixed" },
   interaction: { animations: true, reducedMotion: false, confirmComplete: false, confirmDelete: true, autoFocus: true, editTrigger: "double-click" },
   reminders: { notifications: false, defaultLeadMinutes: 15, overdueReminder: true, quietStart: "23:00", quietEnd: "08:00" },

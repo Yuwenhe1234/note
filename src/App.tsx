@@ -54,6 +54,7 @@ import { PageBackButton } from "./L1-ui/components/page-back-button";
 type View = "任务清单" | "今日待办" | "其他功能" | "设置";
 type FeaturePage = "news" | "companion" | "plugins";
 type TodayTodo = { id: string; content: string; reminderTime: string; completed: boolean; dailyReusable?: boolean };
+const formatDurationHint = (minutes: number) => `${minutes / 60} 小时`;
 const nav: View[] = ["任务清单", "今日待办", "其他功能", "设置"];
 const initial: Task[] = [
   {
@@ -297,6 +298,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     setAnalysis(null);
     setAnalysisError("");
     const defaults = loadSettings().taskDefaults;
+    setDurationHint(formatDurationHint(defaults.defaultDurationMinutes));
     setDraftSteps(
       createSteps(
         Math.min(defaults.maxSteps, Math.max(defaults.minSteps, 3)),

@@ -152,8 +152,8 @@ export function SettingsCenter({
           <SettingNumber
             label="最少步骤"
             value={settings.taskDefaults.minSteps}
-            min={2}
-            max={8}
+            min={1}
+            max={100}
             onChange={(value) =>
               setSettings((current) => ({
                 ...current,
@@ -164,8 +164,8 @@ export function SettingsCenter({
           <SettingNumber
             label="最多步骤"
             value={settings.taskDefaults.maxSteps}
-            min={2}
-            max={8}
+            min={1}
+            max={100}
             onChange={(value) =>
               setSettings((current) => ({
                 ...current,

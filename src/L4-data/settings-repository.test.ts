@@ -11,7 +11,7 @@ describe("settings repository", () => {
   it("merges partial settings and falls back from malformed JSON", () => {
     localStorage.setItem("memo-agent-settings-v1", JSON.stringify({ appearance: { accent: "orange" } }));
     expect(loadSettings().appearance.accent).toBe("orange");
-    expect(loadSettings().taskDefaults.defaultDurationMinutes).toBe(60);
+    expect(loadSettings().taskDefaults.defaultDurationMinutes).toBe(150);
     localStorage.setItem("memo-agent-settings-v1", "broken");
     expect(loadSettings()).toEqual(DEFAULT_SETTINGS);
   });
