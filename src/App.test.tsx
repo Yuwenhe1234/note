@@ -132,15 +132,16 @@ describe("application shell", () => {
     expect(getComputedStyle(search).color).toBe("var(--text-main)");
   });
 
-  it("renders AI review candidates as editable input rows", async () => {
+  it("adds one today todo for each non-empty line in the AI review draft", async () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "今日待办" }));
     fireEvent.click(screen.getByRole("button", { name: "AI 生成今日待办" }));
-    fireEvent.click(await screen.findByRole("button", { name: "+ 添加待办" }));
-    const input = await screen.findByRole("textbox", { name: "候选待办 1" });
-    expect(input.closest(".today-ai-candidate")).toBeInTheDocument();
-    fireEvent.change(input, { target: { value: "手动补充" } });
-    expect(input).toHaveValue("手动补充");
+    const draft = await screen.findByRole("textbox", { name: "批量候选待办" });
+    fireEvent.change(draft, { target: { value: "写周报\n\n 整理资料 \n读书" } });
+    fireEvent.click(screen.getByRole("button", { name: "确认添加" }));
+    expect(screen.getByText("写周报")).toBeInTheDocument();
+    expect(screen.getByText("整理资料")).toBeInTheDocument();
+    expect(screen.getByText("读书")).toBeInTheDocument();
   });
 
   it("uses one consistent navigation-to-heading spacing across views", () => {

@@ -97,7 +97,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [todayOpen, setTodayOpen] = useState(false),
     [todayContent, setTodayContent] = useState(""),
     [todayReminder, setTodayReminder] = useState(""),
-    [todayAiCandidates, setTodayAiCandidates] = useState<string[]>([]),
+    [todayAiDraft, setTodayAiDraft] = useState(""),
     [todayAiOpen, setTodayAiOpen] = useState(false),
     [todayAiError, setTodayAiError] = useState(""),
     [timePickerOpen, setTimePickerOpen] = useState(false),
@@ -210,8 +210,8 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
   const generateTodayTodos = async () => {
     try {
       const result = await requestTodayTodos(tasks);
-      setTodayAiCandidates(result); setTodayAiError(""); setTodayAiOpen(true);
-    } catch (error) { setTodayAiCandidates([]); setTodayAiError(error instanceof Error ? error.message : "AI 生成失败"); setTodayAiOpen(true); }
+      setTodayAiDraft(result.join("\n")); setTodayAiError(""); setTodayAiOpen(true);
+    } catch (error) { setTodayAiDraft(""); setTodayAiError(error instanceof Error ? error.message : "AI 生成失败"); setTodayAiOpen(true); }
   };
   const startVoiceInput = () => {
     if (voiceListening) {
@@ -791,7 +791,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
         </div>
       )}
       {todayOpen && <div className="overlay"><section className="modal today-todo-modal"><button className="close" onClick={() => { setTodayOpen(false); setEditingTodayId(null); }}><X /></button><em>TODAY TODO</em><h2>{editingTodayId ? "编辑待办" : "添加待办"}</h2><label>待办内容<input aria-label="待办内容" value={todayContent} onChange={(event) => setTodayContent(event.target.value)} placeholder="输入今天要做的事" autoFocus /></label><label>提醒时间点（可选）<button type="button" className="time-wheel-trigger" onClick={() => setTimePickerOpen(true)}>{todayReminder || "选择提醒时间"}</button></label><button className="primary" onClick={addTodayTodo}>{editingTodayId ? "保存修改" : "添加待办"} <Check /></button></section></div>}
-      {todayAiOpen && <div className="overlay"><section className="modal"><button className="close" onClick={() => setTodayAiOpen(false)}><X /></button><em>AI REVIEW</em><h2>审核今日待办</h2><p className="ai-message">确认前可编辑、删除或补充候选待办。</p>{todayAiError && <p className="ai-message">{todayAiError}</p>}<div className="analysis-step-editor-list">{todayAiCandidates.map((content, index) => <div className="analysis-step-edit-row today-ai-candidate" key={`${index}-${content}`}><input aria-label={`候选待办 ${index + 1}`} value={content} onChange={(event) => setTodayAiCandidates((items) => items.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /><button aria-label={`删除候选待办 ${index + 1}`} onClick={() => setTodayAiCandidates((items) => items.filter((_, itemIndex) => itemIndex !== index))}><X /></button></div>)}</div><button className="today-ai-add" onClick={() => setTodayAiCandidates((items) => [...items, ""])}>+ 添加待办</button><button className="primary" disabled={!todayAiCandidates.some((item) => item.trim())} onClick={() => { setTodayTodos((items) => [...todayAiCandidates.filter((item) => item.trim()).map((content) => ({ id: crypto.randomUUID(), content: content.trim(), reminderTime: "", completed: false })), ...items]); setTodayAiOpen(false); }}>确认添加 <Check /></button></section></div>}
+      {todayAiOpen && <div className="overlay"><section className="modal"><button className="close" onClick={() => setTodayAiOpen(false)}><X /></button><em>AI REVIEW</em><h2>审核今日待办</h2><p className="ai-message">确认前可编辑、删除或补充候选待办。</p>{todayAiError && <p className="ai-message">{todayAiError}</p>}<label className="today-ai-draft"><span>候选待办</span><textarea aria-label="批量候选待办" value={todayAiDraft} onChange={(event) => setTodayAiDraft(event.target.value)} placeholder="每行一条待办，可一次粘贴多条" autoFocus /></label><button className="primary" disabled={!todayAiDraft.trim()} onClick={() => { const candidates = todayAiDraft.split(/\r?\n/).map((item) => item.trim()).filter(Boolean); setTodayTodos((items) => [...candidates.map((content) => ({ id: crypto.randomUUID(), content, reminderTime: "", completed: false })), ...items]); setTodayAiOpen(false); }}>确认添加 <Check /></button></section></div>}
       {timePickerOpen && <TimeWheelPicker value={todayReminder} onCancel={() => setTimePickerOpen(false)} onConfirm={(value) => { setTodayReminder(value); setTimePickerOpen(false); }} />}
       {activeReminder && <div className="reminder-toast"><section className="reminder-dialog"><em>REMINDER</em><h2>待办提醒</h2><p>{activeReminder.content}</p><small>设定时间：{activeReminder.reminderTime}</small><button className="primary" onClick={() => setActiveReminder(reminderQueueRef.current.shift() || null)}>我知道了 <Check /></button></section></div>}
       {voiceListening && <div className="voice-overlay" role="dialog" aria-modal="true" aria-label="语音输入"><div className="voice-orb-wrap"><button className="voice-orb" aria-label="完成语音输入" onClick={() => voiceRecognitionRef.current?.stop()}><span /></button><h2>正在聆听</h2><p>{voiceTranscript || "请说出待办内容和提醒时间…"}</p><button className="voice-cancel" onClick={() => { voiceCancelledRef.current = true; voiceRecognitionRef.current?.abort(); setVoiceListening(false); }}>取消</button></div></div>}
