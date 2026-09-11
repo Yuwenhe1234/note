@@ -62,12 +62,12 @@ export function SettingsCenter({
   tasks = [],
   onImportTasks,
   onClearCompleted,
-  onClearAll,
+  onFactoryReset,
 }: {
   tasks?: BackupTask[];
   onImportTasks?: (tasks: BackupTask[]) => void;
   onClearCompleted?: () => void;
-  onClearAll?: () => void;
+  onFactoryReset?: () => void;
 }) {
   const [route, setRoute] = useState<Route>("root");
   const [settings, setSettings] = useState(loadSettings);
@@ -214,7 +214,7 @@ export function SettingsCenter({
             setSettings(backup.settings);
           }}
           onClearCompleted={onClearCompleted}
-          onClearAll={onClearAll}
+          onFactoryReset={onFactoryReset}
           onReset={() => setSettings(resetSettings())}
         />
       ) : route === "reminders" ? (
@@ -384,14 +384,14 @@ function DataPanel({
   settings,
   onImport,
   onClearCompleted,
-  onClearAll,
+  onFactoryReset,
   onReset,
 }: {
   tasks: BackupTask[];
   settings: ReturnType<typeof loadSettings>;
   onImport: (backup: ReturnType<typeof createBackup>) => void;
   onClearCompleted?: () => void;
-  onClearAll?: () => void;
+  onFactoryReset?: () => void;
   onReset: () => void;
 }) {
   const [message, setMessage] = useState("");
@@ -426,8 +426,7 @@ function DataPanel({
       <div className="data-action-row"><div><strong>导出完整备份</strong><small>将当前任务与设置保存为 JSON 文件。</small></div><button className="btn-secondary" onClick={download}>导出备份</button></div>
       <div className="data-action-row"><div><strong>导入 JSON 备份</strong><small>从备份文件恢复任务和设置。</small></div><label className="file-action"><span>选择备份文件</span><input aria-label="导入 JSON 备份" type="file" accept="application/json" onChange={(event) => importFile(event.target.files?.[0])} /></label></div>
       <div className="data-action-row"><div><strong>清除已完成任务</strong><small>仅删除已经完成的任务记录。</small></div><button className="btn-secondary" onClick={onClearCompleted}>清除完成项</button></div>
-      <div className="data-action-row danger"><div><strong>清除全部任务</strong><small>需要输入确认文字，操作不可撤销。</small></div><button onClick={() => { if (prompt("输入“清除全部任务”确认") === "清除全部任务") onClearAll?.(); }}>清除全部</button></div>
-      <div className="data-action-row"><div><strong>恢复默认设置</strong><small>仅恢复偏好设置，不删除任务。</small></div><button className="btn-secondary" onClick={() => { if (confirm("恢复所有设置为默认值？")) onReset(); }}>恢复默认</button></div>
+      <div className="data-action-row danger"><div><strong>恢复出厂设置</strong><small>将删除所有任务、待办和设置，操作不可撤销。</small></div><button onClick={() => { if (confirm("恢复出厂设置将删除所有任务、待办和设置，是否继续？")) { onFactoryReset?.(); onReset(); } }}>恢复出厂设置</button></div>
       {message && <p className="ai-message">{message}</p>}
     </section>
   );

@@ -720,7 +720,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
               onClearCompleted={() =>
                 setTasks((current) => current.filter((task) => !task.completed))
               }
-              onClearAll={() => setTasks([])}
+              onFactoryReset={() => { setTasks([]); setTodayTodos([]); }}
             />
           )}
         </div>

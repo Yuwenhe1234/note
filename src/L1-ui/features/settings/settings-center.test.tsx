@@ -71,6 +71,13 @@ describe("settings center", () => {
     expect(await screen.findByTestId("diagnostics-grid")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "复制诊断信息" })).toBeVisible();
   });
+  it("shows one factory reset action instead of the removed destructive actions", () => {
+    render(<SettingsCenter />);
+    fireEvent.click(screen.getByRole("button", { name: "数据管理" }));
+    expect(screen.getByRole("button", { name: "恢复出厂设置" })).toBeInTheDocument();
+    expect(screen.queryByText("清除全部任务")).not.toBeInTheDocument();
+    expect(screen.queryByText("恢复默认设置")).not.toBeInTheDocument();
+  });
   it("requires enabling reminders before a test notification can be sent", () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "提醒方式" }));
