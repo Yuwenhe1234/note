@@ -1616,9 +1616,13 @@ html[data-theme="light"] {
   --surface-1: #ffffff;
   --surface-2: #f5f7f6;
   --surface-glass: #fffffff0;
+  --surface-control: #f5f7f6;
+  --surface-control-hover: #eef5f0;
   --text-main: #202522;
   --text-muted: #616963;
+  --text-subtle: #68716b;
   --line: #2430291c;
+  --line-strong: #cfd7d1;
 }
 html[data-theme="light"][data-accent="green"] { --accent-user: #208b4f; }
 html[data-theme="light"][data-accent="blue"] { --accent-user: #316fca; }
@@ -1640,6 +1644,10 @@ html[data-theme="light"] .plugin-grid > article,
 html[data-theme="light"] .modal,
 html[data-theme="light"] .reminder-dialog { border-color: var(--line); background: var(--surface-1); color: var(--text-main); box-shadow: 0 12px 36px #24302918; }
 html[data-theme="light"] header { box-shadow: inset 0 1px #ffffff, 0 10px 30px #24302914; }
+html[data-theme="light"] nav button { color: var(--text-muted); }
+html[data-theme="light"] nav button.active,
+html[data-theme="light"] nav button:hover { color: var(--text-main); }
+html[data-theme="light"] .nav-indicator { border-color: var(--line); background: var(--surface-control); box-shadow: inset 0 1px #ffffff; }
 html[data-theme="light"] .settings > button,
 html[data-theme="light"] .features button { border-color: transparent; background: color-mix(in srgb, var(--surface-1) 82%, transparent); }
 html[data-theme="light"] .settings > button:hover,
@@ -1648,7 +1656,56 @@ html[data-theme="light"] input,
 html[data-theme="light"] textarea,
 html[data-theme="light"] select,
 html[data-theme="light"] .analysis label,
-html[data-theme="light"] .analysis-step-edit-row { border-color: var(--line); background: var(--surface-2); color: var(--text-main); }
+html[data-theme="light"] .analysis-step-edit-row { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); box-shadow: none; }
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder { color: var(--text-subtle); opacity: 1; }
+html[data-theme="light"] input:focus,
+html[data-theme="light"] textarea:focus,
+html[data-theme="light"] select:focus { border-color: var(--accent-user); box-shadow: 0 0 0 3px var(--accent-soft); }
+html[data-theme="light"] input[type="time"],
+html[data-theme="light"] input[type="number"],
+html[data-theme="light"] input[type="file"] { color-scheme: light; }
+html[data-theme="light"] .heading label,
+html[data-theme="light"] .page-actions label { border-color: var(--line-strong); background-color: var(--surface-control); }
+html[data-theme="light"] .today-actions > button:not(.new),
+html[data-theme="light"] .task-step-bubble { border-color: var(--line); background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] .heading input { color: var(--text-main); }
+html[data-theme="light"] .stats { border-color: var(--line); }
+html[data-theme="light"] .stats span,
+html[data-theme="light"] .tasks p,
+html[data-theme="light"] .tasks small,
+html[data-theme="light"] .task-description-preview,
+html[data-theme="light"] .task-progress-label,
+html[data-theme="light"] .step-hours,
+html[data-theme="light"] .step-order { color: var(--text-muted); }
+html[data-theme="light"] .task-goal-preview span { color: var(--text-main); }
+html[data-theme="light"] .task-progress-track { background: #dce3de; }
+html[data-theme="light"] .tasks article.completed h3 { color: var(--text-subtle); }
+html[data-theme="light"] .task-context-menu { background: var(--surface-1); color: var(--text-main); box-shadow: 0 12px 30px #24302920; }
+html[data-theme="light"] .task-context-menu > span { color: var(--text-subtle); }
+html[data-theme="light"] .reminder-dialog p { color: var(--text-main); }
+html[data-theme="light"] .reminder-dialog small,
+html[data-theme="light"] .modal > label,
+html[data-theme="light"] .task-description-field,
+html[data-theme="light"] .task-goal-editor { color: var(--text-muted); }
+html[data-theme="light"] .modal input,
+html[data-theme="light"] .modal textarea,
+html[data-theme="light"] .description-dialog textarea,
+html[data-theme="light"] .task-description-summary,
+html[data-theme="light"] .analysis input,
+html[data-theme="light"] .analysis-step-edit-row input,
+html[data-theme="light"] .time-wheel-trigger,
+html[data-theme="light"] .step-duration-display { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] .analysis > b { background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] .setting-row { border-color: var(--line); }
+html[data-theme="light"] .setting-row small { color: var(--text-muted); }
+html[data-theme="light"] .setting-row input[type="number"],
+html[data-theme="light"] .setting-row select,
+html[data-theme="light"] input[type="file"] { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] .feature-window-header { color: var(--text-main); }
 html[data-theme="light"] .feature-window-header p,
 html[data-theme="light"] .login-intro p { color: var(--text-muted); }
 html[data-theme="light"] .account-logout { border-color: var(--line); background: var(--surface-glass); color: var(--text-main); }

@@ -121,6 +121,17 @@ describe("application shell", () => {
     expect(document.documentElement.dataset.accent).toBe("blue");
   });
 
+  it("keeps navigation and task controls readable in light theme", () => {
+    render(<App />);
+    document.documentElement.dataset.theme = "light";
+    const nav = screen.getByRole("navigation", { name: "主导航" });
+    const search = screen.getByRole("textbox", { name: "搜索任务" });
+    const searchField = search.closest("label")!;
+    expect(getComputedStyle(nav.querySelector("button")!).color).toBe("var(--text-main)");
+    expect(getComputedStyle(searchField).backgroundColor).toBe("var(--surface-control)");
+    expect(getComputedStyle(search).color).toBe("var(--text-main)");
+  });
+
   it("uses one consistent navigation-to-heading spacing across views", () => {
     render(<App />);
     expect(getComputedStyle(screen.getByRole("main")).paddingTop).toBe("64px");
