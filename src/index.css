@@ -1752,6 +1752,15 @@ html[data-theme="light"] .diagnostics-copy { justify-self: start; min-width: 154
 html[data-theme="light"] .reminder-panel .settings-action-row .btn-secondary { border: 0; background: var(--accent-user); color: #102015; font-weight: 700; box-shadow: 0 8px 18px var(--accent-glow); }
 html[data-theme="light"] .reminder-panel .settings-action-row .btn-secondary:disabled { background: #dce3de; color: #8a938d; box-shadow: none; }
 .reminder-test-toast { position: fixed; top: 24px; right: 24px; z-index: 210; padding: 14px 18px; border: 1px solid var(--accent-border); border-radius: 14px; background: var(--surface-1); color: var(--text-main); box-shadow: 0 14px 36px #0003; }
+html[data-theme="light"] .ai-settings { max-width: 1040px; padding: 30px; }
+html[data-theme="light"] .provider-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+html[data-theme="light"] .provider-grid button { min-height: 82px; border-color: var(--line); background: var(--surface-control); color: var(--text-main); }
+html[data-theme="light"] .provider-grid button.active { background: var(--surface-1); box-shadow: inset 0 0 0 1px var(--accent-user), 0 8px 22px var(--accent-glow); }
+html[data-theme="light"] .provider-grid small { color: var(--text-muted); }
+html[data-theme="light"] .ai-settings label { color: var(--text-muted); }
+html[data-theme="light"] .ai-actions { padding-top: 18px; border-top: 1px solid var(--line); }
+html[data-theme="light"] .ai-actions .btn-secondary { background: var(--accent-user); color: #102015; font-weight: 700; }
+html[data-theme="light"] .ai-actions button:not(.btn-secondary) { border-color: var(--line-strong); background: var(--surface-control); color: var(--text-main); }
 html[data-theme="light"] .feature-window-header p,
 html[data-theme="light"] .login-intro p { color: var(--text-muted); }
 html[data-theme="light"] .account-logout { border-color: var(--line); background: var(--surface-glass); color: var(--text-main); }
