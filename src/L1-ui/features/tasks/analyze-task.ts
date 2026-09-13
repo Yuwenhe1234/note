@@ -6,7 +6,11 @@ export type TaskAnalysis = {
   goal: string;
   priority: "high" | "medium" | "low";
   estimatedHours: number;
-  steps: { title: string; hours: number; description: string; completionCriteria: string }[];
+  steps: { title: string; hours: number; description: string; completionCriteria: string; questions?: string[] }[];
+  type?: string;
+  domainMap?: { prerequisites: string[]; coreConcepts: string[]; advancedTopics: string[] };
+  resources?: { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
+  coreQuestions?: string[];
 };
 export type AnalyzeTaskInput = {
   title: string;

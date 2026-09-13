@@ -30,6 +30,7 @@ import {
 import { TaskSteps } from "./L1-ui/features/tasks/task-steps";
 import { AnalysisStepEditor } from "./L1-ui/features/tasks/analysis-step-editor";
 import { TaskDescriptionDialog } from "./L1-ui/features/tasks/task-description-dialog";
+import { TaskDetailPage } from "./L1-ui/features/tasks/task-detail-page";
 import {
   analyzeTask,
   type TaskAnalysis,
@@ -89,6 +90,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [notes, setNotes] = useState(""),
     [query, setQuery] = useState(""),
     [editingTaskId, setEditingTaskId] = useState<string | null>(null),
+    [detailTaskId, setDetailTaskId] = useState<string | null>(null),
     [analysis, setAnalysis] = useState<TaskAnalysis | null>(null),
     [analysisError, setAnalysisError] = useState(""),
     [analysisLoading, setAnalysisLoading] = useState(false),
@@ -273,6 +275,11 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           goal: goal.trim(),
           completed: false,
           priority: defaults.defaultPriority,
+          type: analysis?.type || "未分类",
+          objective: analysis?.goal || goal.trim(),
+          domainMap: analysis?.domainMap,
+          resources: analysis?.resources,
+          coreQuestions: analysis?.coreQuestions,
           durationHours: taskDuration(effectiveSteps),
           steps: effectiveSteps,
         },
@@ -329,6 +336,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           title: step.title,
           hours: step.hours,
           completed: false,
+          questions: step.questions || [],
         })),
       );
     } catch (error) {
@@ -340,6 +348,8 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     }
   };
   const openEditTask = (task: Task) => {
+    setDetailTaskId(task.id);
+    return;
     setEditingTaskId(task.id);
     setTitle(task.title);
     setDescription(task.description);
@@ -729,6 +739,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           )}
         </div>
       </main>
+      {detailTaskId && (() => { const detailTask = tasks.find((task) => task.id === detailTaskId); return detailTask ? <TaskDetailPage task={detailTask} onBack={() => setDetailTaskId(null)} onSave={(updated) => { setTasks((items) => items.map((item) => item.id === updated.id ? updated : item)); setDetailTaskId(null); }} onRegenerate={() => { setDetailTaskId(null); setEditingTaskId(detailTask.id); setTitle(detailTask.title); setDescription(detailTask.description); setGoal(detailTask.goal); setDraftSteps(detailTask.steps); setStage(1); setOpen(true); }} /> : null; })()}
       {open && (
         <div className="overlay">
           <section className="modal">

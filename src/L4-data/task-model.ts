@@ -1,8 +1,10 @@
-export type TaskStep = { id: string; title: string; hours: number; completed: boolean };
+export type TaskStep = { id: string; title: string; hours: number; completed: boolean; questions?: string[] };
+export type TaskDomainMap = { prerequisites: string[]; coreConcepts: string[]; advancedTopics: string[] };
+export type TaskResources = { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
 export type Task = {
   id: string; title: string; description: string; goal: string; completed: boolean;
   priority: "low" | "medium" | "high"; durationHours: number;
-  steps: TaskStep[]; deadline?: string; dailyReusable?: boolean; lastResetDate?: string;
+  steps: TaskStep[]; type?: string; objective?: string; domainMap?: TaskDomainMap; resources?: TaskResources; coreQuestions?: string[]; deadline?: string; dailyReusable?: boolean; lastResetDate?: string;
 };
 type LegacyStep = Partial<TaskStep> & { minutes?: number };
 type MigratableTask = Omit<Task, "steps" | "durationHours" | "goal"> & {
@@ -28,16 +30,16 @@ export function createSteps(count: number, totalHours: number, idFactory: IdFact
 
 export function migrateTask(task: MigratableTask, idFactory: IdFactory = defaultId): Task {
   const fallbackHours = normalizeHours(task.durationHours ?? (task.durationMinutes || 60) / 60);
-  const steps = Array.isArray(task.steps)
+  const steps = (Array.isArray(task.steps)
     ? task.steps.map((step, index) => ({
         id: step.id || idFactory(index + 1),
         title: step.title?.trim() || `步骤 ${index + 1}`,
         hours: normalizeHours(step.hours ?? (step.minutes || 15) / 60),
-        completed: Boolean(step.completed),
+        completed: Boolean(step.completed), questions: Array.isArray(step.questions) ? step.questions.filter((item) => typeof item === "string" && item.trim()) : [],
       }))
-    : createSteps(task.steps, fallbackHours, idFactory);
+    : createSteps(task.steps, fallbackHours, idFactory)).map((step) => ({ ...step, questions: step.questions || [] }));
   const { durationMinutes: _legacyMinutes, ...current } = task;
-  return { ...current, goal: task.goal?.trim() || "", dailyReusable: Boolean(task.dailyReusable), lastResetDate: task.lastResetDate, steps, durationHours: taskDuration(steps), completed: taskProgress(steps).done };
+  return { ...current, goal: task.goal?.trim() || "", type: task.type?.trim() || "未分类", objective: task.objective?.trim() || task.goal?.trim() || "", domainMap: { prerequisites: task.domainMap?.prerequisites || [], coreConcepts: task.domainMap?.coreConcepts || [], advancedTopics: task.domainMap?.advancedTopics || [] }, resources: { systemResources: task.resources?.systemResources || [], externalRecommendations: { websites: task.resources?.externalRecommendations?.websites || [], upMasters: task.resources?.externalRecommendations?.upMasters || [], communities: task.resources?.externalRecommendations?.communities || [] } }, coreQuestions: task.coreQuestions || [], dailyReusable: Boolean(task.dailyReusable), lastResetDate: task.lastResetDate, steps, durationHours: taskDuration(steps), completed: taskProgress(steps).done };
 }
 
 export function taskProgress(steps: TaskStep[]) {
