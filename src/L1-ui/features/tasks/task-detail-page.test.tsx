@@ -7,6 +7,7 @@ const task = { id: "stm32", title: "学习 STM32", description: "从 GPIO 开始
 describe("TaskDetailPage", () => {
   it("renders task context and updates progress when a step is completed", () => {
     render(<TaskDetailPage task={task} onBack={vi.fn()} onSave={vi.fn()} onRegenerate={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "返回任务清单" })).toHaveTextContent("");
     expect(screen.getByRole("region", { name: "思维导图" })).toBeInTheDocument();
     expect(screen.getByText("推荐学习资源")).toBeInTheDocument();
     expect(screen.getByDisplayValue("STM32 官方文档")).toBeInTheDocument();
@@ -14,5 +15,13 @@ describe("TaskDetailPage", () => {
     expect(screen.queryByLabelText("任务标题")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "完成步骤 1" }));
     expect(screen.getByText("1/1 · 100%")).toBeInTheDocument();
+  });
+
+  it("opens the full mind map on double click", () => {
+    render(<TaskDetailPage task={task} onBack={vi.fn()} onSave={vi.fn()} onRegenerate={vi.fn()} />);
+    fireEvent.doubleClick(screen.getByRole("region", { name: "思维导图" }));
+    expect(screen.getByRole("dialog", { name: "完整思维导图" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "关闭完整思维导图" }));
+    expect(screen.queryByRole("dialog", { name: "完整思维导图" })).not.toBeInTheDocument();
   });
 });
