@@ -1,10 +1,11 @@
 export type TaskStep = { id: string; title: string; hours: number; completed: boolean; questions?: string[] };
 export type TaskDomainMap = { prerequisites: string[]; coreConcepts: string[]; advancedTopics: string[] };
 export type TaskResources = { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
+export type TaskMindMap = { nodes: { id: string; label: string; x: number; y: number }[]; edges: { id: string; source: string; target: string }[] };
 export type Task = {
   id: string; title: string; description: string; goal: string; completed: boolean;
   priority: "low" | "medium" | "high"; durationHours: number;
-  steps: TaskStep[]; type?: string; objective?: string; domainMap?: TaskDomainMap; resources?: TaskResources; coreQuestions?: string[]; deadline?: string; dailyReusable?: boolean; lastResetDate?: string;
+  steps: TaskStep[]; type?: string; objective?: string; domainMap?: TaskDomainMap; resources?: TaskResources; coreQuestions?: string[]; notes?: string; mindMap?: TaskMindMap; deadline?: string; dailyReusable?: boolean; lastResetDate?: string;
 };
 type LegacyStep = Partial<TaskStep> & { minutes?: number };
 type MigratableTask = Omit<Task, "steps" | "durationHours" | "goal"> & {
@@ -39,7 +40,8 @@ export function migrateTask(task: MigratableTask, idFactory: IdFactory = default
       }))
     : createSteps(task.steps, fallbackHours, idFactory)).map((step) => ({ ...step, questions: step.questions || [] }));
   const { durationMinutes: _legacyMinutes, ...current } = task;
-  return { ...current, goal: task.goal?.trim() || "", type: task.type?.trim() || "未分类", objective: task.objective?.trim() || task.goal?.trim() || "", domainMap: { prerequisites: task.domainMap?.prerequisites || [], coreConcepts: task.domainMap?.coreConcepts || [], advancedTopics: task.domainMap?.advancedTopics || [] }, resources: { systemResources: task.resources?.systemResources || [], externalRecommendations: { websites: task.resources?.externalRecommendations?.websites || [], upMasters: task.resources?.externalRecommendations?.upMasters || [], communities: task.resources?.externalRecommendations?.communities || [] } }, coreQuestions: task.coreQuestions || [], dailyReusable: Boolean(task.dailyReusable), lastResetDate: task.lastResetDate, steps, durationHours: taskDuration(steps), completed: taskProgress(steps).done };
+  const map = task.mindMap?.nodes?.length ? task.mindMap : { nodes: [{ id: "prerequisites", label: "前置知识", x: 40, y: 160 }, { id: "core", label: "核心概念", x: 260, y: 80 }, { id: "advanced", label: "进阶方向", x: 260, y: 250 }], edges: [{ id: "prerequisites-core", source: "prerequisites", target: "core" }, { id: "core-advanced", source: "core", target: "advanced" }] };
+  return { ...current, goal: task.goal?.trim() || "", type: task.type?.trim() || "未分类", objective: task.objective?.trim() || task.goal?.trim() || "", domainMap: { prerequisites: task.domainMap?.prerequisites || [], coreConcepts: task.domainMap?.coreConcepts || [], advancedTopics: task.domainMap?.advancedTopics || [] }, resources: { systemResources: task.resources?.systemResources || [], externalRecommendations: { websites: task.resources?.externalRecommendations?.websites || [], upMasters: task.resources?.externalRecommendations?.upMasters || [], communities: task.resources?.externalRecommendations?.communities || [] } }, coreQuestions: task.coreQuestions || [], notes: task.notes || "", mindMap: map, dailyReusable: Boolean(task.dailyReusable), lastResetDate: task.lastResetDate, steps, durationHours: taskDuration(steps), completed: taskProgress(steps).done };
 }
 
 export function taskProgress(steps: TaskStep[]) {

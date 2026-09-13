@@ -63,6 +63,8 @@ describe("task step model", () => {
     expect(task.resources!.systemResources).toEqual([]);
     expect(task.coreQuestions).toEqual([]);
     expect(task.steps[0].questions).toEqual([]);
+    expect(task.mindMap?.nodes).toHaveLength(3);
+    expect(task.mindMap?.edges).toHaveLength(2);
   });
   it("migrates legacy numeric steps using the old total duration", () => {
     const migrated = migrateTask(

@@ -1803,6 +1803,35 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-right .analysis-step-edit-row { grid-template-columns: 20px 20px 26px minmax(0, 1fr) auto 34px; align-items: start; overflow: hidden; }
 .task-detail-right .step-duration-display { min-width: 82px; }
 @media (max-width: 840px) { .task-detail-title, .task-detail-grid { grid-template-columns: 1fr; } .task-detail-page { padding: 16px 16px 100px; } .task-detail-footer { padding: 12px 16px; } }
+.task-detail-header { padding: 20px 24px; }
+.task-detail-title { grid-template-columns: minmax(260px, .7fr) minmax(360px, 1.3fr); align-items: center; }
+.task-detail-title h1 { font-size: clamp(32px, 4vw, 56px); }
+.task-detail-objective textarea { min-height: 64px; padding: 0; }
+.task-detail-grid { grid-template-columns: minmax(350px, .82fr) minmax(500px, 1.18fr); align-items: start; }
+.task-detail-left > .task-mind-map { min-height: 560px; }
+.task-mind-map { overflow: hidden; border: 1px solid var(--line); border-radius: 26px; background: var(--surface-1); }
+.task-mind-map-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.task-mind-map-toolbar strong { color: var(--text-main); }
+.task-mind-map-toolbar span { display: flex; gap: 8px; }
+.task-mind-map-toolbar button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--text-muted); font-size: 12px; }
+.task-mind-map .react-flow { height: 500px; background: var(--surface-2); }
+.task-mind-map .react-flow__node-default { border-color: var(--accent-border); border-radius: 10px; background: var(--surface-1); color: var(--text-main); box-shadow: none; }
+.task-mind-map .react-flow__edge-path { stroke: var(--accent-user); }
+.task-detail-left > section, .task-detail-right > section { padding: 20px; }
+.task-detail-resource { display: grid; gap: 7px; padding: 12px 0; border-top: 1px solid var(--line); }
+.task-detail-resource:first-of-type { border-top: 0; }
+.task-detail-resource small { color: var(--text-muted); }
+.task-detail-resource textarea, .task-detail-notes textarea { width: 100%; min-height: 48px; padding: 10px 12px; resize: vertical; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--text-main); font: inherit; }
+.task-detail-notes textarea { min-height: 108px; }
+.task-detail-steps-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.task-detail-steps-heading h2 { margin: 0; }
+.task-detail-steps-heading span { color: var(--accent-user); font-size: 13px; }
+.task-detail-right .analysis-step-edit-row { grid-template-columns: 18px 20px 24px minmax(0, 1fr) 90px 30px; min-height: 58px; padding: 9px 10px; border-color: var(--line); background: var(--surface-2); }
+.task-detail-right .analysis-step-edit-row input { height: 38px; padding: 7px 10px; border-color: var(--line); background: var(--surface-1); color: var(--text-main); }
+.task-detail-right .step-title-stack small { display: none; }
+.task-detail-right .step-duration-display { min-width: 0; padding: 8px; border-color: var(--line); background: var(--surface-1); }
+.task-detail-right .analysis-step-editor-list { padding: 0; }
+@media (max-width: 840px) { .task-detail-title, .task-detail-grid { grid-template-columns: 1fr; } .task-detail-left > .task-mind-map { min-height: 420px; } .task-mind-map .react-flow { height: 360px; } }
 .description-dialog { border-color: var(--line) !important; background: var(--surface-1) !important; color: var(--text-main) !important; }
 .description-dialog h3 { color: var(--text-main); }
 .description-dialog .task-description-field,
