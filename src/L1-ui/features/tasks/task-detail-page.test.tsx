@@ -7,7 +7,9 @@ const task = { id: "stm32", title: "学习 STM32", description: "从 GPIO 开始
 describe("TaskDetailPage", () => {
   it("renders task context and updates progress when a step is completed", () => {
     render(<TaskDetailPage task={task} onBack={vi.fn()} onSave={vi.fn()} onRegenerate={vi.fn()} />);
-    expect(screen.getByRole("button", { name: "返回任务清单" })).toHaveTextContent("");
+    const back = screen.getByRole("button", { name: "返回任务清单" });
+    expect(back).toHaveTextContent("");
+    expect(back.closest(".task-detail-header")).toBeNull();
     expect(screen.getByRole("region", { name: "思维导图" })).toBeInTheDocument();
     expect(screen.getByText("推荐学习资源")).toBeInTheDocument();
     expect(screen.getByDisplayValue("STM32 官方文档")).toBeInTheDocument();
