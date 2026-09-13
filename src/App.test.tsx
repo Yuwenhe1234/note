@@ -238,6 +238,7 @@ describe("application shell", () => {
       screen.getByRole("button", { name: "编辑 完成 React 界面迁移" }),
     );
     expect(screen.getByRole("heading", { name: "执行步骤" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "编辑任务标题" }));
     const title = screen.getByLabelText("任务标题");
     fireEvent.change(title, { target: { value: "完成新版界面" } });
     expect(screen.getByLabelText("步骤 1 标题")).toBeInTheDocument();
@@ -327,7 +328,7 @@ describe("application shell", () => {
     window.history.replaceState({}, "", "/?widgetTask=task-1");
     render(<App />);
     expect(await screen.findByRole("heading", { name: "执行步骤" })).toBeInTheDocument();
-    expect(screen.getByLabelText("任务标题")).toHaveValue("完成 React 界面迁移");
+    expect(screen.getByRole("heading", { name: "完成 React 界面迁移", level: 1 })).toBeInTheDocument();
     expect(window.location.search).toBe("");
   });
 

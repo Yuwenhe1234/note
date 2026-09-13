@@ -11,6 +11,8 @@ describe("TaskDetailPage", () => {
     expect(screen.getByText("STM32 官方文档")).toBeInTheDocument();
     expect(screen.getByText("GPIO 如何配置？")).toBeInTheDocument();
     expect(screen.getByText("寄存器作用是什么？")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "学习 STM32" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "编辑任务标题" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "完成步骤 1" }));
     expect(screen.getByText("1/1 步骤完成 · 100%")).toBeInTheDocument();
   });

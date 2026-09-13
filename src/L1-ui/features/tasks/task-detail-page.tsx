@@ -5,6 +5,7 @@ import { AnalysisStepEditor } from "./analysis-step-editor";
 
 export function TaskDetailPage({ task, onBack, onSave, onRegenerate }: { task: Task; onBack: () => void; onSave: (task: Task) => void; onRegenerate: () => void }) {
   const [draft, setDraft] = useState(task);
+  const [editingMeta, setEditingMeta] = useState(false);
   const progress = useMemo(() => taskProgress(draft.steps), [draft.steps]);
   const updateSteps = (steps: TaskStep[]) => setDraft((current) => ({ ...current, steps, durationHours: steps.reduce((sum, step) => sum + step.hours, 0), completed: taskProgress(steps).done }));
   const map = draft.domainMap || { prerequisites: [], coreConcepts: [], advancedTopics: [] };
@@ -13,7 +14,7 @@ export function TaskDetailPage({ task, onBack, onSave, onRegenerate }: { task: T
   return <section className="task-detail-page min-h-screen bg-[#0B0F14] text-slate-100">
     <header className="task-detail-header">
       <button className="task-detail-back" onClick={onBack}><ArrowLeft /> 返回任务清单</button>
-      <div className="task-detail-title"><div><span className="task-detail-type">{draft.type || "未分类"}</span><input aria-label="任务标题" value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></div><div className="task-detail-objective"><small>完成目标</small><textarea aria-label="完成目标" value={draft.objective || draft.goal} onChange={(event) => setDraft({ ...draft, objective: event.target.value, goal: event.target.value })} /></div></div>
+      <div className="task-detail-title"><div><span className="task-detail-type">{draft.type || "未分类"}</span>{editingMeta ? <input aria-label="任务标题" value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /> : <h1>{draft.title}</h1>}<button className="task-detail-edit" aria-label="编辑任务标题" onClick={() => setEditingMeta((value) => !value)}>{editingMeta ? "完成编辑" : "编辑"}</button></div><div className="task-detail-objective"><small>完成目标</small>{editingMeta ? <textarea aria-label="完成目标" value={draft.objective || draft.goal} onChange={(event) => setDraft({ ...draft, objective: event.target.value, goal: event.target.value })} /> : <p>{draft.objective || draft.goal || "暂无完成目标"}</p>}</div></div>
       <div className="task-detail-progress"><span>{progress.completed}/{progress.total} 步骤完成 · {progress.percent}%</span><div><i style={{ width: `${progress.percent}%` }} /></div></div>
     </header>
     <main className="task-detail-grid">
