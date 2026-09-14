@@ -1771,7 +1771,7 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-page::-webkit-scrollbar-thumb, .task-detail-right .analysis-step-editor-list::-webkit-scrollbar-thumb, .task-detail-left > section:last-child::-webkit-scrollbar-thumb { border-radius: 99px; background: #3f7958; }
 .task-detail-page::-webkit-scrollbar-thumb:hover, .task-detail-right .analysis-step-editor-list::-webkit-scrollbar-thumb:hover, .task-detail-left > section:last-child::-webkit-scrollbar-thumb:hover { background: #5aa875; }
 .task-detail-page > main.task-detail-grid { padding: 0; }
-.task-detail-topbar { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: stretch; gap: 24px; width: 95vw; max-width: none; min-height: 140px; margin: 0 auto 16px; }
+.task-detail-topbar { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: stretch; gap: 24px; width: min(95vw, 1120px); max-width: 1120px; min-height: 140px; margin: 0 auto 16px; }
 .task-detail-header { position: static; top: auto; z-index: auto; display: block; width: auto; max-width: none; margin: 0; padding: 26px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface-1); backdrop-filter: none; }
 .task-detail-back { display: grid; width: 150px; min-height: 140px; place-items: center; border: 1px solid var(--line); border-radius: 24px; color: var(--accent-user); background: var(--surface-1); }
 .task-detail-back svg { width: 17px; }
@@ -1795,7 +1795,7 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-progress { margin-top: 20px; color: var(--text-muted); font-size: 13px; }
 .task-detail-progress > div { height: 7px; margin-top: 8px; overflow: hidden; border-radius: 9px; background: var(--surface-2); }
 .task-detail-progress i { display: block; height: 100%; border-radius: inherit; background: var(--accent-user); }
-.task-detail-grid { display: grid; grid-template-columns: minmax(0, 42fr) minmax(0, 55fr); gap: 16px; width: 95vw; max-width: none; margin: auto; }
+.task-detail-grid { display: grid; grid-template-columns: minmax(0, 42fr) minmax(0, 55fr); gap: 16px; width: min(95vw, 1120px); max-width: 1120px; margin: auto; }
 .task-detail-grid > .task-detail-left,
 .task-detail-grid > .task-detail-right { box-sizing: border-box; min-height: 0; padding: 0; overflow: hidden; border: 0; border-radius: 0; background: transparent; }
 .task-detail-left, .task-detail-right { display: grid; gap: 20px; align-content: start; }
