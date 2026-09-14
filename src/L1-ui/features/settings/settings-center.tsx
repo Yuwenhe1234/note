@@ -241,12 +241,12 @@ export function SettingsCenter({
             }
           />
           <SettingToggle
-            label="关闭所有按键浮动"
-            checked={!settings.interaction.buttonFloat}
-            onChange={(disableButtonFloat) =>
+            label="开启所有按键浮动"
+            checked={settings.interaction.buttonFloat}
+            onChange={(buttonFloat) =>
               setSettings((current) => ({
                 ...current,
-                interaction: { ...current.interaction, buttonFloat: !disableButtonFloat },
+                interaction: { ...current.interaction, buttonFloat },
               }))
             }
           />

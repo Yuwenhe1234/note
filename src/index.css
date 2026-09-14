@@ -1643,6 +1643,9 @@ html[data-button-glow="off"] .page-back-button:focus-visible { border-color: var
 html[data-button-float="off"] button:not(:disabled):hover,
 html[data-button-float="off"] button:not(:disabled):focus-visible,
 html[data-button-float="off"] button:not(:disabled):active { transform: none !important; }
+html[data-button-float="on"] button:not(:disabled):hover,
+html[data-button-float="on"] button:not(:disabled):focus-visible { transform: translateY(-1px); }
+html[data-button-float="on"] button:not(:disabled):active { transform: translateY(0) scale(.98); }
 .news-card:hover,
 .page-back-button:hover,
 .task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }
