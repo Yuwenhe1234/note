@@ -1621,6 +1621,11 @@ button:not(:disabled):active { box-shadow: 0 0 0 3px var(--accent-border), 0 0 2
 html[data-button-glow="off"] button:not(:disabled):hover,
 html[data-button-glow="off"] button:not(:disabled):focus-visible,
 html[data-button-glow="off"] button:not(:disabled):active { box-shadow: none !important; }
+html[data-button-glow="off"] .settings > button:hover,
+html[data-button-glow="off"] .features button:hover,
+html[data-button-glow="off"] .tasks article:hover,
+html[data-button-glow="off"] .task-step-bubble:hover,
+html[data-button-glow="off"] .news-card:hover { border-color: var(--line) !important; background: var(--surface-1) !important; box-shadow: none !important; }
 .news-card:hover,
 .page-back-button:hover,
 .task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }
