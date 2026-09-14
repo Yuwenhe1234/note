@@ -76,6 +76,7 @@ export function SettingsCenter({
     document.documentElement.dataset.theme = settings.appearance.theme === "light" ? "light" : "dark";
     document.documentElement.dataset.accent = settings.appearance.accent;
     document.documentElement.dataset.buttonGlow = settings.interaction.buttonGlow ? "on" : "off";
+    document.documentElement.dataset.buttonFloat = settings.interaction.buttonFloat ? "on" : "off";
     if (settings.appearance.accent === "custom") document.documentElement.style.setProperty("--accent-user", settings.appearance.customAccent || "#208b4f");
     else document.documentElement.style.removeProperty("--accent-user");
     delete document.documentElement.dataset.fontSize;
@@ -240,12 +241,12 @@ export function SettingsCenter({
             }
           />
           <SettingToggle
-            label="减少动态效果"
-            checked={settings.interaction.reducedMotion}
-            onChange={(reducedMotion) =>
+            label="关闭所有按键浮动"
+            checked={!settings.interaction.buttonFloat}
+            onChange={(disableButtonFloat) =>
               setSettings((current) => ({
                 ...current,
-                interaction: { ...current.interaction, reducedMotion },
+                interaction: { ...current.interaction, buttonFloat: !disableButtonFloat },
               }))
             }
           />
