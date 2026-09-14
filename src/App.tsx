@@ -801,9 +801,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
                     <AnalysisStepEditor steps={draftSteps} onChange={setDraftSteps} />
                   </div>
                 )}
-                <button className="primary" onClick={add}>
-                  确认并保存 <Check />
-                </button>
+                <div className="description-dialog-actions"><button className="btn-secondary" onClick={() => { setOpen(false); setStage(1); setAnalysis(null); }}>取消</button><button className="primary" onClick={add}>保存任务 <Check /></button></div>
               </>
             )}
           </section>

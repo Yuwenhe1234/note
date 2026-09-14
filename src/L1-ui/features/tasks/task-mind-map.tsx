@@ -4,7 +4,7 @@ import { useEffect, type MouseEvent } from "react";
 import type { TaskMindMap } from "../../../L4-data/task-model";
 
 const toNodes = (map: TaskMindMap): Node[] => map.nodes.map((node) => ({ id: node.id, position: { x: node.x, y: node.y }, data: { label: node.label }, type: "mindMapNode" }));
-const toEdges = (map: TaskMindMap): Edge[] => map.edges.map((edge) => ({ ...edge, animated: false }));
+const toEdges = (map: TaskMindMap): Edge[] => map.edges.map((edge) => ({ ...edge, sourceHandle: "bottom-source", targetHandle: "top-target", animated: false }));
 
 function MindMapNode({ data }: { data: { label?: string; editing?: boolean; onRename?: (label: string) => void } }) {
   return <><Handle type="target" position={Position.Top} id="top-target" /><Handle type="source" position={Position.Top} id="top-source" /><Handle type="target" position={Position.Right} id="right-target" /><Handle type="source" position={Position.Right} id="right-source" /><Handle type="target" position={Position.Bottom} id="bottom-target" /><Handle type="source" position={Position.Bottom} id="bottom-source" /><Handle type="target" position={Position.Left} id="left-target" /><Handle type="source" position={Position.Left} id="left-source" />{data.editing ? <input className="mind-map-node-input" autoFocus defaultValue={data.label} onBlur={(event) => data.onRename?.(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{data.label}</span>}</>;
