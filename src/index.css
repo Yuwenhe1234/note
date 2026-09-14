@@ -1957,6 +1957,10 @@ html[data-theme="light"] .hero h1 i { color: #69716c; }
 .brand-input,
 .hero-editor { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-soft); }
 .hero-editable:hover { text-shadow: 0 0 22px var(--accent-glow); }
+.hero h1,
+.page h1 { transition: color .2s ease, text-shadow .2s ease, transform .2s ease; }
+.hero h1:hover,
+.page h1:hover { color: var(--accent-user); text-shadow: 0 0 14px var(--accent-glow), 0 0 36px var(--accent-glow); }
 .tasks article:hover,
 .task-step-bubble:hover { border-color: var(--accent-border); background: var(--accent-soft); }
 .task-step-bubble.completed,
