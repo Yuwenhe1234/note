@@ -1125,8 +1125,8 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-top: 10px;
-  padding: 10px 14px;
+  margin-top: 4px;
+  padding: 8px 12px;
   border: 1px dashed #ffffff20;
   border-radius: 12px;
   color: #aaa;
