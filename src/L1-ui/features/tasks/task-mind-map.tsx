@@ -4,7 +4,7 @@ import { useEffect, useRef, type MouseEvent } from "react";
 import type { TaskMindMap } from "../../../L4-data/task-model";
 
 const toNodes = (map: TaskMindMap): Node[] => map.nodes.map((node) => ({ id: node.id, position: { x: node.x, y: node.y }, data: { label: node.label }, type: "mindMapNode" }));
-const toEdges = (map: TaskMindMap): Edge[] => map.edges.map((edge) => ({ ...edge, sourceHandle: "bottom-source", targetHandle: "top-target", animated: false }));
+const toEdges = (map: TaskMindMap): Edge[] => map.edges.map((edge) => ({ ...edge, sourceHandle: edge.kind === "feedback" ? "right-feedback-source" : "bottom-source", targetHandle: edge.kind === "feedback" ? "left-feedback-target" : "top-target", data: { kind: edge.kind || "main" }, animated: false }));
 
 function MindMapNode({ data }: { data: { label?: string; editing?: boolean; onRename?: (label: string) => void } }) {
   return <><Handle type="target" position={Position.Top} id="top-target" /><Handle type="source" position={Position.Bottom} id="bottom-source" /><Handle type="target" position={Position.Left} id="left-feedback-target" /><Handle type="source" position={Position.Right} id="right-feedback-source" />{data.editing ? <input className="mind-map-node-input" autoFocus defaultValue={data.label} onBlur={(event) => data.onRename?.(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{data.label}</span>}</>;
@@ -18,9 +18,9 @@ export function TaskMindMap({ value, onChange, className = "", onDoubleClick }: 
   const history = useRef<{ nodes: Node[]; edges: Edge[] }[]>([]);
   const snapshot = () => { history.current = [...history.current.slice(-29), { nodes, edges }]; };
   const undo = () => { const previous = history.current.pop(); if (previous) { setNodes(previous.nodes); setEdges(previous.edges); } };
-  useEffect(() => onChange({ nodes: nodes.map((node) => ({ id: node.id, label: String(node.data.label || "节点"), x: node.position.x, y: node.position.y })), edges: edges.map(({ id, source, target }) => ({ id, source, target })) }), [nodes, edges]);
+  useEffect(() => onChange({ nodes: nodes.map((node) => ({ id: node.id, label: String(node.data.label || "节点"), x: node.position.x, y: node.position.y })), edges: edges.map(({ id, source, target, data }) => ({ id, source, target, kind: data?.kind === "feedback" ? "feedback" : "main" })) }), [nodes, edges]);
   useEffect(() => { const listener = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !(event.target instanceof HTMLInputElement)) { event.preventDefault(); undo(); } }; window.addEventListener("keydown", listener); return () => window.removeEventListener("keydown", listener); });
-  const connect = (connection: Connection) => { snapshot(); setEdges((current) => addEdge({ ...connection, id: crypto.randomUUID() }, current)); };
+  const connect = (connection: Connection) => { snapshot(); const kind = connection.sourceHandle === "right-feedback-source" ? "feedback" : "main"; setEdges((current) => addEdge({ ...connection, id: crypto.randomUUID(), data: { kind } }, current)); };
   const addNode = () => { snapshot(); setNodes((current) => [...current, { id: crypto.randomUUID(), position: { x: 120 + current.length * 28, y: 90 + current.length * 38 }, data: { label: "新知识点" }, type: "mindMapNode" }]); };
   const deleteSelected = () => { snapshot(); const selected = new Set(nodes.filter((node) => node.selected).map((node) => node.id)); setNodes((current) => current.filter((node) => !selected.has(node.id))); setEdges((current) => current.filter((edge) => !selected.has(edge.source) && !selected.has(edge.target))); };
   const handleNodeDoubleClick = (event: MouseEvent, node: Node) => { event.stopPropagation(); if (onDoubleClick) { onDoubleClick(); return; } const label = window.prompt("编辑知识点", String(node.data.label || "")); if (label?.trim()) setNodes((current) => current.map((item) => item.id === node.id ? { ...item, data: { ...item.data, label: label.trim() } } : item)); };
