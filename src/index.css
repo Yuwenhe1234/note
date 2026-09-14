@@ -1618,6 +1618,9 @@ body { background: var(--page-bg); color: var(--text-main); }
 button:not(:disabled):hover,
 button:not(:disabled):focus-visible { box-shadow: 0 0 0 2px var(--accent-border), 0 0 18px var(--accent-glow); }
 button:not(:disabled):active { box-shadow: 0 0 0 3px var(--accent-border), 0 0 22px var(--accent-glow); }
+html[data-button-glow="off"] button:not(:disabled):hover,
+html[data-button-glow="off"] button:not(:disabled):focus-visible,
+html[data-button-glow="off"] button:not(:disabled):active { box-shadow: none !important; }
 .news-card:hover,
 .page-back-button:hover,
 .task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }

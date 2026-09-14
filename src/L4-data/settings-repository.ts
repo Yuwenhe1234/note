@@ -2,7 +2,7 @@ export type AppSettingsV1 = {
   version: 1;
   taskDefaults: { defaultPriority: "low" | "medium" | "high"; defaultStatus: "in_progress" | "pending"; defaultDurationMinutes: number; minSteps: number; maxSteps: number; completedVisibility: "show" | "hide"; sortBy: "created" | "priority" | "title"; includeOverdueToday: boolean; weekStartsOn: 0 | 1; timeFormat: "12h" | "24h" };
   appearance: { theme: "dark" | "light" | "system"; accent: "green" | "blue" | "orange" | "custom"; customAccent?: string; fontSize: "compact" | "standard" | "large"; density: "compact" | "standard" | "comfortable"; pageWidth: "fixed" | "wide" };
-  interaction: { animations: boolean; reducedMotion: boolean; confirmComplete: boolean; confirmDelete: boolean; autoFocus: boolean; editTrigger: "double-click" | "long-press" };
+  interaction: { animations: boolean; reducedMotion: boolean; buttonGlow: boolean; confirmComplete: boolean; confirmDelete: boolean; autoFocus: boolean; editTrigger: "double-click" | "long-press" };
   reminders: { notifications: boolean; defaultLeadMinutes: number; overdueReminder: boolean; quietStart: string; quietEnd: string };
 };
 
@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS: AppSettingsV1 = {
   version: 1,
   taskDefaults: { defaultPriority: "medium", defaultStatus: "in_progress", defaultDurationMinutes: 150, minSteps: 3, maxSteps: 6, completedVisibility: "show", sortBy: "created", includeOverdueToday: true, weekStartsOn: 1, timeFormat: "24h" },
   appearance: { theme: "dark", accent: "green", fontSize: "standard", density: "standard", pageWidth: "fixed" },
-  interaction: { animations: true, reducedMotion: false, confirmComplete: false, confirmDelete: true, autoFocus: true, editTrigger: "double-click" },
+  interaction: { animations: true, reducedMotion: false, buttonGlow: true, confirmComplete: false, confirmDelete: true, autoFocus: true, editTrigger: "double-click" },
   reminders: { notifications: false, defaultLeadMinutes: 15, overdueReminder: true, quietStart: "23:00", quietEnd: "08:00" },
 };
 

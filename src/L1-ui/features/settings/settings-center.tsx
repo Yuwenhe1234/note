@@ -75,6 +75,7 @@ export function SettingsCenter({
     saveSettings(settings);
     document.documentElement.dataset.theme = settings.appearance.theme === "light" ? "light" : "dark";
     document.documentElement.dataset.accent = settings.appearance.accent;
+    document.documentElement.dataset.buttonGlow = settings.interaction.buttonGlow ? "on" : "off";
     if (settings.appearance.accent === "custom") document.documentElement.style.setProperty("--accent-user", settings.appearance.customAccent || "#208b4f");
     else document.documentElement.style.removeProperty("--accent-user");
     delete document.documentElement.dataset.fontSize;
@@ -245,6 +246,16 @@ export function SettingsCenter({
               setSettings((current) => ({
                 ...current,
                 interaction: { ...current.interaction, reducedMotion },
+              }))
+            }
+          />
+          <SettingToggle
+            label="按钮光圈效果"
+            checked={settings.interaction.buttonGlow}
+            onChange={(buttonGlow) =>
+              setSettings((current) => ({
+                ...current,
+                interaction: { ...current.interaction, buttonGlow },
               }))
             }
           />
