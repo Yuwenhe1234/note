@@ -10,7 +10,7 @@ export function TaskDetailPage({ task, onBack, onSave, onRegenerate }: { task: T
   const progress = useMemo(() => taskProgress(draft.steps), [draft.steps]);
   const updateSteps = (steps: TaskStep[]) => setDraft((current) => ({ ...current, steps, durationHours: steps.reduce((sum, step) => sum + step.hours, 0), completed: taskProgress(steps).done }));
   const resources = draft.resources || { systemResources: [], externalRecommendations: { websites: [], upMasters: [], communities: [] } };
-  return <section className="task-detail-page min-h-screen bg-[#0B0F14] text-slate-100">
+  return <section className="task-detail-page">
     <div className="task-detail-topbar"><button className="task-detail-back" aria-label="返回任务清单" onClick={onBack}><ArrowLeft /></button><header className="task-detail-header">
       <div className="task-detail-title"><div><span className="task-detail-type">{draft.type || "未分类"}</span><h1>{draft.title}</h1></div><div className="task-detail-objective"><small>完成目标</small><textarea aria-label="完成目标" value={draft.objective || draft.goal} onChange={(event) => setDraft({ ...draft, objective: event.target.value, goal: event.target.value })} /></div></div>
     </header></div>
