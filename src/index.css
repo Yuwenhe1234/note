@@ -1638,6 +1638,8 @@ html[data-button-glow="off"] .task-step-bubble:hover,
 html[data-button-glow="off"] .features button:hover,
 html[data-button-glow="off"] .news-card:hover,
 html[data-button-glow="off"] .settings > button:hover { border-color: var(--line) !important; background: var(--surface-1) !important; }
+html[data-button-glow="off"] .page-back-button:hover,
+html[data-button-glow="off"] .page-back-button:focus-visible { border-color: var(--line) !important; background: var(--surface-1) !important; color: var(--text-main) !important; }
 .news-card:hover,
 .page-back-button:hover,
 .task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }
