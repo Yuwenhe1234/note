@@ -1810,8 +1810,9 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-title h1 { font-size: clamp(32px, 4vw, 56px); }
 .task-detail-objective textarea { min-height: 64px; padding: 0; }
 .task-detail-grid { grid-template-columns: minmax(0, 42fr) minmax(0, 55fr); column-gap: 16px; align-items: start; }
-.task-detail-left { grid-template-rows: 600px 300px; gap: 16px; }
+.task-detail-left { grid-template-rows: 600px 330px; gap: 16px; }
 .task-detail-right { grid-template-rows: 200px 730px; gap: 16px; }
+.task-detail-left > section:last-child { height: 330px; min-height: 0; overflow-y: auto; }
 .task-detail-left > .task-mind-map { min-height: 600px; }
 .task-mind-map { overflow: hidden; border: 1px solid var(--line); border-radius: 26px; background: var(--surface-1); }
 .task-mind-map-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--line); }

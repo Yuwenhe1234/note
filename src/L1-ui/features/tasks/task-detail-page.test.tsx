@@ -13,6 +13,8 @@ describe("TaskDetailPage", () => {
     expect(back.closest(".task-detail-header")).toBeNull();
     expect(getComputedStyle(back.closest(".task-detail-topbar")!).gridTemplateColumns).toBe("150px minmax(0, 1fr)");
     expect(getComputedStyle(document.querySelector(".task-detail-grid")!).columnGap).toBe("16px");
+    expect(getComputedStyle(document.querySelector(".task-detail-left")!).gridTemplateRows).toBe("600px 330px");
+    expect(getComputedStyle(document.querySelector(".task-detail-left > section:last-child")!).overflowY).toBe("auto");
     expect(screen.getByRole("region", { name: "思维导图" })).toBeInTheDocument();
     expect(screen.getByText("推荐学习资源")).toBeInTheDocument();
     expect(screen.getByDisplayValue("STM32 官方文档")).toBeInTheDocument();
