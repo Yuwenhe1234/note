@@ -1780,7 +1780,7 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-title input { font: 400 clamp(38px, 5vw, 68px)/1 "Instrument Serif"; }
 .task-detail-title .task-title-input { width: 100%; min-height: 2.2em; margin-top: 8px; padding: 0; resize: none; overflow: hidden; font-family: inherit; font-size: clamp(34px, 4vw, 56px); font-weight: 700; line-height: 1.08; letter-spacing: -.035em; overflow-wrap: anywhere; }
 .task-detail-title .task-title-input.is-long { font-size: clamp(24px, 2.8vw, 40px); line-height: 1.12; }
-.task-mind-map h2 { font-family: inherit; font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.task-mind-map h2 { margin: 0 0 16px; color: var(--text-main); font-family: inherit; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
 .task-mind-map .react-flow__controls { display: none; }
 .task-title-input.limit-flash { animation: title-limit-shake .42s ease; box-shadow: 0 0 0 2px #ff4d5a, 0 0 18px #ff4d5a99; }
 @keyframes title-limit-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
