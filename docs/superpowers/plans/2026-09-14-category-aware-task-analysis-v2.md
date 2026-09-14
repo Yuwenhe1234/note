@@ -6,6 +6,8 @@
 
 **Architecture:** Keep the existing `/api/analyze-task` server route and browser AI fallback as the shared analysis boundary. Extract category rules and JSON-output requirements into prompt/schema modules; normalize the validated response into backward-compatible task-model fields when creating a task. Extend the detail page with compact, editable renderers for structured goal criteria, flowchart-derived mind map, resource records, and note records.
 
+**Existing detail-page mapping:** completion goal → top header; flowchart/domain map → left mind map; resources → left recommendations; notes → right notes panel; steps and their questions → right execution panel. No generated field may lack a destination in this layout.
+
 **Tech Stack:** React, TypeScript, Vitest, Vite, Node HTTP route, `@xyflow/react`.
 
 ---

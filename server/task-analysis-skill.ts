@@ -20,4 +20,15 @@ export const TASK_ANALYSIS_SKILL = `
 资源规则：不得编造课程、UP 主、网站或 URL。无联网验证能力时，url 必须为空字符串，并提供具体 searchQuery 供后续资源搜索；资源建议应覆盖与当前任务相关的 Bilibili、抖音、官方文档、网站课程、GitHub、社区。
 
 流程图规则：流程图体现知识依赖、模块依赖、内容生产流程、目标到行动路线或行为循环，不能简单复制步骤列表。
+
+当前任务详情页的数据落点必须严格对应：
+- goal.description 与 goal.completionCriteria → 顶部“完成目标”；
+- flowchart → 左侧“思维导图”的节点与连线；
+- domainMap → 思维导图生成时的知识/模块层级依据；
+- notes → 右侧“需要注意的点”；
+- steps → 右侧“执行步骤”，每步保留 title、hours、description、completionCriteria、questions；
+- resources → 左下“推荐学习资源”，按 Bilibili、抖音、网站/官方文档/GitHub/社区归类；
+- coreQuestions → 每步的问题驱动信息及详情页的任务上下文。
+
+不要生成无法映射到上述页面模块的装饰性字段。资源未验证时保留 searchQuery，不输出虚构 URL。
 `.trim();
