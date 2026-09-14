@@ -112,7 +112,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [voiceTranscript, setVoiceTranscript] = useState(""),
     [workspaceReady, setWorkspaceReady] = useState(false),
     [workspaceRevision, setWorkspaceRevision] = useState(0),
-    [saveStatus, setSaveStatus] = useState("正在载入…"),
+    [, setSaveStatus] = useState("正在载入…"),
     [desktopConfigOpen, setDesktopConfigOpen] = useState(false),
     [featurePage, setFeaturePage] = useState<FeaturePage | null>(null),
     [desktopWidget, setDesktopWidget] = useState<DesktopWidgetSettings>(DEFAULT_WIDGET_SETTINGS),
@@ -501,7 +501,6 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           ))}
         </nav>
       </header>
-      <span className={`workspace-save-status ${saveStatus === "保存失败" ? "error" : ""}`}>{saveStatus}</span>
       <main>
         <div className="view-stage" key={view}>
           {view === "任务清单" && (
