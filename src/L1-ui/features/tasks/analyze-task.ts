@@ -11,6 +11,10 @@ export type TaskAnalysis = {
   domainMap?: { prerequisites: string[]; coreConcepts: string[]; advancedTopics: string[] };
   resources?: { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
   coreQuestions?: string[];
+  structuredGoal?: { description: string; completionCriteria: string[] };
+  flowchart?: { nodes: { id: string; label: string }[]; edges: { from: string; to: string }[] };
+  resourceRecords?: { name: string; platform: string; url: string; searchQuery: string; reason: string; stage: string }[];
+  noteRecords?: { title: string; description: string; level: "important" | "warning" | "risk" }[];
 };
 export type AnalyzeTaskInput = {
   title: string;
