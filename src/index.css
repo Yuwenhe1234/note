@@ -1625,7 +1625,14 @@ html[data-button-glow="off"] .tasks article:hover,
 html[data-button-glow="off"] .task-step-bubble:hover,
 html[data-button-glow="off"] .features button:hover,
 html[data-button-glow="off"] .news-card:hover,
-html[data-button-glow="off"] .task-mind-map .react-flow__node.selected { box-shadow: none !important; }
+html[data-button-glow="off"] .task-mind-map .react-flow__node.selected,
+html[data-button-glow="off"] .task-detail-footer .primary,
+html[data-button-glow="off"] .reminder-panel .settings-action-row .btn-secondary,
+html[data-button-glow="off"] .provider-grid button.active,
+html[data-button-glow="off"] .hero-editor,
+html[data-button-glow="off"] .description-dialog textarea:focus,
+html[data-button-glow="off"] select:focus { box-shadow: none !important; }
+html[data-button-glow="off"] .hero-editable:hover { text-shadow: none !important; }
 .news-card:hover,
 .page-back-button:hover,
 .task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }
