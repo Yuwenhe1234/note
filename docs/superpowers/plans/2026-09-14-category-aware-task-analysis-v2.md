@@ -13,7 +13,7 @@
 ## File structure
 
 - Create: `server/task-analysis-contract.ts` — shared category constants, analysis/result types, and pure normalizers used by prompt, schema, and client.
-- Create: `server/task-analysis-workflows.ts` — category method descriptions and non-generic step constraints consumed by the prompt builder.
+- Create: `server/task-analysis-skill.ts` — category method descriptions and non-generic step constraints injected into new-task AI analysis by the prompt builder.
 - Modify: `server/task-analysis-prompt.ts` — compose the strict category-aware prompt and correction prompt.
 - Modify: `server/analysis-schema.ts` — validate all required analysis fields, exact duration, flowchart references, notes and resources.
 - Modify: `server/ai-routes.ts` — include parser failure reason in retry prompt.
@@ -48,11 +48,11 @@ export type AnalysisNote = { title: string; description: string; level: "importa
 ### Task 2: Split category workflows from the prompt builder
 
 **Files:**
-- Create: `server/task-analysis-workflows.ts`
+- Create: `server/task-analysis-skill.ts`
 - Modify: `server/task-analysis-prompt.ts`
 - Test: `server/task-analysis-prompt.test.ts`
 
-- [ ] Define each category workflow, its required flowchart semantics, and its anti-generic-step rule in `task-analysis-workflows.ts`.
+- [ ] Define each category workflow, its required flowchart semantics, and its anti-generic-step rule in `task-analysis-skill.ts`.
 - [ ] Rewrite `buildTaskAnalysisMessages` to require the contract JSON, direct use of title/description/notes, 0.25-hour steps, exact budget equality, 5–10 concrete steps, 10 core questions, and safe resource output (`url: ""` plus `searchQuery` without verified search).
 - [ ] Include retry context as a `validationError` argument, rather than only a generic retry boolean.
 
