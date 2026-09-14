@@ -1639,6 +1639,8 @@ html[data-theme="light"] {
   --text-subtle: #68716b;
   --line: #2430291c;
   --line-strong: #cfd7d1;
+  --accent-border: color-mix(in srgb, var(--accent-user) 58%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent-user) 42%, transparent);
 }
 html[data-theme="light"][data-accent="green"] { --accent-user: #208b4f; }
 html[data-theme="light"][data-accent="blue"] { --accent-user: #316fca; }
