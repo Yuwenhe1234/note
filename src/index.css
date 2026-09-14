@@ -751,7 +751,7 @@ main {
 .primary,
 .btn-secondary,
 .features button { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, color .18s ease; }
-.tasks article .go:not(:disabled):hover { transform: translateY(-2px) scale(1.04); border-color: var(--accent-user); background: var(--accent-soft); color: var(--accent-user); box-shadow: 0 0 0 3px var(--accent-soft), 0 0 24px var(--accent-glow); }
+.tasks article .go:not(:disabled):hover { transform: translateY(-2px) scale(1.04); border-color: var(--accent-user); background: #151619; color: var(--accent-user); box-shadow: 0 0 0 3px var(--accent-soft), 0 0 24px var(--accent-glow); }
 .primary:not(:disabled):hover,
 .btn-secondary:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 0 0 3px var(--accent-soft), 0 10px 28px var(--accent-glow); }
 .page {
@@ -1963,7 +1963,7 @@ html[data-theme="light"] .hero h1 i { color: #69716c; }
 .hero-editor { border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-soft); }
 .hero-editable:hover { text-shadow: 0 0 22px var(--accent-glow); }
 .tasks article:hover,
-.task-step-bubble:hover { border-color: var(--accent-border); background: var(--accent-soft); }
+.task-step-bubble:hover { border-color: var(--accent-border); background: var(--surface-1); box-shadow: 0 0 0 1px var(--accent-border), 0 10px 32px var(--accent-glow); }
 .task-step-bubble.completed,
 .daily-reuse-tag,
 .wheel-columns button.selected { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-user); }
@@ -1974,7 +1974,7 @@ html[data-theme="light"] .hero h1 i { color: #69716c; }
 .wheel-columns > div { scrollbar-color: var(--accent-user) transparent; }
 .wheel-columns > div::-webkit-scrollbar-thumb { background: var(--accent-user); }
 .widget-theme-control input:checked + span { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-user); }
-.features button:hover { border-color: var(--accent-border); box-shadow: 0 0 0 1px var(--accent-border), 0 10px 36px var(--accent-glow), inset 0 0 24px var(--accent-soft); }
+.features button:hover { border-color: var(--accent-border); background: var(--surface-1); box-shadow: 0 0 0 1px var(--accent-border), 0 10px 36px var(--accent-glow); }
 .desktop-widget-resize-handle { background: linear-gradient(135deg, transparent 44%, var(--accent-user) 45% 49%, transparent 50% 59%, var(--accent-user) 60% 64%, transparent 65%); }
 .desktop-widget-resize-handle:hover { background-color: var(--accent-soft); }
 .widget-inline-editor input:focus,
