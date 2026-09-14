@@ -1812,6 +1812,8 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-footer { position: fixed; right: 0; bottom: 0; left: 0; z-index: 91; display: flex; justify-content: flex-end; gap: 12px; padding: 16px clamp(18px, 4vw, 72px); border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface-1) 92%, transparent); backdrop-filter: blur(16px); }
 .task-detail-footer .primary { width: auto; margin: 0; }
 .task-detail-footer button { display: inline-flex; align-items: center; gap: 8px; }
+.task-detail-footer .btn-secondary { border: 1px solid var(--accent-border); background: var(--accent-soft); color: var(--accent-user); }
+.task-detail-footer .primary { border: 0; background: var(--accent-user); color: #102015; box-shadow: 0 8px 18px var(--accent-glow); }
 .step-title-stack { min-width: 0; }
 .step-title-stack small { display: block; margin: 5px 4px 0; color: var(--text-muted); font-size: 11px; }
 .step-complete { width: 20px; height: 20px; border: 1px solid var(--line); border-radius: 50%; color: transparent; }
