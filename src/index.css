@@ -1847,7 +1847,11 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-right .step-duration-display { min-width: 0; padding: 8px; border-color: var(--line); background: var(--surface-1); }
 .task-detail-right .analysis-step-editor-list { padding: 0; }
 .task-detail-right > section:last-child { height: 730px; min-height: 730px; overflow: hidden; }
-.task-detail-right > section:last-child .analysis-step-editor-list { height: 322px; max-height: 322px; overflow-y: auto; overflow-x: hidden; align-content: start; grid-auto-rows: minmax(58px, auto); padding-right: 6px; }
+.task-detail-right > section:last-child { box-sizing: border-box; min-width: 0; }
+.task-detail-right > section:last-child .analysis-step-editor,
+.task-detail-right > section:last-child .analysis-step-editor-list { min-height: 0; min-width: 0; }
+.task-detail-right > section:last-child .analysis-step-editor-list { height: 322px; max-height: 322px; overflow-y: auto; overflow-x: hidden; align-content: start; grid-auto-rows: 58px; padding-right: 6px; }
+.task-detail-right > section:last-child .analysis-step-edit-row { min-height: 0; height: 58px; box-sizing: border-box; }
 .mind-map-overlay { position: fixed; inset: 0; z-index: 160; padding: 32px; background: #000c; backdrop-filter: blur(14px); }
 .mind-map-overlay .task-mind-map { width: min(1200px, 100%); height: calc(100vh - 64px); margin: auto; }
 .mind-map-overlay .task-mind-map .react-flow { height: calc(100vh - 128px); }
