@@ -91,6 +91,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [query, setQuery] = useState(""),
     [editingTaskId, setEditingTaskId] = useState<string | null>(null),
     [detailTaskId, setDetailTaskId] = useState<string | null>(null),
+    [analysisPreview, setAnalysisPreview] = useState<Task | null>(null),
     [analysis, setAnalysis] = useState<TaskAnalysis | null>(null),
     [analysisError, setAnalysisError] = useState(""),
     [analysisLoading, setAnalysisLoading] = useState(false),
@@ -344,6 +345,8 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           questions: step.questions || [],
         })),
       );
+      setAnalysisPreview({ id: crypto.randomUUID(), title: title.trim(), description: description.trim() || "由 Agent 分析生成的可执行任务", goal: result.goal, objective: result.goal, completionCriteria: result.structuredGoal?.completionCriteria, completed: false, priority: result.priority || defaults.defaultPriority, type: result.type, domainMap: result.domainMap, resources: result.resources, resourceRecords: result.resourceRecords, coreQuestions: result.coreQuestions, notes: result.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(), noteRecords: result.noteRecords, mindMap: result.flowchart?.nodes.length ? { nodes: result.flowchart.nodes.map((node, index) => ({ id: node.id, label: node.label, x: 80 + (index % 3) * 220, y: 70 + Math.floor(index / 3) * 150 })), edges: result.flowchart.edges.map((edge, index) => ({ id: `flow-${index}`, source: edge.from, target: edge.to })) } : undefined, durationHours: result.estimatedHours, steps: result.steps.map((step) => ({ id: crypto.randomUUID(), title: step.title, hours: step.hours, completed: false, questions: step.questions || [] })) });
+      setOpen(false);
     } catch (error) {
       setAnalysis(null);
       setDraftSteps([]);
@@ -744,6 +747,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
         </div>
       </main>
       {detailTaskId && (() => { const detailTask = tasks.find((task) => task.id === detailTaskId); return detailTask ? <TaskDetailPage task={detailTask} onBack={() => setDetailTaskId(null)} onSave={(updated) => { setTasks((items) => items.map((item) => item.id === updated.id ? updated : item)); setDetailTaskId(null); }} onRegenerate={() => { setDetailTaskId(null); setEditingTaskId(detailTask.id); setTitle(detailTask.title); setDescription(detailTask.description); setGoal(detailTask.goal); setDraftSteps(detailTask.steps); setStage(1); setOpen(true); }} /> : null; })()}
+      {analysisPreview && <TaskDetailPage task={analysisPreview} onBack={() => setAnalysisPreview(null)} onSave={(updated) => { setTasks((items) => [updated, ...items]); setAnalysisPreview(null); setAnalysis(null); setStage(1); }} />}
       {open && (
         <div className="overlay">
           <section className="modal">
