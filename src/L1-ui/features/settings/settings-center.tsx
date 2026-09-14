@@ -250,7 +250,7 @@ export function SettingsCenter({
             }
           />
           <SettingToggle
-            label="按钮光圈效果"
+            label="外部光圈效果"
             checked={settings.interaction.buttonGlow}
             onChange={(buttonGlow) =>
               setSettings((current) => ({
