@@ -1820,9 +1820,10 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-detail-right .step-duration-display { min-width: 82px; }
 @media (max-width: 840px) { .task-detail-title, .task-detail-grid { grid-template-columns: 1fr; } .task-detail-page { padding: 16px 16px 100px; } .task-detail-footer { padding: 12px 16px; } }
 .task-detail-header { padding: 20px 24px; }
-.task-detail-title { grid-template-columns: minmax(300px, .42fr) minmax(440px, .58fr); align-items: center; gap: 34px; margin-top: 0; }
+.task-detail-title { grid-template-columns: minmax(300px, .42fr) minmax(440px, .58fr); align-items: stretch; gap: 34px; margin-top: 0; }
+.task-detail-title > div { min-height: 110px; }
 .task-detail-title h1 { font-size: clamp(32px, 4vw, 56px); }
-.task-detail-objective textarea { height: 110px; min-height: 110px; padding: 0; box-sizing: border-box; }
+.task-detail-objective textarea { height: 84px; min-height: 84px; padding: 0; box-sizing: border-box; }
 .task-detail-grid { grid-template-columns: minmax(0, 42fr) minmax(0, 55fr); column-gap: 16px; align-items: start; }
 .task-detail-left, .task-detail-right { height: 946px; min-height: 0; }
 .task-detail-left { grid-template-rows: 600px minmax(0, 330px); gap: 16px; }
