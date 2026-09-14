@@ -1633,6 +1633,11 @@ html[data-button-glow="off"] .hero-editor,
 html[data-button-glow="off"] .description-dialog textarea:focus,
 html[data-button-glow="off"] select:focus { box-shadow: none !important; }
 html[data-button-glow="off"] .hero-editable:hover { text-shadow: none !important; }
+html[data-button-glow="off"] .tasks article:hover,
+html[data-button-glow="off"] .task-step-bubble:hover,
+html[data-button-glow="off"] .features button:hover,
+html[data-button-glow="off"] .news-card:hover,
+html[data-button-glow="off"] .settings > button:hover { border-color: var(--line) !important; background: var(--surface-1) !important; }
 .news-card:hover,
 .page-back-button:hover,
 .task-context-menu button:hover { border-color: var(--accent-border); background: var(--accent-soft); }
