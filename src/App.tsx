@@ -58,12 +58,14 @@ type View = "任务清单" | "今日待办" | "其他功能" | "设置";
 function flowToMindMap(flow?: TaskAnalysis["flowchart"]): TaskMindMap | undefined {
   if (!flow?.nodes.length) return undefined;
   const mainEdges = flow.edges.filter((edge) => edge.kind === "main");
+  const children = new Map<string, string[]>(); mainEdges.forEach((edge) => children.set(edge.from, [...(children.get(edge.from) || []), edge.to]));
   const targets = new Set(mainEdges.map((edge) => edge.to));
-  const ordered = [...flow.nodes.filter((node) => !targets.has(node.id))];
-  while (ordered.length) { const next = mainEdges.find((edge) => edge.from === ordered[ordered.length - 1].id); const node = next && flow.nodes.find((item) => item.id === next.to); if (!node || ordered.some((item) => item.id === node.id)) break; ordered.push(node); }
-  flow.nodes.forEach((node) => { if (!ordered.some((item) => item.id === node.id)) ordered.push(node); });
-  const feedbackNodes = new Set(flow.edges.filter((edge) => edge.kind === "feedback").flatMap((edge) => [edge.from, edge.to]));
-  return { nodes: ordered.map((node, index) => { const related = flow.edges.find((edge) => edge.kind === "feedback" && (edge.from === node.id || edge.to === node.id)); const mainIndex = related ? Math.max(0, ordered.findIndex((item) => item.id === (related.from === node.id ? related.to : related.from))) : index; return { id: node.id, label: node.label, x: feedbackNodes.has(node.id) ? (related?.from === node.id ? 80 : 540) : 310, y: 70 + mainIndex * 140 }; }), edges: flow.edges.map((edge, index) => ({ id: `flow-${index}`, source: edge.from, target: edge.to, kind: edge.kind })) };
+  const root = flow.nodes.find((node) => !targets.has(node.id)) || flow.nodes[0];
+  const positions = new Map<string, { x: number; y: number; angle: number }>(); positions.set(root.id, { x: 0, y: 0, angle: 0 });
+  const place = (id: string, level: number, angle: number) => { const branch = (children.get(id) || []).filter((child) => !positions.has(child)); branch.forEach((child, index) => { const childAngle = angle + (index - (branch.length - 1) / 2) * (level === 0 ? 0.8 : 0.42); const radius = level === 0 ? 310 : 210; const parent = positions.get(id)!; positions.set(child, { x: parent.x + Math.cos(childAngle) * radius, y: parent.y + Math.sin(childAngle) * radius, angle: childAngle }); place(child, level + 1, childAngle); }); };
+  const roots = children.get(root.id) || []; roots.forEach((child, index) => { const angle = -Math.PI * 0.82 + (roots.length <= 1 ? 0 : index * (Math.PI * 1.64 / (roots.length - 1))); const radius = 310; positions.set(child, { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius, angle }); place(child, 1, angle); });
+  flow.nodes.forEach((node, index) => { if (!positions.has(node.id)) positions.set(node.id, { x: -260, y: (index + 1) * 120, angle: Math.PI }); });
+  return { nodes: flow.nodes.map((node) => ({ id: node.id, label: node.label, x: Math.round(positions.get(node.id)!.x), y: Math.round(positions.get(node.id)!.y) })), edges: flow.edges.map((edge, index) => ({ id: `flow-${index}`, source: edge.from, target: edge.to, kind: edge.kind })) };
 }
 type FeaturePage = "news" | "companion" | "plugins";
 type TodayTodo = { id: string; content: string; reminderTime: string; completed: boolean; dailyReusable?: boolean };
