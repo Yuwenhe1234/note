@@ -217,6 +217,14 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     reminderSchedulerRef.current?.sync(todayTodos);
   }, [todayTodos]);
   useEffect(() => {
+    const showTestReminder = (event: Event) => {
+      const detail = (event as CustomEvent<{ content?: string; reminderTime?: string }>).detail;
+      setActiveReminder({ id: "system-test", content: detail?.content || "系统通知测试", reminderTime: detail?.reminderTime || "", completed: false });
+    };
+    window.addEventListener("memo-agent-test-reminder", showTestReminder);
+    return () => window.removeEventListener("memo-agent-test-reminder", showTestReminder);
+  }, []);
+  useEffect(() => {
     if (!todayMenu && !taskMenu) return;
     const closeMenus = () => { setTodayMenu(null); setTaskMenu(null); };
     window.addEventListener("mousedown", closeMenus);
