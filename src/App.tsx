@@ -58,7 +58,7 @@ type View = "任务清单" | "今日待办" | "其他功能" | "设置";
 function flowToMindMap(flow?: TaskAnalysis["flowchart"], taskTitle = ""): TaskMindMap | undefined {
   if (!flow?.nodes.length) return undefined;
   const levelById = new Map(flow.nodes.map((node) => [node.id, node.level])); const hasExplicitLevels = flow.nodes.some((node) => node.level === 0);
-  const mainEdges = flow.edges.filter((edge) => edge.kind === "main" && (!hasExplicitLevels || levelById.get(edge.target) === (levelById.get(edge.from) ?? -1) + 1));
+  const mainEdges = flow.edges.filter((edge) => edge.kind === "main" && (!hasExplicitLevels || levelById.get(edge.to) === (levelById.get(edge.from) ?? -1) + 1));
   const neighbors = new Map<string, string[]>(); mainEdges.forEach((edge) => { neighbors.set(edge.from, [...(neighbors.get(edge.from) || []), edge.to]); neighbors.set(edge.to, [...(neighbors.get(edge.to) || []), edge.from]); });
   const root = flow.nodes.find((node) => taskTitle && node.label.includes(taskTitle.replace(/^学习|完成|规划/, ""))) || [...flow.nodes].sort((a, b) => (neighbors.get(b.id)?.length || 0) - (neighbors.get(a.id)?.length || 0))[0];
   const treeEdges: { id: string; source: string; target: string; kind: "main" }[] = []; const children = new Map<string, string[]>(); const visited = new Set<string>([root.id]); const queue = [root.id]; while (queue.length) { const parent = queue.shift()!; for (const child of neighbors.get(parent) || []) if (!visited.has(child)) { visited.add(child); queue.push(child); treeEdges.push({ id: `tree-${treeEdges.length}`, source: parent, target: child, kind: "main" }); children.set(parent, [...(children.get(parent) || []), child]); } }
