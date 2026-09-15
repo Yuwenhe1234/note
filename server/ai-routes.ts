@@ -2,6 +2,7 @@ import type { Plugin } from "vite";
 import { join } from "node:path";
 import { createConfigStore, type AiConfig } from "./ai-config.js";
 import { parseAnalysis } from "./analysis-schema.js";
+import { buildTaskAnalysisMessages } from "./task-analysis-prompt.js";
 
 const store = createConfigStore(
   join(process.cwd(), ".local", "ai-config.json"),
@@ -99,7 +100,6 @@ export function aiRoutes(): Plugin {
                 ok: false,
                 error: "AI 分析未配置，请到设置 → AI 与 API 完成配置",
               });
-            const prompt = `请把任务拆成具体可执行步骤，只返回 JSON，不要 Markdown：{"summary":"简短总结","goal":"清晰可验证且不超过80字的完成目标","priority":"high|medium|low","estimatedHours":1.5,"steps":[{"title":"不超过24字","hours":0.5,"description":"如何执行","completionCriteria":"可验证的完成标准"}]}。要求：goal 描述完成后达到的具体效果；步骤 ${input.minSteps || 2}-${input.maxSteps || 8} 个；hours 必须是 0.25 的倍数且单步不超过 4 小时；estimatedHours 必须严格等于所有步骤 hours 之和；步骤应具体、无重复、可勾选完成。任务名称：${input.title}\n任务内容：${input.description || "无"}\n期望时长：${input.duration || "2-3 小时"}\n注意事项：${input.notes || "无"}`;
             let lastError: unknown;
             for (let attempt = 0; attempt < 2; attempt += 1) {
               const result = await fetch(endpoint(config), {
@@ -107,10 +107,7 @@ export function aiRoutes(): Plugin {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${config.apiKey}` },
                 body: JSON.stringify({
                   model: config.model,
-                  messages: [
-                    { role: "system", content: "你是严谨的任务规划助手，必须严格遵守 JSON schema 与时长约束。" },
-                    { role: "user", content: attempt === 0 ? prompt : `${prompt}\n上一次输出格式或时长校验失败，请修正后重新输出。` },
-                  ],
+                  messages: buildTaskAnalysisMessages(input, attempt > 0),
                   temperature: 0.2,
                 }),
               });

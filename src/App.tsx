@@ -25,11 +25,13 @@ import {
   taskProgress,
   toggleAllSteps,
   type Task,
+  type TaskMindMap,
   type TaskStep,
 } from "./L4-data/task-model";
 import { TaskSteps } from "./L1-ui/features/tasks/task-steps";
 import { AnalysisStepEditor } from "./L1-ui/features/tasks/analysis-step-editor";
 import { TaskDescriptionDialog } from "./L1-ui/features/tasks/task-description-dialog";
+import { TaskDetailPage } from "./L1-ui/features/tasks/task-detail-page";
 import {
   analyzeTask,
   type TaskAnalysis,
@@ -52,8 +54,28 @@ import { CompanionWindow } from "./L1-ui/features/companion/companion-window";
 import { PluginCenterWindow } from "./L1-ui/features/plugins/plugin-center-window";
 import { PageBackButton } from "./L1-ui/components/page-back-button";
 type View = "任务清单" | "今日待办" | "其他功能" | "设置";
+
+function flowToMindMap(flow?: TaskAnalysis["flowchart"], taskTitle = ""): TaskMindMap | undefined {
+  if (!flow?.nodes.length) return undefined;
+  const levelById = new Map(flow.nodes.map((node) => [node.id, node.level])); const hasExplicitLevels = flow.nodes.some((node) => node.level === 0);
+  const mainEdges = flow.edges.filter((edge) => edge.kind === "main" && (!hasExplicitLevels || levelById.get(edge.to) === (levelById.get(edge.from) ?? -1) + 1));
+  const neighbors = new Map<string, string[]>(); mainEdges.forEach((edge) => { neighbors.set(edge.from, [...(neighbors.get(edge.from) || []), edge.to]); neighbors.set(edge.to, [...(neighbors.get(edge.to) || []), edge.from]); });
+  const root = flow.nodes.find((node) => taskTitle && node.label.includes(taskTitle.replace(/^学习|完成|规划/, ""))) || [...flow.nodes].sort((a, b) => (neighbors.get(b.id)?.length || 0) - (neighbors.get(a.id)?.length || 0))[0];
+  const treeEdges: { id: string; source: string; target: string; kind: "main" }[] = []; const children = new Map<string, string[]>(); const visited = new Set<string>([root.id]); const queue = [root.id]; while (queue.length) { const parent = queue.shift()!; for (const child of neighbors.get(parent) || []) if (!visited.has(child)) { visited.add(child); queue.push(child); treeEdges.push({ id: `tree-${treeEdges.length}`, source: parent, target: child, kind: "main" }); children.set(parent, [...(children.get(parent) || []), child]); } }
+  const positions = new Map<string, { x: number; y: number }>(); positions.set(root.id, { x: 0, y: 0 });
+  const place = (id: string, level: number, angle: number, span: number) => { const branch = children.get(id) || []; branch.forEach((child, index) => { const childAngle = angle - span / 2 + ((index + 0.5) * span / branch.length); const radius = 280 + (level - 1) * 200; positions.set(child, { x: Math.cos(childAngle) * radius, y: Math.sin(childAngle) * radius }); place(child, level + 1, childAngle, Math.min(Math.PI / 1.7, span / Math.max(branch.length, 1))); }); };
+  const firstLevel = children.get(root.id) || []; firstLevel.forEach((child, index) => { const angle = -Math.PI + ((index + 0.5) * Math.PI * 2 / Math.max(firstLevel.length, 1)); positions.set(child, { x: Math.cos(angle) * 280, y: Math.sin(angle) * 280 }); place(child, 2, angle, Math.min(Math.PI / 1.45, Math.PI * 2 / Math.max(firstLevel.length, 1))); });
+  flow.nodes.forEach((node, index) => { if (!positions.has(node.id)) positions.set(node.id, { x: -240, y: (index + 1) * 120 }); });
+  return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, level: node.level, x: Math.round(point.x), y: Math.round(point.y) }; }), edges: treeEdges };
+}
+function mapAnalysisResources(result: TaskAnalysis) {
+  const records = result.resourceRecords || [];
+  const value = (patterns: string[]) => records.filter((item) => patterns.some((pattern) => item.platform.toLowerCase().includes(pattern.toLowerCase()))).map((item) => item.url || item.searchQuery).filter(Boolean);
+  return { systemResources: value(["官方", "github"]), externalRecommendations: { websites: value(["网站", "课程"]), upMasters: value(["bilibili", "b站"]), communities: value(["社区", "抖音"]) } };
+}
 type FeaturePage = "news" | "companion" | "plugins";
 type TodayTodo = { id: string; content: string; reminderTime: string; completed: boolean; dailyReusable?: boolean };
+const formatDurationHint = (minutes: number) => `${minutes / 60} 小时`;
 const nav: View[] = ["任务清单", "今日待办", "其他功能", "设置"];
 const initial: Task[] = [
   {
@@ -88,6 +110,8 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [notes, setNotes] = useState(""),
     [query, setQuery] = useState(""),
     [editingTaskId, setEditingTaskId] = useState<string | null>(null),
+    [detailTaskId, setDetailTaskId] = useState<string | null>(null),
+    [analysisPreview, setAnalysisPreview] = useState<Task | null>(null),
     [analysis, setAnalysis] = useState<TaskAnalysis | null>(null),
     [analysisError, setAnalysisError] = useState(""),
     [analysisLoading, setAnalysisLoading] = useState(false),
@@ -97,7 +121,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [todayOpen, setTodayOpen] = useState(false),
     [todayContent, setTodayContent] = useState(""),
     [todayReminder, setTodayReminder] = useState(""),
-    [todayAiCandidates, setTodayAiCandidates] = useState<string[]>([]),
+    [todayAiDraft, setTodayAiDraft] = useState(""),
     [todayAiOpen, setTodayAiOpen] = useState(false),
     [todayAiError, setTodayAiError] = useState(""),
     [timePickerOpen, setTimePickerOpen] = useState(false),
@@ -109,7 +133,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     [voiceTranscript, setVoiceTranscript] = useState(""),
     [workspaceReady, setWorkspaceReady] = useState(false),
     [workspaceRevision, setWorkspaceRevision] = useState(0),
-    [saveStatus, setSaveStatus] = useState("正在载入…"),
+    [, setSaveStatus] = useState("正在载入…"),
     [desktopConfigOpen, setDesktopConfigOpen] = useState(false),
     [featurePage, setFeaturePage] = useState<FeaturePage | null>(null),
     [desktopWidget, setDesktopWidget] = useState<DesktopWidgetSettings>(DEFAULT_WIDGET_SETTINGS),
@@ -193,6 +217,14 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     reminderSchedulerRef.current?.sync(todayTodos);
   }, [todayTodos]);
   useEffect(() => {
+    const showTestReminder = (event: Event) => {
+      const detail = (event as CustomEvent<{ content?: string; reminderTime?: string }>).detail;
+      setActiveReminder({ id: "system-test", content: detail?.content || "系统通知测试", reminderTime: detail?.reminderTime || "", completed: false });
+    };
+    window.addEventListener("memo-agent-test-reminder", showTestReminder);
+    return () => window.removeEventListener("memo-agent-test-reminder", showTestReminder);
+  }, []);
+  useEffect(() => {
     if (!todayMenu && !taskMenu) return;
     const closeMenus = () => { setTodayMenu(null); setTaskMenu(null); };
     window.addEventListener("mousedown", closeMenus);
@@ -210,8 +242,8 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
   const generateTodayTodos = async () => {
     try {
       const result = await requestTodayTodos(tasks);
-      setTodayAiCandidates(result); setTodayAiError(""); setTodayAiOpen(true);
-    } catch (error) { setTodayAiCandidates([]); setTodayAiError(error instanceof Error ? error.message : "AI 生成失败"); setTodayAiOpen(true); }
+      setTodayAiDraft(result.join("\n")); setTodayAiError(""); setTodayAiOpen(true);
+    } catch (error) { setTodayAiDraft(""); setTodayAiError(error instanceof Error ? error.message : "AI 生成失败"); setTodayAiOpen(true); }
   };
   const startVoiceInput = () => {
     if (voiceListening) {
@@ -272,6 +304,16 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           goal: goal.trim(),
           completed: false,
           priority: defaults.defaultPriority,
+          type: analysis?.type || "未分类",
+          objective: analysis?.goal || goal.trim(),
+          completionCriteria: analysis?.structuredGoal?.completionCriteria,
+          domainMap: analysis?.domainMap,
+          resources: analysis?.resources || (analysis ? mapAnalysisResources(analysis) : undefined),
+          resourceRecords: analysis?.resourceRecords,
+          coreQuestions: analysis?.coreQuestions,
+          noteRecords: analysis?.noteRecords,
+          notes: analysis?.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(),
+          mindMap: flowToMindMap(analysis?.flowchart, title),
           durationHours: taskDuration(effectiveSteps),
           steps: effectiveSteps,
         },
@@ -297,6 +339,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
     setAnalysis(null);
     setAnalysisError("");
     const defaults = loadSettings().taskDefaults;
+    setDurationHint(formatDurationHint(defaults.defaultDurationMinutes));
     setDraftSteps(
       createSteps(
         Math.min(defaults.maxSteps, Math.max(defaults.minSteps, 3)),
@@ -327,15 +370,22 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           title: step.title,
           hours: step.hours,
           completed: false,
+          questions: step.questions || [],
         })),
       );
+      setAnalysisPreview({ id: crypto.randomUUID(), title: title.trim(), description: description.trim() || "由 Agent 分析生成的可执行任务", goal: result.goal, objective: result.goal, completionCriteria: result.structuredGoal?.completionCriteria, completed: false, priority: result.priority || defaults.defaultPriority, type: result.type, domainMap: result.domainMap, resources: mapAnalysisResources(result), resourceRecords: result.resourceRecords, coreQuestions: result.coreQuestions, notes: result.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(), noteRecords: result.noteRecords, mindMap: flowToMindMap(result.flowchart, title), durationHours: result.estimatedHours, steps: result.steps.map((step) => ({ id: crypto.randomUUID(), title: step.title, hours: step.hours, completed: false, questions: step.questions || [] })) });
+      setOpen(false);
     } catch (error) {
+      setAnalysis(null);
+      setDraftSteps([]);
       setAnalysisError(error instanceof Error ? error.message : "AI 分析失败");
     } finally {
       setAnalysisLoading(false);
     }
   };
   const openEditTask = (task: Task) => {
+    setDetailTaskId(task.id);
+    return;
     setEditingTaskId(task.id);
     setTitle(task.title);
     setDescription(task.description);
@@ -487,7 +537,6 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           ))}
         </nav>
       </header>
-      <span className={`workspace-save-status ${saveStatus === "保存失败" ? "error" : ""}`}>{saveStatus}</span>
       <main>
         <div className="view-stage" key={view}>
           {view === "任务清单" && (
@@ -720,11 +769,13 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
               onClearCompleted={() =>
                 setTasks((current) => current.filter((task) => !task.completed))
               }
-              onClearAll={() => setTasks([])}
+              onFactoryReset={() => { setTasks([]); setTodayTodos([]); }}
             />
           )}
         </div>
       </main>
+      {detailTaskId && (() => { const detailTask = tasks.find((task) => task.id === detailTaskId); return detailTask ? <TaskDetailPage task={detailTask} onBack={() => setDetailTaskId(null)} onSave={(updated) => { setTasks((items) => items.map((item) => item.id === updated.id ? updated : item)); setDetailTaskId(null); }} onRegenerate={() => { setDetailTaskId(null); setEditingTaskId(detailTask.id); setTitle(detailTask.title); setDescription(detailTask.description); setGoal(detailTask.goal); setDraftSteps(detailTask.steps); setStage(1); setOpen(true); }} /> : null; })()}
+      {analysisPreview && <TaskDetailPage task={analysisPreview} onBack={() => setAnalysisPreview(null)} onSave={(updated) => { setTasks((items) => [updated, ...items]); setAnalysisPreview(null); setAnalysis(null); setStage(1); }} />}
       {open && (
         <div className="overlay">
           <section className="modal">
@@ -782,16 +833,14 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
                     <AnalysisStepEditor steps={draftSteps} onChange={setDraftSteps} />
                   </div>
                 )}
-                <button className="primary" onClick={add}>
-                  确认并保存 <Check />
-                </button>
+                <div className="description-dialog-actions"><button className="btn-secondary" onClick={() => { setOpen(false); setStage(1); setAnalysis(null); }}>取消</button><button className="primary" onClick={add}>保存任务 <Check /></button></div>
               </>
             )}
           </section>
         </div>
       )}
       {todayOpen && <div className="overlay"><section className="modal today-todo-modal"><button className="close" onClick={() => { setTodayOpen(false); setEditingTodayId(null); }}><X /></button><em>TODAY TODO</em><h2>{editingTodayId ? "编辑待办" : "添加待办"}</h2><label>待办内容<input aria-label="待办内容" value={todayContent} onChange={(event) => setTodayContent(event.target.value)} placeholder="输入今天要做的事" autoFocus /></label><label>提醒时间点（可选）<button type="button" className="time-wheel-trigger" onClick={() => setTimePickerOpen(true)}>{todayReminder || "选择提醒时间"}</button></label><button className="primary" onClick={addTodayTodo}>{editingTodayId ? "保存修改" : "添加待办"} <Check /></button></section></div>}
-      {todayAiOpen && <div className="overlay"><section className="modal"><button className="close" onClick={() => setTodayAiOpen(false)}><X /></button><em>AI REVIEW</em><h2>审核今日待办</h2><p className="ai-message">确认前可编辑、删除或补充候选待办。</p>{todayAiError && <p className="ai-message">{todayAiError}</p>}<div className="analysis-step-editor-list">{todayAiCandidates.map((content, index) => <div className="analysis-step-edit-row" key={`${index}-${content}`}><input aria-label={`候选待办 ${index + 1}`} value={content} onChange={(event) => setTodayAiCandidates((items) => items.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} /><button aria-label={`删除候选待办 ${index + 1}`} onClick={() => setTodayAiCandidates((items) => items.filter((_, itemIndex) => itemIndex !== index))}><X /></button></div>)}</div><button onClick={() => setTodayAiCandidates((items) => [...items, ""])}>+ 添加待办</button><button className="primary" disabled={!todayAiCandidates.some((item) => item.trim())} onClick={() => { setTodayTodos((items) => [...todayAiCandidates.filter((item) => item.trim()).map((content) => ({ id: crypto.randomUUID(), content: content.trim(), reminderTime: "", completed: false })), ...items]); setTodayAiOpen(false); }}>确认添加 <Check /></button></section></div>}
+      {todayAiOpen && <div className="overlay"><section className="modal"><button className="close" onClick={() => setTodayAiOpen(false)}><X /></button><em>AI REVIEW</em><h2>审核今日待办</h2><p className="ai-message">确认前可编辑、删除或补充候选待办。</p>{todayAiError && <p className="ai-message">{todayAiError}</p>}<label className="today-ai-draft"><span>候选待办</span><textarea aria-label="批量候选待办" value={todayAiDraft} onChange={(event) => setTodayAiDraft(event.target.value)} placeholder="每行一条待办，可一次粘贴多条" autoFocus /></label><button className="primary" disabled={!todayAiDraft.trim()} onClick={() => { const candidates = todayAiDraft.split(/\r?\n/).map((item) => item.trim()).filter(Boolean); setTodayTodos((items) => [...candidates.map((content) => ({ id: crypto.randomUUID(), content, reminderTime: "", completed: false })), ...items]); setTodayAiOpen(false); }}>确认添加 <Check /></button></section></div>}
       {timePickerOpen && <TimeWheelPicker value={todayReminder} onCancel={() => setTimePickerOpen(false)} onConfirm={(value) => { setTodayReminder(value); setTimePickerOpen(false); }} />}
       {activeReminder && <div className="reminder-toast"><section className="reminder-dialog"><em>REMINDER</em><h2>待办提醒</h2><p>{activeReminder.content}</p><small>设定时间：{activeReminder.reminderTime}</small><button className="primary" onClick={() => setActiveReminder(reminderQueueRef.current.shift() || null)}>我知道了 <Check /></button></section></div>}
       {voiceListening && <div className="voice-overlay" role="dialog" aria-modal="true" aria-label="语音输入"><div className="voice-orb-wrap"><button className="voice-orb" aria-label="完成语音输入" onClick={() => voiceRecognitionRef.current?.stop()}><span /></button><h2>正在聆听</h2><p>{voiceTranscript || "请说出待办内容和提醒时间…"}</p><button className="voice-cancel" onClick={() => { voiceCancelledRef.current = true; voiceRecognitionRef.current?.abort(); setVoiceListening(false); }}>取消</button></div></div>}

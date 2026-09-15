@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { isTauri } from "@tauri-apps/api/core";
 import { Settings2 } from "lucide-react";
 import { AiSettings } from "../ai/ai-settings";
 import {
@@ -13,6 +14,7 @@ import {
   type BackupTask,
 } from "../../../L4-data/backup-schema";
 import { browserReminderService } from "../../../L5-services/reminder-service";
+import { sendTestSystemNotification } from "../../../L5-services/system-notification";
 import { PageBackButton } from "../../components/page-back-button";
 import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
 import { BROWSER_AI_CONFIG_KEY, loadBrowserAiConfig } from "../../../L5-services/browser-ai-client";
@@ -62,12 +64,12 @@ export function SettingsCenter({
   tasks = [],
   onImportTasks,
   onClearCompleted,
-  onClearAll,
+  onFactoryReset,
 }: {
   tasks?: BackupTask[];
   onImportTasks?: (tasks: BackupTask[]) => void;
   onClearCompleted?: () => void;
-  onClearAll?: () => void;
+  onFactoryReset?: () => void;
 }) {
   const [route, setRoute] = useState<Route>("root");
   const [settings, setSettings] = useState(loadSettings);
@@ -75,6 +77,10 @@ export function SettingsCenter({
     saveSettings(settings);
     document.documentElement.dataset.theme = settings.appearance.theme === "light" ? "light" : "dark";
     document.documentElement.dataset.accent = settings.appearance.accent;
+    document.documentElement.dataset.buttonGlow = settings.interaction.buttonGlow ? "on" : "off";
+    document.documentElement.dataset.buttonFloat = settings.interaction.buttonFloat ? "on" : "off";
+    if (settings.appearance.accent === "custom") document.documentElement.style.setProperty("--accent-user", settings.appearance.customAccent || "#208b4f");
+    else document.documentElement.style.removeProperty("--accent-user");
     delete document.documentElement.dataset.fontSize;
     delete document.documentElement.dataset.density;
     document.documentElement.classList.toggle(
@@ -135,16 +141,16 @@ export function SettingsCenter({
             options={["low:低", "medium:中", "high:高"]}
           />
           <SettingNumber
-            label="默认预计时长"
-            value={settings.taskDefaults.defaultDurationMinutes}
-            min={5}
-            max={1440}
+            label="默认预计时长（小时）"
+            value={settings.taskDefaults.defaultDurationMinutes / 60}
+            min={0.5}
+            max={24}
             onChange={(value) =>
               setSettings((current) => ({
                 ...current,
                 taskDefaults: {
                   ...current.taskDefaults,
-                  defaultDurationMinutes: value,
+                  defaultDurationMinutes: Math.round(value * 60),
                 },
               }))
             }
@@ -152,8 +158,8 @@ export function SettingsCenter({
           <SettingNumber
             label="最少步骤"
             value={settings.taskDefaults.minSteps}
-            min={2}
-            max={8}
+            min={1}
+            max={100}
             onChange={(value) =>
               setSettings((current) => ({
                 ...current,
@@ -164,8 +170,8 @@ export function SettingsCenter({
           <SettingNumber
             label="最多步骤"
             value={settings.taskDefaults.maxSteps}
-            min={2}
-            max={8}
+            min={1}
+            max={100}
             onChange={(value) =>
               setSettings((current) => ({
                 ...current,
@@ -214,7 +220,7 @@ export function SettingsCenter({
             setSettings(backup.settings);
           }}
           onClearCompleted={onClearCompleted}
-          onClearAll={onClearAll}
+          onFactoryReset={onFactoryReset}
           onReset={() => setSettings(resetSettings())}
         />
       ) : route === "reminders" ? (
@@ -237,12 +243,22 @@ export function SettingsCenter({
             }
           />
           <SettingToggle
-            label="减少动态效果"
-            checked={settings.interaction.reducedMotion}
-            onChange={(reducedMotion) =>
+            label="开启所有按键浮动"
+            checked={settings.interaction.buttonFloat}
+            onChange={(buttonFloat) =>
               setSettings((current) => ({
                 ...current,
-                interaction: { ...current.interaction, reducedMotion },
+                interaction: { ...current.interaction, buttonFloat },
+              }))
+            }
+          />
+          <SettingToggle
+            label="外部光圈效果"
+            checked={settings.interaction.buttonGlow}
+            onChange={(buttonGlow) =>
+              setSettings((current) => ({
+                ...current,
+                interaction: { ...current.interaction, buttonGlow },
               }))
             }
           />
@@ -256,16 +272,6 @@ export function SettingsCenter({
               }))
             }
           />
-          <SettingToggle
-            label="新建任务自动聚焦"
-            checked={settings.interaction.autoFocus}
-            onChange={(autoFocus) =>
-              setSettings((current) => ({
-                ...current,
-                interaction: { ...current.interaction, autoFocus },
-              }))
-            }
-          />
         </section>
       ) : route === "appearance" ? (
         <section className="settings-panel">
@@ -275,26 +281,17 @@ export function SettingsCenter({
             onChange={(theme) => setSettings((current) => ({ ...current, appearance: { ...current.appearance, theme: theme as "dark" | "light" } }))}
             options={["dark:深色", "light:浅色"]}
           />
-          <SettingSelect
-            label="强调色"
-            value={settings.appearance.accent}
-            onChange={(accent) =>
-              setSettings((current) => ({
-                ...current,
-                appearance: {
-                  ...current.appearance,
-                  accent: accent as typeof current.appearance.accent,
-                },
-              }))
-            }
-            options={["green:绿色", "blue:蓝色", "orange:橙色"]}
-          />
+          <AccentPicker value={settings.appearance.accent} customValue={settings.appearance.customAccent || "#208b4f"} onChange={(accent, customAccent) => setSettings((current) => ({ ...current, appearance: { ...current.appearance, accent, customAccent } }))} />
         </section>
       ) : (
         <SettingsPlaceholder title={card.title} />
       )}
     </>
   );
+}
+
+function AccentPicker({ value, customValue, onChange }: { value: "green" | "blue" | "orange" | "custom"; customValue: string; onChange: (value: "green" | "blue" | "orange" | "custom", customValue?: string) => void }) {
+  return <label className="setting-row accent-picker"><span>强调色</span><div><select value={value} onChange={(event) => onChange(event.target.value as "green" | "blue" | "orange" | "custom", customValue)}><option value="green">绿色</option><option value="blue">蓝色</option><option value="orange">橙色</option><option value="custom">自定义颜色</option></select>{value === "custom" && <><input aria-label="自定义强调色" type="color" value={customValue} onChange={(event) => onChange("custom", event.target.value)} /><input aria-label="自定义强调色 HEX" value={customValue} onChange={(event) => /^#[0-9a-fA-F]{6}$/.test(event.target.value) && onChange("custom", event.target.value)} /></>}</div></label>;
 }
 
 function SettingSelect({
@@ -394,14 +391,14 @@ function DataPanel({
   settings,
   onImport,
   onClearCompleted,
-  onClearAll,
+  onFactoryReset,
   onReset,
 }: {
   tasks: BackupTask[];
   settings: ReturnType<typeof loadSettings>;
   onImport: (backup: ReturnType<typeof createBackup>) => void;
   onClearCompleted?: () => void;
-  onClearAll?: () => void;
+  onFactoryReset?: () => void;
   onReset: () => void;
 }) {
   const [message, setMessage] = useState("");
@@ -433,32 +430,10 @@ function DataPanel({
   };
   return (
     <section className="settings-panel data-actions">
-      <button onClick={download}>导出完整备份</button>
-      <label>
-        导入 JSON 备份
-        <input
-          aria-label="导入 JSON 备份"
-          type="file"
-          accept="application/json"
-          onChange={(event) => importFile(event.target.files?.[0])}
-        />
-      </label>
-      <button onClick={onClearCompleted}>清除已完成任务</button>
-      <button
-        onClick={() => {
-          if (prompt("输入“清除全部任务”确认") === "清除全部任务")
-            onClearAll?.();
-        }}
-      >
-        清除全部任务
-      </button>
-      <button
-        onClick={() => {
-          if (confirm("恢复所有设置为默认值？")) onReset();
-        }}
-      >
-        恢复默认设置
-      </button>
+      <div className="data-action-row"><div><strong>导出完整备份</strong><small>将当前任务与设置保存为 JSON 文件。</small></div><button className="btn-secondary" onClick={download}>导出备份</button></div>
+      <div className="data-action-row"><div><strong>导入 JSON 备份</strong><small>从备份文件恢复任务和设置。</small></div><label className="file-action"><span>选择备份文件</span><input aria-label="导入 JSON 备份" type="file" accept="application/json" onChange={(event) => importFile(event.target.files?.[0])} /></label></div>
+      <div className="data-action-row"><div><strong>清除已完成任务</strong><small>仅删除已经完成的任务记录。</small></div><button className="btn-secondary" onClick={onClearCompleted}>清除完成项</button></div>
+      <div className="data-action-row danger"><div><strong>恢复出厂设置</strong><small>将删除所有任务、待办和设置，操作不可撤销。</small></div><button onClick={() => { if (confirm("恢复出厂设置将删除所有任务、待办和设置，是否继续？")) { onFactoryReset?.(); onReset(); } }}>恢复出厂设置</button></div>
       {message && <p className="ai-message">{message}</p>}
     </section>
   );
@@ -472,8 +447,10 @@ function ReminderPanel({
   onChange: (value: ReturnType<typeof loadSettings>["reminders"]) => void;
 }) {
   const [message, setMessage] = useState("");
-  const permission =
-    typeof Notification === "undefined"
+  const nativeNotifications = isTauri();
+  const permission = nativeNotifications
+    ? "granted"
+    : typeof Notification === "undefined"
       ? "unsupported"
       : Notification.permission;
   const enable = async (checked: boolean) => {
@@ -497,12 +474,23 @@ function ReminderPanel({
     return granted;
   };
   const test = async () => {
+    setMessage("正在发送测试通知…");
     if (permission === "unsupported") {
       setMessage("当前浏览器不支持通知");
       return;
     }
-    const granted = permission === "granted" || (await enable(true));
-    if (granted && browserReminderService.test()) setMessage("测试通知已发送");
+    if (nativeNotifications) {
+      onChange({ ...value, notifications: true });
+      setMessage("系统通知已启用");
+      return true;
+    }
+    try {
+      const granted = permission === "granted" || (await enable(true));
+      if (granted) { await sendTestSystemNotification(); setMessage("系统通知已发送"); }
+      else setMessage("通知未发送：请检查浏览器通知权限");
+    } catch {
+      setMessage("系统通知发送失败，请检查通知权限");
+    }
   };
   return (
     <section className="settings-panel reminder-panel">
@@ -528,17 +516,12 @@ function ReminderPanel({
         />
       </div>
       <div className="settings-action-row">
-        <button className="btn-secondary" onClick={test} disabled={!value.notifications}>
+        <button className="btn-secondary" onClick={test}>
           发送测试通知
         </button>
       </div>
-      {!value.notifications && <p className="setting-feedback" role="status">请先开启待办提醒后再发送测试通知</p>}
       {permission === "denied" && <p className="setting-feedback" role="status">浏览器已拒绝通知。请在地址栏的网站权限中将通知改为允许，然后重新开启此开关。</p>}
-      {message && (
-        <p className="setting-feedback" role="status">
-          {message}
-        </p>
-      )}
+      {message && <p className="setting-feedback" role="status">{message}</p>}
     </section>
   );
 }
@@ -572,14 +555,16 @@ function DiagnosticsPanel() {
   const text = `MemoAgent 0.2.0\n数据版本: 1\n本地 API: ${api}\n当前模型: ${provider}\n通知权限: ${permission}\n存储字符数: ${bytes}`;
   return (
     <section className="settings-panel diagnostics">
-      <p>应用版本：0.2.0</p>
-      <p>数据版本：1</p>
-      <p>本地 API：{api}</p>
-      <p>当前模型：{provider}</p>
-      <p>通知权限：{permission}</p>
-      <p>存储字符数：{bytes}</p>
+      <dl className="diagnostics-grid diagnostics-status-grid" data-testid="diagnostics-grid">
+        <div><dt>应用版本</dt><dd>0.2.0</dd></div>
+        <div><dt>数据版本</dt><dd>1</dd></div>
+        <div><dt>本地 API</dt><dd>{api}</dd></div>
+        <div><dt>当前模型</dt><dd>{provider}</dd></div>
+        <div><dt>通知权限</dt><dd>{permission}</dd></div>
+        <div><dt>存储字符数</dt><dd>{bytes}</dd></div>
+      </dl>
       <button
-        className="btn-secondary"
+        className="btn-secondary diagnostics-copy"
         onClick={() => navigator.clipboard?.writeText(text)}
       >
         复制诊断信息

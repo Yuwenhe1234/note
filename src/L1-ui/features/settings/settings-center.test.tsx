@@ -42,17 +42,22 @@ describe("settings center", () => {
     fireEvent.change(screen.getByLabelText("默认优先级"), {
       target: { value: "high" },
     });
-    fireEvent.change(screen.getByLabelText("默认预计时长"), {
-      target: { value: "90" },
+    fireEvent.change(screen.getByLabelText("默认预计时长（小时）"), {
+      target: { value: "2.5" },
     });
     expect(loadSettings().taskDefaults.defaultPriority).toBe("high");
-    expect(loadSettings().taskDefaults.defaultDurationMinutes).toBe(90);
+    expect(loadSettings().taskDefaults.defaultDurationMinutes).toBe(150);
   });
   it("applies interaction settings", () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "交互与快捷操作" }));
-    fireEvent.click(screen.getByLabelText("减少动态效果"));
-    expect(document.documentElement).toHaveClass("reduce-motion");
+    fireEvent.click(screen.getByLabelText("开启所有按键浮动"));
+    expect(document.documentElement.dataset.buttonFloat).toBe("off");
+  });
+  it("does not show the removed task autofocus preference", () => {
+    render(<SettingsCenter />);
+    fireEvent.click(screen.getByRole("button", { name: "交互与快捷操作" }));
+    expect(screen.queryByText("新建任务自动聚焦")).not.toBeInTheDocument();
   });
   it("shows diagnostics without API keys", async () => {
     render(<SettingsCenter />);
@@ -60,11 +65,24 @@ describe("settings center", () => {
     expect(await screen.findByText(/本地 API/)).toBeInTheDocument();
     expect(document.body).not.toHaveTextContent("sk-secret");
   });
-  it("requires enabling reminders before a test notification can be sent", () => {
+  it("groups diagnostics into labeled detail rows", async () => {
+    render(<SettingsCenter />);
+    fireEvent.click(screen.getByRole("button", { name: "关于与诊断" }));
+    expect(await screen.findByTestId("diagnostics-grid")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "复制诊断信息" })).toBeVisible();
+    expect(screen.getByTestId("diagnostics-grid")).toHaveClass("diagnostics-status-grid");
+  });
+  it("shows one factory reset action instead of the removed destructive actions", () => {
+    render(<SettingsCenter />);
+    fireEvent.click(screen.getByRole("button", { name: "数据管理" }));
+    expect(screen.getByRole("button", { name: "恢复出厂设置" })).toBeInTheDocument();
+    expect(screen.queryByText("清除全部任务")).not.toBeInTheDocument();
+    expect(screen.queryByText("恢复默认设置")).not.toBeInTheDocument();
+  });
+  it("allows a test notification to request permission", () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "提醒方式" }));
-    expect(screen.getByRole("button", { name: "发送测试通知" })).toBeDisabled();
-    expect(screen.getByText("请先开启待办提醒后再发送测试通知")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "发送测试通知" })).toBeEnabled();
   });
   it("offers only persistent theme and accent appearance controls", () => {
     render(<SettingsCenter />);
@@ -101,6 +119,6 @@ describe("settings center", () => {
     await waitFor(() => expect(requestPermission).toHaveBeenCalledOnce());
     await waitFor(() => expect(loadSettings().reminders.notifications).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "发送测试通知" }));
-    await waitFor(() => expect(notification).toHaveBeenCalledWith("任务提醒测试", expect.anything()));
+    await waitFor(() => expect(screen.getByText("系统通知已发送")).toBeInTheDocument());
   });
 });

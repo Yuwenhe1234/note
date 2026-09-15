@@ -121,6 +121,36 @@ describe("application shell", () => {
     expect(document.documentElement.dataset.accent).toBe("blue");
   });
 
+  it("keeps navigation and task controls readable in light theme", () => {
+    render(<App />);
+    document.documentElement.dataset.theme = "light";
+    const nav = screen.getByRole("navigation", { name: "主导航" });
+    const search = screen.getByRole("textbox", { name: "搜索任务" });
+    const searchField = search.closest("label")!;
+    expect(getComputedStyle(nav.querySelector("button")!).color).toBe("var(--text-main)");
+    expect(getComputedStyle(searchField).backgroundColor).toBe("var(--surface-control)");
+    expect(getComputedStyle(search).color).toBe("var(--text-main)");
+  });
+
+  it("uses the configured default duration when opening a new task", () => {
+    localStorage.setItem("memo-agent-settings-v1", JSON.stringify({ taskDefaults: { defaultDurationMinutes: 150 } }));
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "新建任务" }));
+    expect(screen.getByDisplayValue("2.5 小时")).toBeInTheDocument();
+  });
+
+  it("adds one today todo for each non-empty line in the AI review draft", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "今日待办" }));
+    fireEvent.click(screen.getByRole("button", { name: "AI 生成今日待办" }));
+    const draft = await screen.findByRole("textbox", { name: "批量候选待办" });
+    fireEvent.change(draft, { target: { value: "写周报\n\n 整理资料 \n读书" } });
+    fireEvent.click(screen.getByRole("button", { name: "确认添加" }));
+    expect(screen.getByText("写周报")).toBeInTheDocument();
+    expect(screen.getByText("整理资料")).toBeInTheDocument();
+    expect(screen.getByText("读书")).toBeInTheDocument();
+  });
+
   it("uses one consistent navigation-to-heading spacing across views", () => {
     render(<App />);
     expect(getComputedStyle(screen.getByRole("main")).paddingTop).toBe("64px");
@@ -207,13 +237,11 @@ describe("application shell", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "编辑 完成 React 界面迁移" }),
     );
-    expect(
-      screen.getByRole("heading", { name: "编辑任务" }),
-    ).toBeInTheDocument();
-    const title = screen.getByLabelText("任务名称");
-    fireEvent.change(title, { target: { value: "完成新版界面" } });
+    expect(screen.getByRole("heading", { name: "执行步骤" })).toBeInTheDocument();
+    const goal = screen.getByLabelText("完成目标");
+    fireEvent.change(goal, { target: { value: "完成新版界面" } });
     expect(screen.getByLabelText("步骤 1 标题")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认并保存" }));
+    fireEvent.click(screen.getByRole("button", { name: "保存任务" }));
     expect(screen.getByText("完成新版界面")).toBeInTheDocument();
   });
 
@@ -298,8 +326,8 @@ describe("application shell", () => {
   it("opens a task from a widget deep link", async () => {
     window.history.replaceState({}, "", "/?widgetTask=task-1");
     render(<App />);
-    expect(await screen.findByRole("heading", { name: "编辑任务" })).toBeInTheDocument();
-    expect(screen.getByDisplayValue("完成 React 界面迁移")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "执行步骤" })).toBeInTheDocument();
+    expect(screen.getByLabelText("任务名称")).toHaveValue("完成 React 界面迁移");
     expect(window.location.search).toBe("");
   });
 

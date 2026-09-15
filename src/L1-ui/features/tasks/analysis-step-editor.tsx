@@ -24,7 +24,7 @@ function StepDurationEditor({ step, index, onCommit }: { step: TaskStep; index: 
   return <input ref={inputRef} className={`step-duration-input ${invalid ? "invalid" : ""}`} type="text" inputMode="decimal" aria-label={`步骤 ${index + 1} 时长`} value={draft} onChange={(event) => { setDraft(event.target.value); setInvalid(false); }} onBlur={save} onKeyDown={(event) => { if (event.key === "Enter") save(); if (event.key === "Escape") cancel(); }} />;
 }
 
-export function AnalysisStepEditor({ steps, onChange }: { steps: TaskStep[]; onChange: (steps: TaskStep[]) => void }) {
+export function AnalysisStepEditor({ steps, onChange, questionsByStepId = {}, onToggle }: { steps: TaskStep[]; onChange: (steps: TaskStep[]) => void; questionsByStepId?: Record<string, string[]>; onToggle?: (id: string) => void }) {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
   const update = (id: string, updates: Partial<TaskStep>) => onChange(steps.map((step) => step.id === id ? { ...step, ...updates } : step));
@@ -48,8 +48,9 @@ export function AnalysisStepEditor({ steps, onChange }: { steps: TaskStep[]; onC
         {steps.map((step, index) => (
           <div data-testid={`step-edit-row-${step.id}`} className={`analysis-step-edit-row ${draggedId === step.id ? "dragging" : ""} ${dropTargetId === step.id ? "drop-target" : ""}`} key={step.id} onDragOver={(event) => { event.preventDefault(); setDropTargetId(step.id); }} onDrop={() => drop(step.id)}>
             <button type="button" className="step-drag-handle" aria-label={`拖动步骤 ${index + 1}`} draggable onDragStart={() => setDraggedId(step.id)} onDragEnd={() => { setDraggedId(null); setDropTargetId(null); }}><GripVertical aria-hidden="true" /></button>
+            <button type="button" className={`step-complete ${step.completed ? "is-complete" : ""}`} aria-label={`完成步骤 ${index + 1}`} onClick={() => onToggle?.(step.id)} disabled={!onToggle}>✓</button>
             <span className="step-order">{String(index + 1).padStart(2, "0")}</span>
-            <input aria-label={`步骤 ${index + 1} 标题`} value={step.title} onChange={(event) => update(step.id, { title: event.target.value })} />
+            <div className="step-title-stack"><input aria-label={`步骤 ${index + 1} 标题`} value={step.title} onChange={(event) => update(step.id, { title: event.target.value })} />{questionsByStepId[step.id]?.map((question) => <small key={question}>{question}</small>)}</div>
             <StepDurationEditor step={step} index={index} onCommit={(hours) => update(step.id, { hours })} />
             <button type="button" className="step-delete" aria-label={`删除步骤 ${index + 1}`} disabled={steps.length <= 1} onClick={() => onChange(steps.filter((item) => item.id !== step.id))}><Trash2 /></button>
           </div>

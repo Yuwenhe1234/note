@@ -1,4 +1,5 @@
 import { parseAnalysis, type Analysis } from "../../server/analysis-schema";
+import { buildTaskAnalysisMessages } from "../../server/task-analysis-prompt";
 
 export type BrowserAiConfig = {
   provider: string;
@@ -50,10 +51,7 @@ export async function testBrowserAiConnection(options: { storage?: Storage; fetc
 }
 
 export async function analyzeTaskInBrowser(input: Record<string, unknown>, options: { storage?: Storage; fetcher?: typeof fetch } = {}): Promise<Analysis> {
-  const raw = await chatCompletion([
-    { role: "system", content: "你是任务规划助手。只返回严格 JSON，包含 summary、goal、priority、estimatedHours、steps；steps 每项包含 title、hours、description、completionCriteria。步骤 2-8 个，时长以 0.25 小时为刻度且总和等于 estimatedHours。" },
-    { role: "user", content: JSON.stringify(input) },
-  ], options);
+  const raw = await chatCompletion(buildTaskAnalysisMessages(input as { title: string; description?: string; duration?: string; notes?: string; minSteps?: number; maxSteps?: number }), options);
   return parseAnalysis(raw);
 }
 

@@ -25,8 +25,8 @@ export function TaskDescriptionDialog({ description, goal, onSave }: { descripti
             <button type="button" className="close" aria-label="关闭任务说明" onClick={close}><X /></button>
             <em>TASK DESCRIPTION</em>
             <h3>任务说明</h3>
-            <textarea aria-label="任务说明内容" value={draft} onChange={(event) => setDraft(event.target.value)} autoFocus />
-            <label className="task-goal-editor">任务完成目标<textarea aria-label="任务完成目标" value={goalDraft} onChange={(event) => setGoalDraft(event.target.value)} placeholder="完成后需要达到什么效果？" /></label>
+            <textarea aria-label="任务说明内容" style={{ background: "var(--surface-2)", color: "var(--text-main)", borderColor: "var(--line)" }} value={draft} onChange={(event) => setDraft(event.target.value)} autoFocus />
+            <label className="task-goal-editor">任务完成目标<textarea aria-label="任务完成目标" style={{ background: "var(--surface-2)", color: "var(--text-main)", borderColor: "var(--line)" }} value={goalDraft} onChange={(event) => setGoalDraft(event.target.value)} placeholder="完成后需要达到什么效果？" /></label>
             <div className="description-dialog-actions">
               <button type="button" className="btn-secondary" onClick={close}>取消</button>
               <button type="button" className="primary" onClick={() => { onSave({ description: draft.trim(), goal: goalDraft.trim() }); close(); }}>保存说明</button>

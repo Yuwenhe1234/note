@@ -48,13 +48,23 @@ describe("task step model", () => {
     expect(migrated.durationHours).toBe(1.5);
     expect(migrated.goal).toBe("");
     expect(migrated.steps).toEqual([
-      { id: "kept", title: "阅读", hours: 0.5, completed: true },
-      { id: "m1", title: "练习", hours: 1, completed: false },
+      { id: "kept", title: "阅读", hours: 0.5, completed: true, questions: [] },
+      { id: "m1", title: "练习", hours: 1, completed: false, questions: [] },
     ]);
   });
   it("preserves a completion goal", () => {
     const task = migrateTask({ id: "g", title: "目标任务", description: "", goal: "完成验收", completed: false, priority: "high", durationHours: 1, steps: 1 });
     expect(task.goal).toBe("完成验收");
+  });
+  it("adds safe empty detail data when migrating older tasks", () => {
+    const task = migrateTask({ id: "detail", title: "旧任务", description: "", completed: false, priority: "medium", durationHours: 1, steps: 1 });
+    expect(task.type).toBe("未分类");
+    expect(task.domainMap).toEqual({ prerequisites: [], coreConcepts: [], advancedTopics: [] });
+    expect(task.resources!.systemResources).toEqual([]);
+    expect(task.coreQuestions).toEqual([]);
+    expect(task.steps[0].questions).toEqual([]);
+    expect(task.mindMap?.nodes).toHaveLength(3);
+    expect(task.mindMap?.edges).toHaveLength(2);
   });
   it("migrates legacy numeric steps using the old total duration", () => {
     const migrated = migrateTask(
