@@ -1704,6 +1704,7 @@ html[data-theme="light"] .news-refresh { border-color: var(--accent-border); bac
 html[data-theme="light"] .news-refresh:hover { border-color: var(--accent-user); background: var(--surface-control); color: var(--text-main); box-shadow: 0 0 0 3px var(--accent-soft), 0 10px 28px var(--accent-glow); }
 html[data-theme="light"] .news-detail-modal .news-refresh { border: 0; background: var(--accent-user); color: #102015; box-shadow: 0 8px 18px var(--accent-glow); }
 html[data-theme="light"] .features button:hover,
+html[data-theme="light"] .settings > button:hover,
 html[data-theme="light"] .tasks article:hover,
 html[data-theme="light"] .task-step-bubble:hover {
   border-color: var(--accent-border);
