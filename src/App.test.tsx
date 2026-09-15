@@ -241,7 +241,7 @@ describe("application shell", () => {
     const goal = screen.getByLabelText("完成目标");
     fireEvent.change(goal, { target: { value: "完成新版界面" } });
     expect(screen.getByLabelText("步骤 1 标题")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认并保存" }));
+    fireEvent.click(screen.getByRole("button", { name: "保存任务" }));
     expect(screen.getByText("完成新版界面")).toBeInTheDocument();
   });
 
@@ -327,7 +327,7 @@ describe("application shell", () => {
     window.history.replaceState({}, "", "/?widgetTask=task-1");
     render(<App />);
     expect(await screen.findByRole("heading", { name: "执行步骤" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "完成 React 界面迁移", level: 1 })).toBeInTheDocument();
+    expect(screen.getByLabelText("任务名称")).toHaveValue("完成 React 界面迁移");
     expect(window.location.search).toBe("");
   });
 

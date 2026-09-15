@@ -13,14 +13,14 @@ describe("TaskDetailPage", () => {
     expect(back.closest(".task-detail-header")).toBeNull();
     expect(getComputedStyle(back.closest(".task-detail-topbar")!).gridTemplateColumns).toBe("150px minmax(0, 1fr)");
     expect(getComputedStyle(document.querySelector(".task-detail-grid")!).columnGap).toBe("16px");
-    expect(getComputedStyle(document.querySelector(".task-detail-left")!).gridTemplateRows).toBe("600px 330px");
+    expect(getComputedStyle(document.querySelector(".task-detail-left")!).gridTemplateRows).toBe("600px minmax(0, 330px)");
     expect(getComputedStyle(document.querySelector(".task-detail-left > section:last-child")!).overflowY).toBe("auto");
     expect(screen.getByRole("region", { name: "思维导图" })).toBeInTheDocument();
     expect(screen.getByText("推荐学习资源")).toBeInTheDocument();
     expect(screen.getByText("B站")).toBeInTheDocument();
     expect(screen.getByText("抖音")).toBeInTheDocument();
     expect(screen.getByText("网站")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "学习 STM32" })).toBeInTheDocument();
+    expect(screen.getByLabelText("任务名称")).toHaveValue("学习 STM32");
     expect(screen.queryByLabelText("任务标题")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "完成步骤 1" }));
     expect(screen.getByText("1/1 · 100%")).toBeInTheDocument();

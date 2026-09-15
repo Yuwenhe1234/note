@@ -51,8 +51,8 @@ describe("settings center", () => {
   it("applies interaction settings", () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "交互与快捷操作" }));
-    fireEvent.click(screen.getByLabelText("减少动态效果"));
-    expect(document.documentElement).toHaveClass("reduce-motion");
+    fireEvent.click(screen.getByLabelText("开启所有按键浮动"));
+    expect(document.documentElement.dataset.buttonFloat).toBe("off");
   });
   it("does not show the removed task autofocus preference", () => {
     render(<SettingsCenter />);
@@ -79,11 +79,10 @@ describe("settings center", () => {
     expect(screen.queryByText("清除全部任务")).not.toBeInTheDocument();
     expect(screen.queryByText("恢复默认设置")).not.toBeInTheDocument();
   });
-  it("requires enabling reminders before a test notification can be sent", () => {
+  it("allows a test notification to request permission", () => {
     render(<SettingsCenter />);
     fireEvent.click(screen.getByRole("button", { name: "提醒方式" }));
-    expect(screen.getByRole("button", { name: "发送测试通知" })).toBeDisabled();
-    expect(screen.getByText("请先开启待办提醒后再发送测试通知")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "发送测试通知" })).toBeEnabled();
   });
   it("offers only persistent theme and accent appearance controls", () => {
     render(<SettingsCenter />);
@@ -120,6 +119,6 @@ describe("settings center", () => {
     await waitFor(() => expect(requestPermission).toHaveBeenCalledOnce());
     await waitFor(() => expect(loadSettings().reminders.notifications).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "发送测试通知" }));
-    await waitFor(() => expect(notification).toHaveBeenCalledWith("任务提醒测试", expect.anything()));
+    await waitFor(() => expect(screen.getByText("系统通知已发送")).toBeInTheDocument());
   });
 });
