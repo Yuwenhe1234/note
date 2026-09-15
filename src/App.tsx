@@ -55,16 +55,16 @@ import { PluginCenterWindow } from "./L1-ui/features/plugins/plugin-center-windo
 import { PageBackButton } from "./L1-ui/components/page-back-button";
 type View = "任务清单" | "今日待办" | "其他功能" | "设置";
 
-function flowToMindMap(flow?: TaskAnalysis["flowchart"]): TaskMindMap | undefined {
+function flowToMindMap(flow?: TaskAnalysis["flowchart"], taskTitle = ""): TaskMindMap | undefined {
   if (!flow?.nodes.length) return undefined;
   const mainEdges = flow.edges.filter((edge) => edge.kind === "main");
-  const children = new Map<string, string[]>(); mainEdges.forEach((edge) => children.set(edge.from, [...(children.get(edge.from) || []), edge.to]));
-  const targets = new Set(mainEdges.map((edge) => edge.to));
-  const root = flow.nodes.find((node) => !targets.has(node.id)) || flow.nodes[0];
-  const seen = new Set<string>(); const positions = new Map<string, { x: number; y: number }>(); let cursor = 0;
-  const place = (id: string, depth: number): number => { if (seen.has(id)) return positions.get(id)?.x || 0; seen.add(id); const branch = (children.get(id) || []).filter((child) => !seen.has(child)); const childXs = branch.map((child) => place(child, depth + 1)); const x = childXs.length ? (Math.min(...childXs) + Math.max(...childXs)) / 2 : cursor++ * 240; positions.set(id, { x, y: depth * 150 }); return x; };
-  place(root.id, 0); flow.nodes.forEach((node) => { if (!positions.has(node.id)) positions.set(node.id, { x: cursor++ * 240, y: 150 }); });
-  const rootX = positions.get(root.id)!.x; return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, x: Math.round((point.x - rootX) * 1.1), y: point.y }; }), edges: flow.edges.map((edge, index) => ({ id: `flow-${index}`, source: edge.from, target: edge.to, kind: edge.kind })) };
+  const neighbors = new Map<string, string[]>(); mainEdges.forEach((edge) => { neighbors.set(edge.from, [...(neighbors.get(edge.from) || []), edge.to]); neighbors.set(edge.to, [...(neighbors.get(edge.to) || []), edge.from]); });
+  const root = flow.nodes.find((node) => taskTitle && node.label.includes(taskTitle.replace(/^学习|完成|规划/, ""))) || [...flow.nodes].sort((a, b) => (neighbors.get(b.id)?.length || 0) - (neighbors.get(a.id)?.length || 0))[0];
+  const levels: string[][] = [[root.id]]; const visited = new Set([root.id]); for (let depth = 0; levels[depth]?.length; depth += 1) { const next = levels[depth].flatMap((id) => neighbors.get(id) || []).filter((id) => !visited.has(id)); next.forEach((id) => visited.add(id)); if (next.length) levels.push(next); }
+  flow.nodes.forEach((node) => { if (!visited.has(node.id)) levels.push([node.id]); });
+  const widest = Math.max(...levels.map((level) => level.length)); const horizontal = widest <= 3 && levels.length >= 3; const positions = new Map<string, { x: number; y: number }>();
+  levels.forEach((level, depth) => level.forEach((id, index) => { const offset = (index - (level.length - 1) / 2); positions.set(id, horizontal ? { x: depth * 250, y: offset * 150 } : { x: offset * 230, y: depth * 150 }); }));
+  return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, x: Math.round(point.x), y: Math.round(point.y) }; }), edges: flow.edges.map((edge, index) => ({ id: `flow-${index}`, source: edge.from, target: edge.to, kind: edge.kind })) };
 }
 type FeaturePage = "news" | "companion" | "plugins";
 type TodayTodo = { id: string; content: string; reminderTime: string; completed: boolean; dailyReusable?: boolean };
@@ -298,7 +298,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           coreQuestions: analysis?.coreQuestions,
           noteRecords: analysis?.noteRecords,
           notes: analysis?.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(),
-          mindMap: flowToMindMap(analysis?.flowchart),
+          mindMap: flowToMindMap(analysis?.flowchart, title),
           durationHours: taskDuration(effectiveSteps),
           steps: effectiveSteps,
         },
@@ -358,7 +358,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           questions: step.questions || [],
         })),
       );
-      setAnalysisPreview({ id: crypto.randomUUID(), title: title.trim(), description: description.trim() || "由 Agent 分析生成的可执行任务", goal: result.goal, objective: result.goal, completionCriteria: result.structuredGoal?.completionCriteria, completed: false, priority: result.priority || defaults.defaultPriority, type: result.type, domainMap: result.domainMap, resources: result.resources, resourceRecords: result.resourceRecords, coreQuestions: result.coreQuestions, notes: result.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(), noteRecords: result.noteRecords, mindMap: flowToMindMap(result.flowchart), durationHours: result.estimatedHours, steps: result.steps.map((step) => ({ id: crypto.randomUUID(), title: step.title, hours: step.hours, completed: false, questions: step.questions || [] })) });
+      setAnalysisPreview({ id: crypto.randomUUID(), title: title.trim(), description: description.trim() || "由 Agent 分析生成的可执行任务", goal: result.goal, objective: result.goal, completionCriteria: result.structuredGoal?.completionCriteria, completed: false, priority: result.priority || defaults.defaultPriority, type: result.type, domainMap: result.domainMap, resources: result.resources, resourceRecords: result.resourceRecords, coreQuestions: result.coreQuestions, notes: result.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(), noteRecords: result.noteRecords, mindMap: flowToMindMap(result.flowchart, title), durationHours: result.estimatedHours, steps: result.steps.map((step) => ({ id: crypto.randomUUID(), title: step.title, hours: step.hours, completed: false, questions: step.questions || [] })) });
       setOpen(false);
     } catch (error) {
       setAnalysis(null);
