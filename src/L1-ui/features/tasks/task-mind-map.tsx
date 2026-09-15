@@ -1,4 +1,4 @@
-import { addEdge, Background, Controls, Handle, Position, ReactFlow, useEdgesState, useNodesState, type Connection, type Edge, type Node } from "@xyflow/react";
+import { addEdge, Background, Controls, Handle, Position, ReactFlow, SelectionMode, useEdgesState, useNodesState, type Connection, type Edge, type Node } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useEffect, useRef, type MouseEvent } from "react";
 import type { TaskMindMap } from "../../../L4-data/task-model";
@@ -27,5 +27,5 @@ export function TaskMindMap({ value, onChange, className = "", onDoubleClick }: 
   const handleKeyDown = (event: React.KeyboardEvent) => { if (event.key === "Delete") deleteSelected(); };
   const handleNodes = (changes: Parameters<typeof onNodesChange>[0]) => { if (changes.some((change) => change.type === "remove" || change.type === "position")) snapshot(); onNodesChange(changes); };
   const handleEdges = (changes: Parameters<typeof onEdgesChange>[0]) => { if (changes.some((change) => change.type === "remove")) snapshot(); onEdgesChange(changes); };
-  return <section className={`task-mind-map ${className}`} aria-label="思维导图" onDoubleClick={onDoubleClick}><div className="task-mind-map-toolbar"><h2>思维导图</h2><span><button onClick={addNode}>+ 节点</button><button onClick={deleteSelected}>删除选中</button></span></div><ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={handleNodes} onEdgesChange={handleEdges} onConnect={connect} onNodeDoubleClick={handleNodeDoubleClick} onKeyDown={handleKeyDown} deleteKeyCode="Delete" minZoom={0.08} fitView fitViewOptions={{ padding: 0.18, maxZoom: 1 }} proOptions={{ hideAttribution: true }}><Background gap={18} size={1} /><Controls showInteractive={false} /></ReactFlow></section>;
+  return <section className={`task-mind-map ${className}`} aria-label="思维导图" onDoubleClick={onDoubleClick}><div className="task-mind-map-toolbar"><h2>思维导图</h2><span><button onClick={addNode}>+ 节点</button><button onClick={deleteSelected}>删除选中</button></span></div><ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={handleNodes} onEdgesChange={handleEdges} onConnect={connect} onNodeDoubleClick={handleNodeDoubleClick} onKeyDown={handleKeyDown} selectionOnDrag selectionMode={SelectionMode.Partial} panOnDrag={false} deleteKeyCode="Delete" minZoom={0.08} fitView fitViewOptions={{ padding: 0.18, maxZoom: 1 }} proOptions={{ hideAttribution: true }}><Background gap={18} size={1} /><Controls showInteractive={false} /></ReactFlow></section>;
 }
