@@ -60,10 +60,10 @@ function flowToMindMap(flow?: TaskAnalysis["flowchart"], taskTitle = ""): TaskMi
   const mainEdges = flow.edges.filter((edge) => edge.kind === "main");
   const neighbors = new Map<string, string[]>(); mainEdges.forEach((edge) => { neighbors.set(edge.from, [...(neighbors.get(edge.from) || []), edge.to]); neighbors.set(edge.to, [...(neighbors.get(edge.to) || []), edge.from]); });
   const root = flow.nodes.find((node) => taskTitle && node.label.includes(taskTitle.replace(/^学习|完成|规划/, ""))) || [...flow.nodes].sort((a, b) => (neighbors.get(b.id)?.length || 0) - (neighbors.get(a.id)?.length || 0))[0];
-  const levels: string[][] = [[root.id]]; const visited = new Set([root.id]); for (let depth = 0; levels[depth]?.length; depth += 1) { const next = levels[depth].flatMap((id) => neighbors.get(id) || []).filter((id) => !visited.has(id)); next.forEach((id) => visited.add(id)); if (next.length) levels.push(next); }
-  flow.nodes.forEach((node) => { if (!visited.has(node.id)) levels.push([node.id]); });
-  const widest = Math.max(...levels.map((level) => level.length)); const horizontal = widest <= 3 && levels.length >= 3; const positions = new Map<string, { x: number; y: number }>();
-  levels.forEach((level, depth) => level.forEach((id, index) => { const offset = (index - (level.length - 1) / 2); positions.set(id, horizontal ? { x: depth * 250, y: offset * 150 } : { x: offset * 230, y: depth * 150 }); }));
+  const positions = new Map<string, { x: number; y: number }>(); const visited = new Set<string>([root.id]); positions.set(root.id, { x: 0, y: 0 });
+  const place = (id: string, level: number, angle: number, span: number) => { const branch = (neighbors.get(id) || []).filter((child) => !visited.has(child)); branch.forEach((child, index) => { visited.add(child); const childAngle = angle - span / 2 + ((index + 0.5) * span / branch.length); const radius = 260 + (level - 1) * 210; positions.set(child, { x: Math.cos(childAngle) * radius, y: Math.sin(childAngle) * radius }); place(child, level + 1, childAngle, Math.min(Math.PI / 1.7, span / Math.max(branch.length, 1))); }); };
+  const firstLevel = neighbors.get(root.id) || []; firstLevel.forEach((child, index) => { visited.add(child); const angle = -Math.PI + ((index + 0.5) * Math.PI * 2 / Math.max(firstLevel.length, 1)); positions.set(child, { x: Math.cos(angle) * 260, y: Math.sin(angle) * 260 }); place(child, 2, angle, Math.min(Math.PI / 1.5, Math.PI * 2 / Math.max(firstLevel.length, 1))); });
+  flow.nodes.forEach((node, index) => { if (!positions.has(node.id)) positions.set(node.id, { x: -240, y: (index + 1) * 120 }); });
   return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, x: Math.round(point.x), y: Math.round(point.y) }; }), edges: flow.edges.map((edge, index) => ({ id: `flow-${index}`, source: edge.from, target: edge.to, kind: edge.kind })) };
 }
 type FeaturePage = "news" | "companion" | "plugins";
