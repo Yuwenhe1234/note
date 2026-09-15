@@ -2,6 +2,7 @@ use std::{
   collections::{HashSet, VecDeque},
   fs,
   path::{Path, PathBuf},
+  process::Command,
   sync::Mutex,
   time::{Duration, SystemTime},
 };
@@ -155,6 +156,21 @@ fn acknowledge_todo_reminder(app: AppHandle) -> Result<Option<ReminderTodo>, Str
     let _ = window.hide();
   }
   Ok(next)
+}
+
+#[tauri::command]
+fn show_test_system_notification() -> Result<(), String> {
+  #[cfg(target_os = "windows")]
+  {
+    let script = r#"Add-Type -AssemblyName System.Runtime.WindowsRuntime; [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType=WindowsRuntime] > $null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom, ContentType=WindowsRuntime] > $null; $xml = New-Object Windows.Data.Xml.Dom.XmlDocument; $xml.LoadXml('<toast><visual><binding template="ToastGeneric"><text>任务提醒测试</text><text>系统通知已经可以正常工作。</text></binding></visual></toast>'); $toast = [Windows.UI.Notifications.ToastNotification]::new($xml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('东非大裂谷').Show($toast);"#;
+    let status = Command::new("powershell")
+      .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", script])
+      .status()
+      .map_err(|error| error.to_string())?;
+    if status.success() { Ok(()) } else { Err("系统通知发送失败".to_string()) }
+  }
+  #[cfg(not(target_os = "windows"))]
+  { Err("当前桌面系统暂未实现原生通知".to_string()) }
 }
 
 fn is_widget_request<I, S>(args: I) -> bool
@@ -625,7 +641,8 @@ pub fn run() {
       update_desktop_widget_todo,
       update_desktop_widget_task,
       start_widget_dragging,
-      acknowledge_todo_reminder
+      acknowledge_todo_reminder,
+      show_test_system_notification
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

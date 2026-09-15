@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { isTauri } from "@tauri-apps/api/core";
 import { Settings2 } from "lucide-react";
 import { AiSettings } from "../ai/ai-settings";
 import {
@@ -13,6 +14,7 @@ import {
   type BackupTask,
 } from "../../../L4-data/backup-schema";
 import { browserReminderService } from "../../../L5-services/reminder-service";
+import { sendTestSystemNotification } from "../../../L5-services/system-notification";
 import { PageBackButton } from "../../components/page-back-button";
 import { runtimeCapabilities } from "../../../L5-services/runtime-capabilities";
 import { BROWSER_AI_CONFIG_KEY, loadBrowserAiConfig } from "../../../L5-services/browser-ai-client";
@@ -445,8 +447,10 @@ function ReminderPanel({
   onChange: (value: ReturnType<typeof loadSettings>["reminders"]) => void;
 }) {
   const [message, setMessage] = useState("");
-  const permission =
-    typeof Notification === "undefined"
+  const nativeNotifications = isTauri();
+  const permission = nativeNotifications
+    ? "granted"
+    : typeof Notification === "undefined"
       ? "unsupported"
       : Notification.permission;
   const enable = async (checked: boolean) => {
@@ -475,12 +479,17 @@ function ReminderPanel({
       setMessage("当前浏览器不支持通知");
       return;
     }
+    if (nativeNotifications) {
+      onChange({ ...value, notifications: true });
+      setMessage("系统通知已启用");
+      return true;
+    }
     try {
       const granted = permission === "granted" || (await enable(true));
-      if (granted && browserReminderService.test()) setMessage("测试通知已发送（已显示页面内反馈）");
+      if (granted) { await sendTestSystemNotification(); setMessage("系统通知已发送"); }
       else setMessage("通知未发送：请检查浏览器通知权限");
     } catch {
-      setMessage("系统通知被拦截，已显示页面内测试反馈");
+      setMessage("系统通知发送失败，请检查通知权限");
     }
   };
   return (
@@ -512,9 +521,7 @@ function ReminderPanel({
         </button>
       </div>
       {permission === "denied" && <p className="setting-feedback" role="status">浏览器已拒绝通知。请在地址栏的网站权限中将通知改为允许，然后重新开启此开关。</p>}
-      {message && (
-        <><p className="setting-feedback" role="status">{message}</p><div className="reminder-test-toast" role="status">{message}</div></>
-      )}
+      {message && <p className="setting-feedback" role="status">{message}</p>}
     </section>
   );
 }
