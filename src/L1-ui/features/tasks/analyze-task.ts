@@ -12,7 +12,7 @@ export type TaskAnalysis = {
   resources?: { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
   coreQuestions?: string[];
   structuredGoal?: { description: string; completionCriteria: string[] };
-  flowchart?: { nodes: { id: string; label: string }[]; edges: { from: string; to: string; kind: "main" | "feedback" }[] };
+  flowchart?: { nodes: { id: string; label: string; level: number }[]; edges: { from: string; to: string; kind: "main" | "feedback" }[] };
   resourceRecords?: { name: string; platform: string; url: string; searchQuery: string; reason: string; stage: string }[];
   noteRecords?: { title: string; description: string; level: "important" | "warning" | "risk" }[];
 };

@@ -16,7 +16,7 @@ export type Analysis = {
   resources?: { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
   coreQuestions?: string[];
   structuredGoal?: { description: string; completionCriteria: string[] };
-  flowchart?: { nodes: { id: string; label: string }[]; edges: { from: string; to: string; kind: "main" | "feedback" }[] };
+  flowchart?: { nodes: { id: string; label: string; level: number }[]; edges: { from: string; to: string; kind: "main" | "feedback" }[] };
   resourceRecords?: { name: string; platform: string; url: string; searchQuery: string; reason: string; stage: string }[];
   noteRecords?: { title: string; description: string; level: "important" | "warning" | "risk" }[];
 };
@@ -55,7 +55,7 @@ export function parseAnalysis(raw: string): Analysis {
   const records = Array.isArray((data as any).resources) ? (data as any).resources : [];
   data.resourceRecords = records.filter((item: any) => item && typeof item.name === "string" && typeof item.platform === "string" && typeof item.searchQuery === "string" && typeof item.reason === "string" && typeof item.stage === "string" && (item.url === "" || /^https?:\/\//.test(item.url))).map((item: any) => ({ name: item.name.trim(), platform: item.platform.trim(), url: item.url.trim(), searchQuery: item.searchQuery.trim(), reason: item.reason.trim(), stage: item.stage.trim() }));
   const flow = (data as any).flowchart;
-  data.flowchart = { nodes: Array.isArray(flow?.nodes) ? flow.nodes.filter((node: any) => typeof node?.id === "string" && typeof node?.label === "string").map((node: any) => ({ id: node.id.trim(), label: node.label.trim() })) : [], edges: Array.isArray(flow?.edges) ? flow.edges.filter((edge: any) => typeof edge?.from === "string" && typeof edge?.to === "string").map((edge: any) => ({ from: edge.from.trim(), to: edge.to.trim(), kind: edge.kind === "feedback" ? "feedback" : "main" })) : [] };
+  data.flowchart = { nodes: Array.isArray(flow?.nodes) ? flow.nodes.filter((node: any) => typeof node?.id === "string" && typeof node?.label === "string").map((node: any) => ({ id: node.id.trim(), label: node.label.trim(), level: Number.isInteger(node.level) && node.level >= 0 ? node.level : 2 })) : [], edges: Array.isArray(flow?.edges) ? flow.edges.filter((edge: any) => typeof edge?.from === "string" && typeof edge?.to === "string").map((edge: any) => ({ from: edge.from.trim(), to: edge.to.trim(), kind: edge.kind === "feedback" ? "feedback" : "main" })) : [] };
   if (data.flowchart.edges.some((edge) => !data.flowchart!.nodes.some((node) => node.id === edge.from) || !data.flowchart!.nodes.some((node) => node.id === edge.to))) throw new Error("流程图连线引用了不存在节点");
   data.noteRecords = Array.isArray((data as any).notes) ? (data as any).notes.filter((note: any) => note && typeof note.title === "string" && typeof note.description === "string" && ["important", "warning", "risk"].includes(note.level)).map((note: any) => ({ title: note.title.trim(), description: note.description.trim(), level: note.level })) : [];
   return data;

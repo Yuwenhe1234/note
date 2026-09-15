@@ -1,7 +1,7 @@
 export type TaskStep = { id: string; title: string; hours: number; completed: boolean; questions?: string[] };
 export type TaskDomainMap = { prerequisites: string[]; coreConcepts: string[]; advancedTopics: string[] };
 export type TaskResources = { systemResources: string[]; externalRecommendations: { websites: string[]; upMasters: string[]; communities: string[] } };
-export type TaskMindMap = { nodes: { id: string; label: string; x: number; y: number }[]; edges: { id: string; source: string; target: string; kind?: "main" | "feedback" }[] };
+export type TaskMindMap = { nodes: { id: string; label: string; x: number; y: number; level?: number }[]; edges: { id: string; source: string; target: string; kind?: "main" | "feedback" }[] };
 export type TaskResourceRecord = { name: string; platform: string; url: string; searchQuery: string; reason: string; stage: string };
 export type TaskNoteRecord = { title: string; description: string; level: "important" | "warning" | "risk" };
 export type Task = {
