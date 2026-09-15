@@ -61,11 +61,11 @@ function flowToMindMap(flow?: TaskAnalysis["flowchart"], taskTitle = ""): TaskMi
   const neighbors = new Map<string, string[]>(); mainEdges.forEach((edge) => { neighbors.set(edge.from, [...(neighbors.get(edge.from) || []), edge.to]); neighbors.set(edge.to, [...(neighbors.get(edge.to) || []), edge.from]); });
   const root = flow.nodes.find((node) => taskTitle && node.label.includes(taskTitle.replace(/^学习|完成|规划/, ""))) || [...flow.nodes].sort((a, b) => (neighbors.get(b.id)?.length || 0) - (neighbors.get(a.id)?.length || 0))[0];
   const treeEdges: { id: string; source: string; target: string; kind: "main" }[] = []; const children = new Map<string, string[]>(); const visited = new Set<string>([root.id]); const queue = [root.id]; while (queue.length) { const parent = queue.shift()!; for (const child of neighbors.get(parent) || []) if (!visited.has(child)) { visited.add(child); queue.push(child); treeEdges.push({ id: `tree-${treeEdges.length}`, source: parent, target: child, kind: "main" }); children.set(parent, [...(children.get(parent) || []), child]); } }
-  const positions = new Map<string, { x: number; y: number }>(); positions.set(root.id, { x: 0, y: 0 });
-  const place = (id: string, level: number, angle: number, span: number) => { const branch = children.get(id) || []; branch.forEach((child, index) => { const childAngle = angle - span / 2 + ((index + 0.5) * span / branch.length); const radius = 270 + (level - 1) * 200; positions.set(child, { x: Math.cos(childAngle) * radius, y: Math.sin(childAngle) * radius }); place(child, level + 1, childAngle, Math.min(Math.PI / 1.8, span / Math.max(branch.length, 1))); }); };
-  const firstLevel = children.get(root.id) || []; firstLevel.forEach((child, index) => { const angle = -Math.PI + ((index + 0.5) * Math.PI * 2 / Math.max(firstLevel.length, 1)); positions.set(child, { x: Math.cos(angle) * 270, y: Math.sin(angle) * 270 }); place(child, 2, angle, Math.min(Math.PI / 1.5, Math.PI * 2 / Math.max(firstLevel.length, 1))); });
+  const positions = new Map<string, { x: number; y: number }>(); let leaf = 0;
+  const place = (id: string, level: number): number => { const branch = children.get(id) || []; const childXs = branch.map((child) => place(child, level + 1)); const x = childXs.length ? (Math.min(...childXs) + Math.max(...childXs)) / 2 : leaf++ * 240; positions.set(id, { x, y: level * 170 }); return x; };
+  place(root.id, 0); const rootX = positions.get(root.id)!.x;
   flow.nodes.forEach((node, index) => { if (!positions.has(node.id)) positions.set(node.id, { x: -240, y: (index + 1) * 120 }); });
-  return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, x: Math.round(point.x), y: Math.round(point.y) }; }), edges: treeEdges };
+  return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, x: Math.round((point.x - rootX) * 1.1), y: point.y }; }), edges: treeEdges };
 }
 type FeaturePage = "news" | "companion" | "plugins";
 type TodayTodo = { id: string; content: string; reminderTime: string; completed: boolean; dailyReusable?: boolean };
