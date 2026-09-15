@@ -1903,11 +1903,9 @@ html[data-theme="light"] .accent-picker input[aria-label="自定义强调色 HEX
 .task-mind-map .react-flow__node-mindMapNode { min-width: 150px; padding: 16px 26px; border: 1px solid var(--accent-border); border-radius: 10px; background: var(--surface-1); color: var(--text-main); font-weight: 600; text-align: center; }
 .task-mind-map .react-flow__node-mindMapNode.selected { border-color: var(--accent-user); box-shadow: 0 0 0 1px var(--accent-user), 0 0 18px color-mix(in srgb, var(--accent-user) 48%, transparent), 0 0 36px color-mix(in srgb, var(--accent-user) 18%, transparent); }
 .task-mind-map .react-flow__node-mindMapNode .react-flow__handle { width: 8px; height: 8px; border: 2px solid var(--surface-1); background: var(--accent-user); }
-.mind-map-node-content { display: grid; gap: 3px; min-width: 116px; }
-.mind-map-node-content small { color: var(--text-muted); font-size: 9px; font-weight: 500; letter-spacing: .08em; }
+.mind-map-node-content { display: grid; min-width: 116px; }
 .mind-map-node-content.level-0 { color: #102015; }
 .task-mind-map .react-flow__node-mindMapNode:has(.level-0) { min-width: 190px; border-color: var(--accent-user); background: var(--accent-user); font-size: 18px; font-weight: 700; box-shadow: 0 8px 22px var(--accent-glow); }
-.task-mind-map .react-flow__node-mindMapNode:has(.level-0) small { color: #102015aa; }
 .task-mind-map .react-flow__node-mindMapNode:has(.level-1) { border-width: 2px; background: var(--accent-soft); font-size: 15px; }
 .task-mind-map .react-flow__node-mindMapNode:has(.level-2) { border-color: var(--line); background: var(--surface-1); font-size: 13px; font-weight: 500; }
 .mind-map-node-input { width: 100%; min-width: 110px; padding: 2px 6px; border: 1px solid var(--accent-user); border-radius: 6px; outline: none; background: var(--surface-2); color: var(--text-main); font: inherit; font-weight: 600; text-align: center; }
