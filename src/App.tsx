@@ -68,6 +68,11 @@ function flowToMindMap(flow?: TaskAnalysis["flowchart"], taskTitle = ""): TaskMi
   flow.nodes.forEach((node, index) => { if (!positions.has(node.id)) positions.set(node.id, { x: -240, y: (index + 1) * 120 }); });
   return { nodes: flow.nodes.map((node) => { const point = positions.get(node.id)!; return { id: node.id, label: node.label, level: node.level, x: Math.round(point.x), y: Math.round(point.y) }; }), edges: treeEdges };
 }
+function mapAnalysisResources(result: TaskAnalysis) {
+  const records = result.resourceRecords || [];
+  const value = (patterns: string[]) => records.filter((item) => patterns.some((pattern) => item.platform.toLowerCase().includes(pattern.toLowerCase()))).map((item) => item.url || item.searchQuery).filter(Boolean);
+  return { systemResources: value(["官方", "github"]), externalRecommendations: { websites: value(["网站", "课程"]), upMasters: value(["bilibili", "b站"]), communities: value(["社区", "抖音"]) } };
+}
 type FeaturePage = "news" | "companion" | "plugins";
 type TodayTodo = { id: string; content: string; reminderTime: string; completed: boolean; dailyReusable?: boolean };
 const formatDurationHint = (minutes: number) => `${minutes / 60} 小时`;
@@ -295,7 +300,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           objective: analysis?.goal || goal.trim(),
           completionCriteria: analysis?.structuredGoal?.completionCriteria,
           domainMap: analysis?.domainMap,
-          resources: analysis?.resources,
+          resources: analysis?.resources || (analysis ? mapAnalysisResources(analysis) : undefined),
           resourceRecords: analysis?.resourceRecords,
           coreQuestions: analysis?.coreQuestions,
           noteRecords: analysis?.noteRecords,
@@ -360,7 +365,7 @@ export default function App({ staticWeb = runtimeCapabilities.staticWeb }: { sta
           questions: step.questions || [],
         })),
       );
-      setAnalysisPreview({ id: crypto.randomUUID(), title: title.trim(), description: description.trim() || "由 Agent 分析生成的可执行任务", goal: result.goal, objective: result.goal, completionCriteria: result.structuredGoal?.completionCriteria, completed: false, priority: result.priority || defaults.defaultPriority, type: result.type, domainMap: result.domainMap, resources: result.resources, resourceRecords: result.resourceRecords, coreQuestions: result.coreQuestions, notes: result.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(), noteRecords: result.noteRecords, mindMap: flowToMindMap(result.flowchart, title), durationHours: result.estimatedHours, steps: result.steps.map((step) => ({ id: crypto.randomUUID(), title: step.title, hours: step.hours, completed: false, questions: step.questions || [] })) });
+      setAnalysisPreview({ id: crypto.randomUUID(), title: title.trim(), description: description.trim() || "由 Agent 分析生成的可执行任务", goal: result.goal, objective: result.goal, completionCriteria: result.structuredGoal?.completionCriteria, completed: false, priority: result.priority || defaults.defaultPriority, type: result.type, domainMap: result.domainMap, resources: mapAnalysisResources(result), resourceRecords: result.resourceRecords, coreQuestions: result.coreQuestions, notes: result.noteRecords?.map((note) => `${note.title}：${note.description}`).join("\n") || notes.trim(), noteRecords: result.noteRecords, mindMap: flowToMindMap(result.flowchart, title), durationHours: result.estimatedHours, steps: result.steps.map((step) => ({ id: crypto.randomUUID(), title: step.title, hours: step.hours, completed: false, questions: step.questions || [] })) });
       setOpen(false);
     } catch (error) {
       setAnalysis(null);
