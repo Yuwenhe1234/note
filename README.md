@@ -2,6 +2,10 @@
 
 > 一个采用五层 Agent 架构的智能任务备忘录。它不只是记录任务,更通过意图识别、任务拆解、时长估算、风险预警与记忆管理,把模糊目标转化为可执行、可跟踪的任务。
 
+## 🌐 在线访问
+
+<https://yuwenhe1234.github.io/note/>
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](https://vite.dev/)
