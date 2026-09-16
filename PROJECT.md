@@ -8,6 +8,8 @@
 
 当前交互界面采用 Vite + React + TypeScript 构建，数据与设置主要保存在本机；开发预览需要通过 Vite 服务访问。
 
+在线可读版本：<https://yuwenhe1234.github.io/note/>
+
 ## 2. 核心目标
 
 - 让用户通过网页表单或自然语言快速创建和管理任务。

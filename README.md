@@ -228,6 +228,7 @@ npm run tauri dev      # 需要 Rust 工具链与 Tauri CLI
 
 ## 📚 文档
 
+- [在线可读版本](https://yuwenhe1234.github.io/note/) — GitHub Pages 网站。
 - [`PROJECT.md`](./PROJECT.md) — 项目定位、视觉规范、交互逻辑与扩展约定(部分章节待同步)。
 - [`docs/superpowers/specs/`](./docs/superpowers/specs/) — 各功能设计文档。
 - [`docs/superpowers/plans/`](./docs/superpowers/plans/) — 各功能实施计划。
